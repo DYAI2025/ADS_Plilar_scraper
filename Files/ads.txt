@@ -1,0 +1,8 @@
+# Place this file at https://YOURDOMAIN/ads.txt
+# Replace with your publisher ID
+google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0
+
+# Additional authorized sellers (optional)
+# Example for other ad networks:
+# adsystem.com, pub-YYYYYYYYYYYYYYYY, DIRECT
+# index.com, pub-ZZZZZZZZZZZZZZZZ, RESELLER
