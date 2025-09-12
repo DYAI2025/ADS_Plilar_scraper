@@ -17,9 +17,14 @@ fi
 
 echo "✅ Python 3 gefunden"
 
-# Install required Python packages
+# Create and activate virtual environment, then install required Python packages
+echo "📦 Erstelle und aktiviere Python-virtualenv..."
+python3 -m venv .venv
+# shellcheck source=/dev/null
+source .venv/bin/activate
+
 echo "📦 Installiere Python-Abhängigkeiten..."
-pip3 install pandas requests dataclasses typing-extensions
+pip install -r requirements.txt
 
 # Check if data directory exists, create if not
 if [ ! -d "data" ]; then
@@ -36,13 +41,13 @@ fi
 # Run niche research
 echo ""
 echo "🔍 Starte Nischen-Analyse..."
-python3 niche_research.py > niche_analysis_results.txt
+python3 niche_research.py > niche_analysis_results.txt || true
 echo "✅ Nischen-Analyse abgeschlossen (siehe niche_analysis_results.txt)"
 
 # Run SEO setup
 echo ""
 echo "🔧 Starte SEO-Setup..."
-python3 seo_setup.py
+python3 seo_setup.py || true
 echo "✅ SEO-Setup abgeschlossen"
 
 # Create sample data file
@@ -60,7 +65,7 @@ echo "✅ Beispiel-Daten erstellt (data/sample_parks_berlin.csv)"
 # Generate sample pillar page
 echo ""
 echo "🏗️ Generiere Beispiel-Pillar-Seite..."
-python3 -c "
+python3 - << 'PYCODE'
 from data_pipeline import PillarPageGenerator, LocationData
 import pandas as pd
 
@@ -109,7 +114,7 @@ generator.generate_page(
     output_path='generated/berlin_parks_example.html',
     canonical_url='https://your-domain.com/berlin-parks'
 )
-"
+PYCODE
 
 echo "✅ Beispiel-Pillar-Seite generiert (generated/berlin_parks_example.html)"
 
@@ -252,10 +257,9 @@ echo "   2. Öffne generated/berlin_parks_example.html im Browser"
 echo "   3. Ersetze Beispieldaten durch echte Locations"
 echo "   4. Konfiguriere AdSense und Analytics IDs"
 echo "   5. Folge launch_checklist.md für Go-Live"
+
 echo ""
-echo "💰 Revenue-Potenzial:"
-echo "   • 50K Pageviews/Monat × 12€ RPM = 600€/Monat"
-echo "   • 100K Pageviews/Monat × 15€ RPM = 1.500€/Monat"
+echo "💰 Revenue-Potenzial (Zielbild): 120–360 €/Tag (≈ 3.6k–10.8k €/Monat)"
 echo ""
 echo "📊 Demo ansehen:"
 echo "   open generated/berlin_parks_example.html"

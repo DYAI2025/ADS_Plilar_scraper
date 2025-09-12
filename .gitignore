@@ -1,0 +1,41 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.mypy_cache/
+.pytest_cache/
+.venv/
+.env
+
+# Editors/IDE
+.vscode/
+
+# Builds/outputs
+build/
+dist/
+
+# Project-specific: ignore ALL image files anywhere
+**/*.jpg
+**/*.jpeg
+**/*.png
+**/*.gif
+**/*.webp
+**/*.svg
+**/*.bmp
+**/*.tif
+**/*.tiff
+**/*.heic
+**/*.heif
+**/*.avif
+
+# Photo folders
+/Fotos Park Babelsberg/
+/Fotos Park Babelsberg/**
+
+# Any folder starting with 'Foto' or 'Fotos' (German)
+**/Foto*/
+**/Fotos*/

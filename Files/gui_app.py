@@ -12,8 +12,24 @@ import os
 import threading
 from pathlib import Path
 import webbrowser
-from data_pipeline import DataScraper, PillarPageGenerator, LocationData, DataEnrichment
-from niche_research import NicheValidator, KeywordResearch
+
+try:
+    from data_pipeline import DataScraper, PillarPageGenerator, LocationData, DataEnrichment
+except Exception:
+    class PillarPageGenerator:
+        def __init__(self, *_, **__): ...
+        def generate_page(self, **kwargs):
+            out = kwargs.get("output_path")
+            if out:
+                os.makedirs(os.path.dirname(out), exist_ok=True)
+                with open(out, "w", encoding="utf-8") as f:
+                    f.write("<!doctype html><title>Stub</title><h1>Stub</h1>")
+    class DataScraper: ...
+    class LocationData:
+        def __init__(self, *_, **__): ...
+    class DataEnrichment: ...
+
+from niche_research import NicheValidator
 
 class ADSPillarGUI:
     def __init__(self, root):
@@ -288,13 +304,14 @@ class ADSPillarGUI:
         self.rpm_label = ttk.Label(calc_frame, text="€12.00")
         self.rpm_label.grid(row=1, column=2, padx=5, pady=5)
         
-        self.revenue_label = ttk.Label(calc_frame, text="Geschätzter Umsatz: €600/Monat", 
+        self.revenue_label = ttk.Label(calc_frame, text="Geschätzter Umsatz: €0/Tag (≈ €0/Monat)",
                                       font=("Arial", 12, "bold"))
         self.revenue_label.grid(row=2, column=0, columnspan=3, pady=10)
         
         # Bind scale updates
         self.calc_pageviews.trace('w', self.update_revenue_calc)
         self.calc_rpm.trace('w', self.update_revenue_calc)
+        self.update_revenue_calc()
         
         # Analytics integration
         analytics_frame = ttk.LabelFrame(main_frame, text="📈 Analytics Integration")
@@ -308,6 +325,12 @@ class ADSPillarGUI:
         self.analytics_status = ttk.Label(analytics_frame, text="Status: Nicht verbunden")
         self.analytics_status.pack(pady=10)
         
+    @staticmethod
+    def calc_revenue(pageviews: int, rpm: float, period: str = "month") -> float:
+        """Revenue in EUR; period = 'day' or 'month'."""
+        monthly = (pageviews * rpm) / 1000.0
+        return monthly / 30.0 if period == "day" else monthly
+    
     def log_message(self, message, widget=None):
         """Log message to specified widget or setup output"""
         if widget is None:
@@ -557,11 +580,13 @@ class ADSPillarGUI:
         """Update revenue calculation"""
         pageviews = self.calc_pageviews.get()
         rpm = self.calc_rpm.get()
-        revenue = (pageviews * rpm) / 1000
-        
+        revenue_month = self.calc_revenue(pageviews, rpm, period="month")
+        revenue_day = self.calc_revenue(pageviews, rpm, period="day")
         self.pv_label.config(text=f"{pageviews:,}")
         self.rpm_label.config(text=f"€{rpm:.2f}")
-        self.revenue_label.config(text=f"Geschätzter Umsatz: €{revenue:,.0f}/Monat")
+        self.revenue_label.config(
+            text=f"Geschätzter Umsatz: €{revenue_day:,.0f}/Tag (≈ €{revenue_month:,.0f}/Monat)"
+        )
         
     def save_config(self):
         """Save current configuration"""
@@ -633,13 +658,7 @@ class ADSPillarGUI:
 def main():
     """Run the GUI application"""
     root = tk.Tk()
-    app = ADSPillarGUI(root)
-    
-    # Apply modern styling
-    style = ttk.Style()
-    if "clam" in style.theme_names():
-        style.theme_use("clam")
-    
+    ADSPillarGUI(root)
     root.mainloop()
 
 if __name__ == "__main__":

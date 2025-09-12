@@ -1,0 +1,6 @@
+Tkinter
+pandas
+json
+threading
+pathlib
+webbrowser
