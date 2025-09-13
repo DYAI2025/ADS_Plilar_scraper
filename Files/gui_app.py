@@ -12,6 +12,7 @@ import os
 import threading
 from pathlib import Path
 import webbrowser
+import shutil
 
 try:
     from data_pipeline import DataScraper, PillarPageGenerator, LocationData, DataEnrichment
@@ -47,6 +48,15 @@ class ADSPillarGUI:
             'ga_id': tk.StringVar(value="GA_MEASUREMENT_ID")
         }
         
+        # New: Ortsseite Formular-Status
+        self.location_form = {
+            'title': tk.StringVar(value="Park Babelsberg"),
+            'tagline': tk.StringVar(value="Entdecke die schönsten Spots im Park"),
+            'image_folder': tk.StringVar(value=""),
+            'output_dir': tk.StringVar(value=str(Path.cwd() / "generated_site"))
+        }
+        self._last_generated_index = None
+        
         self.setup_gui()
         
     def setup_gui(self):
@@ -80,6 +90,11 @@ class ADSPillarGUI:
         self.revenue_tab = ttk.Frame(self.notebook)
         self.notebook.add(self.revenue_tab, text="💰 Revenue Dashboard")
         self.create_revenue_tab()
+        
+        # New Tab: Ortsseite erstellen
+        self.location_tab = ttk.Frame(self.notebook)
+        self.notebook.add(self.location_tab, text="📝 Ortsseite erstellen")
+        self.create_location_page_tab()
         
         # Status bar
         self.status_bar = ttk.Label(self.root, text="Bereit", relief=tk.SUNKEN, anchor=tk.W)
@@ -654,7 +669,140 @@ class ADSPillarGUI:
     def open_adsense(self):
         """Open AdSense dashboard"""
         webbrowser.open("https://www.google.com/adsense")
+    
+    def create_location_page_tab(self):
+        """Formular zum Erstellen einer statischen Ortsseite aus einem Bildordner"""
+        frame = ttk.Frame(self.location_tab)
+        frame.pack(fill="both", expand=True, padx=20, pady=20)
 
+        form = ttk.LabelFrame(frame, text="Seitendaten")
+        form.pack(fill="x", pady=(0, 15))
+
+        ttk.Label(form, text="Titel/Ort:").grid(row=0, column=0, sticky="w", padx=6, pady=6)
+        ttk.Entry(form, textvariable=self.location_form['title'], width=40).grid(row=0, column=1, padx=6, pady=6)
+
+        ttk.Label(form, text="Unterzeile/Tagline:").grid(row=1, column=0, sticky="w", padx=6, pady=6)
+        ttk.Entry(form, textvariable=self.location_form['tagline'], width=60).grid(row=1, column=1, padx=6, pady=6)
+
+        paths = ttk.LabelFrame(frame, text="Ordner")
+        paths.pack(fill="x", pady=(0, 15))
+
+        # Image folder
+        ttk.Label(paths, text="Bilder-Ordner:").grid(row=0, column=0, sticky="w", padx=6, pady=6)
+        ttk.Entry(paths, textvariable=self.location_form['image_folder'], width=60).grid(row=0, column=1, padx=6, pady=6)
+        ttk.Button(paths, text="Auswählen…", command=self._browse_images).grid(row=0, column=2, padx=6, pady=6)
+
+        # Output dir
+        ttk.Label(paths, text="Ausgabe-Verzeichnis:").grid(row=1, column=0, sticky="w", padx=6, pady=6)
+        ttk.Entry(paths, textvariable=self.location_form['output_dir'], width=60).grid(row=1, column=1, padx=6, pady=6)
+        ttk.Button(paths, text="Auswählen…", command=self._browse_output).grid(row=1, column=2, padx=6, pady=6)
+
+        # Actions
+        actions = ttk.Frame(frame)
+        actions.pack(fill="x", pady=10)
+        ttk.Button(actions, text="Seite generieren", command=self._generate_location_page).pack(side=tk.LEFT, padx=5)
+        ttk.Button(actions, text="Vorschau öffnen", command=self._preview_location_page).pack(side=tk.LEFT, padx=5)
+
+        # Info
+        self.location_info = ttk.Label(frame, text="Wähle einen Bilder-Ordner mit JPG/PNG/WebP-Dateien.")
+        self.location_info.pack(fill="x", pady=5)
+
+    def _browse_images(self):
+        path = filedialog.askdirectory(title="Bilder-Ordner wählen")
+        if path:
+            self.location_form['image_folder'].set(path)
+
+    def _browse_output(self):
+        path = filedialog.askdirectory(title="Ausgabe-Verzeichnis wählen")
+        if path:
+            self.location_form['output_dir'].set(path)
+
+    def _generate_location_page(self):
+        title = self.location_form['title'].get().strip()
+        tagline = self.location_form['tagline'].get().strip()
+        src = Path(self.location_form['image_folder'].get().strip())
+        out_dir = Path(self.location_form['output_dir'].get().strip())
+
+        if not src.exists() or not src.is_dir():
+            messagebox.showerror("Fehler", "Bilder-Ordner existiert nicht.")
+            return
+        imgs = [p for p in src.iterdir() if p.suffix.lower() in {'.jpg', '.jpeg', '.png', '.webp'} and not p.name.startswith('._')]
+        if not imgs:
+            messagebox.showerror("Fehler", "Keine Bilder gefunden (jpg/jpeg/png/webp).")
+            return
+        # Prepare output
+        images_out = out_dir / "images"
+        images_out.mkdir(parents=True, exist_ok=True)
+        # Copy images
+        copied = []
+        for p in imgs:
+            target = images_out / p.name
+            try:
+                shutil.copy2(p, target)
+                copied.append(target.name)
+            except Exception as e:
+                print("Copy failed:", e)
+        # Build HTML
+        html = self._build_gallery_html(title, tagline, copied)
+        index_path = out_dir / "index.html"
+        out_dir.mkdir(parents=True, exist_ok=True)
+        index_path.write_text(html, encoding="utf-8")
+        self._last_generated_index = index_path
+        self.status_bar.config(text=f"Seite erstellt: {index_path}")
+        messagebox.showinfo("Fertig", f"Seite erstellt: {index_path}")
+
+    def _preview_location_page(self):
+        if self._last_generated_index and self._last_generated_index.exists():
+            webbrowser.open(self._last_generated_index.as_uri())
+        else:
+            messagebox.showwarning("Hinweis", "Bitte zuerst Seite generieren.")
+
+    def _build_gallery_html(self, title: str, tagline: str, image_names):
+        # Minimal, schönes, responsives Layout
+        items = "\n".join([
+            f"""
+            <div class=\"gallery-item\">\n  <img src=\"images/{name}\" alt=\"{title}\">\n  <div class=\"gallery-content\">\n    <h3 class=\"gallery-title\">{title}</h3>\n  </div>\n</div>""" for name in image_names
+        ])
+        return f"""
+<!DOCTYPE html>
+<html lang=\"de\">
+<head>
+<meta charset=\"utf-8\"> 
+<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"> 
+<title>{title}</title>
+<link href=\"https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;600&display=swap\" rel=\"stylesheet\">
+<style>
+:root {{ --primary:#2c3e50; --accent:#3498db; --bg:#f7f9fc; --card:#fff; }}
+* {{ box-sizing:border-box; margin:0; padding:0; }}
+body {{ font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto; background:var(--bg); color:#2d3436; }}
+.header {{ text-align:center; padding:60px 20px 20px; }}
+.header h1 {{ font-family:'Playfair Display',serif; font-size:42px; margin-bottom:10px; color:var(--primary); }}
+.header p {{ color:#636e72; }}
+.container {{ max-width:1200px; margin:0 auto; padding:20px; }}
+.gallery {{ display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:20px; }}
+.gallery-item {{ background:var(--card); border-radius:14px; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,.08); transition:.25s; }}
+.gallery-item:hover {{ transform:translateY(-4px); box-shadow:0 14px 30px rgba(0,0,0,.12); }}
+.gallery-item img {{ width:100%; height:200px; object-fit:cover; display:block; }}
+.gallery-content {{ padding:14px 16px; }}
+.gallery-title {{ font-size:16px; font-weight:600; color:var(--primary); }}
+footer {{ text-align:center; padding:40px 20px; color:#95a5a6; }}
+</style>
+</head>
+<body>
+<div class=\"header\">
+  <h1>{title}</h1>
+  <p>{tagline}</p>
+</div>
+<div class=\"container\">
+  <div class=\"gallery\">
+    {items}
+  </div>
+</div>
+<footer>Erstellt mit ADS Pillar</footer>
+</body>
+</html>
+"""
+        
 def main():
     """Run the GUI application"""
     root = tk.Tk()
