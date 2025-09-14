@@ -1,0 +1,7 @@
+pandas
+jinja2
+pyyaml
+requests
+lxml
+Pillow
+pytest
