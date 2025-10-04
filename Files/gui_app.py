@@ -16,7 +16,11 @@ import shutil
 
 try:
     from data_pipeline import DataScraper, PillarPageGenerator, LocationData, DataEnrichment
-except Exception:
+    MODULES_AVAILABLE = True
+    IMPORT_ERROR_MSG = None
+except Exception as e:
+    MODULES_AVAILABLE = False
+    IMPORT_ERROR_MSG = str(e)
     class PillarPageGenerator:
         def __init__(self, *_, **__): ...
         def generate_page(self, **kwargs):
@@ -30,7 +34,17 @@ except Exception:
         def __init__(self, *_, **__): ...
     class DataEnrichment: ...
 
-from niche_research import NicheValidator
+try:
+    from niche_research import NicheValidator
+    NICHE_AVAILABLE = True
+except Exception as e:
+    NICHE_AVAILABLE = False
+    if IMPORT_ERROR_MSG is None:
+        IMPORT_ERROR_MSG = str(e)
+    else:
+        IMPORT_ERROR_MSG += f"\n{str(e)}"
+    class NicheValidator:
+        def __init__(self, *_, **__): ...
 
 class ADSPillarGUI:
     def __init__(self, root):
@@ -58,6 +72,14 @@ class ADSPillarGUI:
         self._last_generated_index = None
         
         self.setup_gui()
+        
+        if not MODULES_AVAILABLE or not NICHE_AVAILABLE:
+            error_msg = "Some modules could not be loaded due to missing dependencies:\n\n"
+            if IMPORT_ERROR_MSG:
+                error_msg += f"{IMPORT_ERROR_MSG}\n\n"
+            error_msg += "Please run: pip install -r requirements.txt\n"
+            error_msg += "Or use the setup script: bash Files/run_setup.sh"
+            messagebox.showwarning("Missing Dependencies", error_msg)
         
     def setup_gui(self):
         """Setup the main GUI"""
