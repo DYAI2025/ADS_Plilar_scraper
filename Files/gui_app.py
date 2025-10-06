@@ -651,20 +651,145 @@ class ADSPillarGUI:
                 
     def save_csv(self):
         """Save current data as CSV"""
-        # Implementation would save current data preview to CSV
-        messagebox.showinfo("Info", "CSV-Export wird implementiert...")
+        try:
+            if not self.data_preview.get_children():
+                messagebox.showwarning("Keine Daten", "Keine Daten zum Exportieren vorhanden.")
+                return
+            
+            filename = filedialog.asksaveasfilename(
+                defaultextension=".csv",
+                filetypes=[("CSV files", "*.csv"), ("All files", "*.*")],
+                initialfile="exported_data.csv"
+            )
+            
+            if not filename:
+                return
+            
+            columns = self.data_preview["columns"]
+            rows = []
+            
+            for item in self.data_preview.get_children():
+                values = self.data_preview.item(item)["values"]
+                rows.append(values)
+            
+            df = pd.DataFrame(rows, columns=columns)
+            df.to_csv(filename, index=False)
+            
+            messagebox.showinfo("Erfolg", f"CSV erfolgreich gespeichert!\n{filename}")
+            self.update_status(f"CSV exportiert: {filename}")
+            
+        except Exception as e:
+            messagebox.showerror("Fehler", f"Fehler beim CSV-Export: {str(e)}")
         
     def keyword_research(self):
         """Run keyword research"""
-        messagebox.showinfo("Info", "Keyword Research wird implementiert...")
+        def research_thread():
+            try:
+                self.update_status("Führe Keyword Research durch...")
+                self.niche_details.delete('1.0', tk.END)
+                self.niche_details.insert(tk.END, "🔍 Keyword Research läuft...\n\n")
+                
+                from niche_research import KeywordResearch
+                researcher = KeywordResearch()
+                
+                city = self.project_config['city'].get()
+                category = self.project_config['category'].get()
+                
+                keywords = researcher.generate_keyword_variations(category, [city])
+                
+                self.niche_details.insert(tk.END, f"📊 Keyword Analyse für: {category} in {city}\n")
+                self.niche_details.insert(tk.END, "=" * 60 + "\n\n")
+                
+                low_comp = [kw for kw in keywords if kw['competition'] == 'Low']
+                med_comp = [kw for kw in keywords if kw['competition'] == 'Medium']
+                high_comp = [kw for kw in keywords if kw['competition'] == 'High']
+                
+                self.niche_details.insert(tk.END, f"✅ Niedrige Competition ({len(low_comp)} Keywords):\n")
+                for kw in low_comp[:10]:
+                    self.niche_details.insert(tk.END, 
+                        f"   • {kw['keyword']} (Vol: {kw['estimated_volume']:,})\n")
+                
+                self.niche_details.insert(tk.END, f"\n⚠️  Mittlere Competition ({len(med_comp)} Keywords):\n")
+                for kw in med_comp[:5]:
+                    self.niche_details.insert(tk.END, 
+                        f"   • {kw['keyword']} (Vol: {kw['estimated_volume']:,})\n")
+                
+                self.niche_details.insert(tk.END, f"\n🔴 Hohe Competition ({len(high_comp)} Keywords):\n")
+                for kw in high_comp[:3]:
+                    self.niche_details.insert(tk.END, 
+                        f"   • {kw['keyword']} (Vol: {kw['estimated_volume']:,})\n")
+                
+                total_volume = sum(kw['estimated_volume'] for kw in keywords)
+                self.niche_details.insert(tk.END, f"\n📈 Gesamt Suchvolumen: {total_volume:,}\n")
+                self.niche_details.insert(tk.END, f"💡 Empfehlung: Fokus auf Low-Competition Keywords\n")
+                
+                self.update_status("Keyword Research abgeschlossen")
+                
+            except Exception as e:
+                self.niche_details.insert(tk.END, f"\n❌ Fehler: {str(e)}\n")
+                self.update_status("Bereit")
+        
+        threading.Thread(target=research_thread, daemon=True).start()
         
     def upload_page(self):
         """Upload page to server"""
-        messagebox.showinfo("Info", "Server-Upload wird implementiert...")
+        try:
+            source_file = filedialog.askopenfilename(
+                title="Wähle HTML-Datei zum Upload",
+                initialdir="generated",
+                filetypes=[("HTML files", "*.html"), ("All files", "*.*")]
+            )
+            
+            if not source_file:
+                return
+            
+            upload_choice = messagebox.askquestion(
+                "Upload-Methode", 
+                "In Verzeichnis kopieren?\n\n"
+                "Ja = Lokales Verzeichnis\n"
+                "Nein = Abbrechen (FTP/SFTP kommt später)",
+                icon='question'
+            )
+            
+            if upload_choice == 'yes':
+                dest_dir = filedialog.askdirectory(title="Zielverzeichnis wählen")
+                if dest_dir:
+                    dest_file = os.path.join(dest_dir, os.path.basename(source_file))
+                    shutil.copy2(source_file, dest_file)
+                    
+                    messagebox.showinfo("Erfolg", 
+                        f"Datei kopiert nach:\n{dest_file}\n\n"
+                        "Für echten Server-Upload (FTP/SFTP)\n"
+                        "wird später eine Konfiguration hinzugefügt.")
+                    self.update_status(f"Seite kopiert: {dest_file}")
+            else:
+                messagebox.showinfo("Info", 
+                    "FTP/SFTP Upload wird in zukünftigen Versionen implementiert.\n"
+                    "Aktuell: Manuelle Upload über Hosting-Provider Dashboard.")
+                
+        except Exception as e:
+            messagebox.showerror("Fehler", f"Fehler beim Upload: {str(e)}")
         
     def connect_analytics(self):
         """Connect to Google Analytics"""
-        messagebox.showinfo("Info", "Analytics-Integration wird implementiert...")
+        try:
+            ga_id = self.project_config['ga_id'].get()
+            
+            if not ga_id or ga_id == "GA_MEASUREMENT_ID":
+                messagebox.showwarning("GA ID fehlt", 
+                    "Bitte zuerst Google Analytics ID im Projekt Setup eingeben.")
+                return
+            
+            webbrowser.open("https://analytics.google.com/")
+            
+            self.analytics_status.config(text=f"Status: Verbunden mit {ga_id}")
+            messagebox.showinfo("Analytics", 
+                f"Google Analytics Dashboard geöffnet.\n\n"
+                f"Measurement ID: {ga_id}\n\n"
+                "Vollständige OAuth-Integration kommt in zukünftigen Versionen.")
+            
+        except Exception as e:
+            messagebox.showerror("Fehler", f"Fehler bei Analytics-Verbindung: {str(e)}")
         
     def open_adsense(self):
         """Open AdSense dashboard"""
