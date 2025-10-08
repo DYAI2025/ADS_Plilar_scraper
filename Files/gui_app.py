@@ -47,6 +47,8 @@ class ADSPillarGUI:
             'adsense_id': tk.StringVar(value="ca-pub-XXXXXXXXXXXXXXXX"),
             'ga_id': tk.StringVar(value="GA_MEASUREMENT_ID")
         }
+        self.current_df = None
+        self._user_csv_path = ""
         
         # New: Ortsseite Formular-Status
         self.location_form = {
@@ -519,11 +521,19 @@ class ADSPillarGUI:
                 self.log_message("🏗️ Starte Seiten-Generierung...", self.gen_log)
                 
                 # Load data
-                if not os.path.exists("data/sample_data.csv"):
-                    self.create_sample_data()
-                
-                df = pd.read_csv("data/sample_data.csv")
-                self.log_message(f"✅ {len(df)} Locations geladen", self.gen_log)
+                if getattr(self, "current_df", None) is not None:
+                    df = self.current_df.copy()
+                    data_source = self._user_csv_path or "Benutzer-Upload"
+                elif os.path.exists("data/active.csv"):
+                    df = pd.read_csv("data/active.csv")
+                    data_source = "data/active.csv"
+                else:
+                    if not os.path.exists("data/sample_data.csv"):
+                        self.create_sample_data()
+                    df = pd.read_csv("data/sample_data.csv")
+                    data_source = "data/sample_data.csv"
+
+                self.log_message(f"✅ {len(df)} Locations geladen ({data_source})", self.gen_log)
                 
                 # Convert to LocationData objects
                 locations = []
@@ -570,6 +580,28 @@ class ADSPillarGUI:
                     output_path=output_path,
                     canonical_url=canonical_url
                 )
+
+                # Hotfix: AdSense/GA in Output injizieren
+                try:
+                    with open(output_path, 'r', encoding='utf-8') as _f:
+                        _html = _f.read()
+                    _ads = self.project_config['adsense_id'].get()
+                    if _ads:
+                        _html = _html.replace('ca-pub-XXXXXXXXXXXXXXXX', _ads)
+                    _ga = self.project_config['ga_id'].get()
+                    if self.gen_options.get('include_analytics').get() and _ga:
+                        _ga_snippet = (
+                            f"<script async src=\"https://www.googletagmanager.com/gtag/js?id={_ga}\"></script>"
+                            f"<script>window.dataLayer=window.dataLayer||[];function gtag(){{dataLayer.push(arguments);}}"
+                            f"gtag('js', new Date());gtag('config','{_ga}');</script>"
+                        )
+                        if '</head>' in _html:
+                            _html = _html.replace('</head>', _ga_snippet + '\n</head>')
+                    with open(output_path, 'w', encoding='utf-8') as _f:
+                        _f.write(_html)
+                    self.log_message('🔧 IDs injiziert (AdSense/GA).', self.gen_log)
+                except Exception as _e:
+                    self.log_message(f'⚠️ ID-Injektion fehlgeschlagen: {_e}', self.gen_log)
                 
                 self.log_message(f"✅ Seite generiert: {output_path}", self.gen_log)
                 self.update_status("Seite erfolgreich generiert")
@@ -644,6 +676,8 @@ class ADSPillarGUI:
         if filename:
             try:
                 df = pd.read_csv(filename)
+                self.current_df = df
+                self._user_csv_path = filename
                 self.update_data_preview(df)
                 messagebox.showinfo("Erfolg", f"CSV geladen: {len(df)} Zeilen")
             except Exception as e:
@@ -674,10 +708,15 @@ class ADSPillarGUI:
             
             df = pd.DataFrame(rows, columns=columns)
             df.to_csv(filename, index=False)
-            
+            try:
+                os.makedirs("data", exist_ok=True)
+                df.to_csv("data/active.csv", index=False)
+            except Exception:
+                pass
+
             messagebox.showinfo("Erfolg", f"CSV erfolgreich gespeichert!\n{filename}")
             self.update_status(f"CSV exportiert: {filename}")
-            
+
         except Exception as e:
             messagebox.showerror("Fehler", f"Fehler beim CSV-Export: {str(e)}")
         
