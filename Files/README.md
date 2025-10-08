@@ -1,214 +1,137 @@
-# ADS Pillar - README
+# 🚀 ADS Pillar – Programmatic SEO Toolkit
 
-## 🎯 Über das Projekt
+> **ADS Pillar** bündelt Recherche, Datenaufbereitung und statische Site-Generierung in einem Workflow, um kuratierte Verzeichnisse für lokale Orte zu bauen und mit Google AdSense zu monetarisieren.
 
-**ADS Pillar** ist ein System für Programmatic-SEO mit AdSense-Monetarisierung. Das Konzept: Du erstellst kuratierte Verzeichnisse für lokale Orte/Dienstleistungen, optimierst sie für Suchmaschinen und monetarisierst über Google AdSense.
+## Inhaltsverzeichnis
+- [Projektüberblick](#projektüberblick)
+- [Systemarchitektur](#systemarchitektur)
+- [Kernfunktionen](#kernfunktionen)
+  - [1. Orte analysieren & Daten beschaffen](#1-orte-analysieren--daten-beschaffen)
+  - [2. Websites erstellen & anreichern](#2-websites-erstellen--anreichern)
+  - [3. Release vorbereiten & hosten](#3-release-vorbereiten--hosten)
+- [Quick Start](#quick-start)
+- [Tests & Qualitätssicherung](#tests--qualitätssicherung)
+- [Best Practices & Monetarisierung](#best-practices--monetarisierung)
+- [Skalierungsfahrplan](#skalierungsfahrplan)
+- [Ressourcen & Support](#ressourcen--support)
+- [Mitwirken & Lizenz](#mitwirken--lizenz)
 
-### Kernprinzip
+## Projektüberblick
+- **Ziel**: Automatisiertes Erstellen von Pillar Pages für lokale Suchintentionen.
+- **Monetarisierung**: Google AdSense (Auto Ads + individuelle Slots).
+- **Output**: Host-fertige statische Websites (HTML, CSV-Daten, JSON-LD).
 
-- **Syntaktisch gleiche Suchanfragen** ("Parks in Berlin", "Parks München", etc.)
-- **Semantisch unterschiedliche Intentionen** (Schatten, Spielplätze, Hunde, Sport)
-- **Eine Pillar-Seite** bedient alle Intentionen mit Filtern
-- **AdSense-Anzeigen** monetarisieren den Traffic
+## Systemarchitektur
+```mermaid
+flowchart LR
+    A[Nischenanalyse\n`niche_research.py`] --> B[Datenbeschaffung\n`enhanced_scrapers.py`]
+    B --> C[Datenaufbereitung\n`data_pipeline.py`]
+    C --> D[Seitengenerierung\n`pillar_page_skeleton.html`\n`PillarPageGenerator`]
+    D --> E[Release Paket\n`generated/`]
+    E --> F[Hosting\nCDN / Static Hosting]
+    A -->|Insights| C
+    B -->|CSV & JSON| C
+```
 
-## 📁 Datei-Übersicht
+## Kernfunktionen
 
-### Vorlagen & Templates
+### 1. Orte analysieren & Daten beschaffen
+| Datei/Tool | Zweck | Highlights |
+|------------|-------|------------|
+| `niche_research.py` | Identifiziert lukrative Nischen & Keywords | Opportunity-Score, RPM-Schätzungen, Facettenvorschläge |
+| `enhanced_scrapers.py` | Aggregiert Daten aus Google Places & anderen Quellen | Session-Reuse, Feature-Extraktion aus Reviews, Retry-Handling |
+| `DataEnrichment` (in `data_pipeline.py`) | Wandelt Texte in strukturierte Merkmals-Flags um | Keyword-Mapping für Schatten, Wasser, Hunde, Gebühren etc. |
 
-- `pillar_page_skeleton.html` - HTML-Template für Pillar-Seiten
-- `directory_facets_template.csv` - Datenstruktur für Locations
-- `ads.txt` - AdSense-Autorisierung
+**Ablauf:**
+1. Nische identifizieren → Keyword-Cluster mit Suchintentionen ableiten.
+2. API-Keys (z. B. Google Places) hinterlegen.
+3. Scraper starten – Daten werden als CSV/JSON gespeichert.
 
-### Python-Tools
+### 2. Websites erstellen & anreichern
+| Datei/Tool | Zweck | Besonderheiten |
+|------------|-------|----------------|
+| `pillar_page_skeleton.html` | Responsives HTML-Template mit AdSense-Slots | Schema.org JSON-LD, Sticky Ads, Filter-UI |
+| `data_pipeline.py` | Transformiert Location-Daten in Seiten | `PillarPageGenerator` erzeugt HTML inkl. JSON-Daten-Embed |
+| `quick_start.py` | CLI-Assistent für Demo-Daten & Seiten | Erstellt Sample-CSV, Demo-HTML und Next-Step-Guides |
+| `gui_app.py` | Tkinter-GUI für nicht-technische User | Revenue-Rechner, Datenimport, Seitenexport |
 
-- `data_pipeline.py` - Datensammlung und Seiten-Generierung
-- `niche_research.py` - Nischen-Analyse und Keyword-Research
-- `seo_setup.py` - SEO und Analytics Setup
+**Output-Formate:**
+- `generated/` – fertige HTML-Seiten (Host-ready).
+- `data/` – CSV-Dateien für weitere Bearbeitung oder QA.
+- `project_overview.json` – Projekt-Metadaten.
 
-### Dokumentation
+### 3. Release vorbereiten & hosten
+| Datei/Tool | Zweck | Inhalt |
+|------------|-------|--------|
+| `run_setup.sh` | Automatisiertes Setup (venv, Requirements) | Erstellt Virtualenv, installiert `requirements.txt` |
+| `adsense_policy_checklist.md` | Compliance-Check vor Livegang | Policy-Hinweise & DSGVO-To-Dos |
+| `Standard_Pillarpage.md` | Content-Richtlinien | Aufbau, Module, interne Verlinkung |
+| `generated_site/` | Beispiel-Deployment-Struktur | Index-Seite, Assets, robots.txt |
 
-- `adsense_policy_checklist.md` - AdSense-Compliance Guide
-- `revenue_model.csv` - Umsatz-Szenarien nach Pageviews/RPM
+**Release Steps:**
+1. `./run_setup.sh` – Umgebung aufsetzen.
+2. `python data_pipeline.py` – Daten laden und Seite generieren.
+3. Ergebnis aus `generated/` auf Hosting-Anbieter (z. B. Netlify, Cloudflare Pages) deployen.
+4. `ads.txt`, `robots.txt`, `sitemap.xml` hochladen.
 
-## 🚀 Quick Start (5 Minuten)
+## Quick Start
+1. **Repo klonen & Setup**
+   ```bash
+   ./run_setup.sh
+   ```
+2. **Demo-Projekt anlegen**
+   ```bash
+   python quick_start.py
+   ```
+   - erzeugt `quick_config.json`
+   - legt Beispieldaten in `data/` an
+   - erstellt Demo-HTML in `generated/`
+3. **Eigene Daten nutzen**
+   ```python
+   from data_pipeline import DataScraper, PillarPageGenerator
+   ```
+   - `DataScraper.scrape_google_places("parks", "Berlin", API_KEY)`
+   - `PillarPageGenerator.generate_page(...)
+4. **GUI starten (optional)**
+   ```bash
+   python gui_app.py
+   ```
 
-### 1. Nische analysieren
+## Tests & Qualitätssicherung
+| Testtyp | Datei | Beschreibung |
+|---------|-------|--------------|
+| Smoke-Test | `test_hello_world.py` | Prüft Pytest-Setup |
+| End-to-End | `tests/test_quick_start_flow.py` | Erstellt Demo-Daten & HTML komplett durch Quick-Start-Helfer |
+| Regression | `tests/test_pillar_page_regression.py` | Validiert dynamische Inhalte und Schema.org im generierten HTML |
+| Setup/Dependencies | `tests/test_requirements_and_setup.py` | Stellt sicher, dass Setup-Skript & Requirements vollständig sind |
+| GUI/Business-Logik | `tests/test_gui_revenue.py` | Testet Revenue-Berechnungen der GUI |
 
+Ausführen:
 ```bash
-python niche_research.py
+cd Files
+pytest
 ```
 
-Gibt dir Top-Nischen mit Opportunity-Score und Keywords.
+## Best Practices & Monetarisierung
+- **AdSense**: Slots nicht zu dicht platzieren, invalid traffic vermeiden.
+- **SEO**: Einzigartige Texte für jede Stadt/Kategorie, schnelle Ladezeiten (<2 s).
+- **Tracking**: Google Analytics 4 + Search Console einbinden.
+- **Content-Aktualität**: Regelmäßige Aktualisierung der CSV-Daten (API oder Scraper).
 
-### 2. Projekt aufsetzen
+### Revenue-Szenarien
+| Pageviews/Monat | RPM 8 € | RPM 15 € | RPM 25 € |
+|-----------------|---------|----------|----------|
+| 50.000 | 400 € | 750 € | 1.250 € |
+| 100.000 | 800 € | 1.500 € | 2.500 € |
+| 250.000 | 2.000 € | 3.750 € | 6.250 € |
 
-```bash
-python seo_setup.py
-```
+## Skalierungsfahrplan
+1. **MVP (Monat 1)** – eine Stadt, eine Kategorie, 20–50 Orte.
+2. **Horizontal (Monat 2–3)** – weitere Städte, Template-Reuse, interne Verlinkung.
+3. **Vertikal (Monat 4–6)** – neue Kategorien pro Stadt, thematische Silo-Struktur.
+4. **Automation (Monat 6+)** – API-Updates, Multi-Language, White-Label.
 
-Erstellt alle SEO-Files (robots.txt, sitemap.xml, etc.).
-
-### 3. Daten sammeln
-
-```python
-# In data_pipeline.py anpassen:
-scraper = DataScraper()
-places = scraper.scrape_google_places("parks", "Berlin", "YOUR_API_KEY")
-```
-
-### 4. Seite generieren
-
-```python
-generator = PillarPageGenerator("pillar_page_skeleton.html")
-generator.generate_page(data, "Berlin", "Parks", "berlin_parks.html", "https://domain.com/berlin-parks")
-```
-
-### 5. AdSense aktivieren
-
-- AdSense-Konto erstellen
-- Publisher-ID in HTML einsetzen
-- `ads.txt` hochladen
-- Auto-Ads aktivieren
-
-## 💰 Revenue Model
-
-Basiert auf **Page-RPM × Pageviews**:
-
-| Pageviews/Monat | RPM 8€ | RPM 15€ | RPM 25€ |
-| --------------- | ------ | ------- | ------- |
-| 50.000          | 400€   | 750€    | 1.250€  |
-| 100.000         | 800€   | 1.500€  | 2.500€  |
-| 250.000         | 2.000€ | 3.750€  | 6.250€  |
-
-**Realistic Ziele:**
-
-- Monat 1: 10.000 Pageviews, 8€ RPM = 80€
-- Monat 3: 50.000 Pageviews, 12€ RPM = 600€
-- Monat 6: 150.000 Pageviews, 15€ RPM = 2.250€
-
-## 🎯 Bewährte Nischen
-
-### 1. Hundeparks
-
-- **Keywords:** "hundepark berlin", "dog park munich"
-- **Facetten:** Zaun, Wasser, Schatten, Größe, Agility
-- **RPM:** 12-20€ (Haustier-Nische zahlt gut)
-
-### 2. Arbeitsplätze & Cafés
-
-- **Keywords:** "laptop cafe", "coworking", "wifi arbeitsplatz"
-- **Facetten:** WIFI, Steckdosen, Lärmpegel, Öffnungszeiten
-- **RPM:** 15-25€ (Business-Audience)
-
-### 3. Sauna & Wellness
-
-- **Keywords:** "sauna berlin", "kaltwasser spot"
-- **Facetten:** Außenbereich, Ruheraum, Preise, Aufguss
-- **RPM:** 18-30€ (Premium-Nische)
-
-## 🔧 Technischer Stack
-
-### Frontend
-
-- Pure HTML/CSS/JavaScript (kein Framework nötig)
-- Client-side Filtering für Interaktivität
-- Mobile-first Design
-- Schema.org JSON-LD für SEO
-
-### Backend/Data
-
-- Python für Scraping und Generierung
-- CSV für Datenmanagement
-- Google Places API (optional)
-- Static Site Generation
-
-### SEO & Analytics
-
-- Google Search Console
-- Google Analytics 4
-- AdSense Auto Ads
-- XML Sitemaps
-
-## 📊 Monitoring & KPIs
-
-### Tägliche Metriken
-
-- **Pageviews** - Traffic-Entwicklung
-- **Page RPM** - Monetarisierung pro 1000 Views
-- **Ad Impressions** - Anzeigen-Performance
-- **Invalid Traffic** - Compliance-Risiko
-
-### Wöchentliche Reviews
-
-- **Keyword Rankings** - SEO-Performance
-- **Click-through Rate** - SERP-Performance
-- **Session Duration** - User Engagement
-- **Bounce Rate** - Content-Qualität
-
-### Monatliche Optimierung
-
-- **A/B Test Ad Positions** - RPM optimieren
-- **Content Updates** - Aktualität sicherstellen
-- **New Cities/Keywords** - Skalierung
-- **Competitor Analysis** - Marktposition
-
-## ⚠️ Wichtige Warnungen
-
-### AdSense Compliance
-
-- **Niemals** zum Klicken auf Anzeigen auffordern
-- **Keine** irreführenden Ad-Platzierungen
-- **DSGVO-konformes** Cookie-Management (EU)
-- **Regelmäßige** Policy-Updates beachten
-
-### SEO Risiken
-
-- **Duplicate Content** bei Programmatic-Skalierung
-- **Keyword Stuffing** vermeiden
-- **Page Speed** trotz Ads optimieren
-- **Mobile Usability** priorisieren
-
-### Traffic Quality
-
-- **Organischer Traffic** aus Google Search bevorzugen
-- **Künstlicher Traffic** führt zu AdSense-Ban
-- **High Bounce Rate** schadet Rankings
-- **Session Duration** unter 30s problematisch
-
-## 🔄 Skalierungs-Strategie
-
-### Phase 1: MVP (Monat 1)
-
-- 1 Stadt, 1 Kategorie
-- 20-50 Locations
-- 1 Pillar-Seite
-- AdSense aktiviert
-
-### Phase 2: Horizontal (Monat 2-3)
-
-- 3-5 weitere Städte
-- Gleiche Kategorie
-- Template-basierte Generierung
-- Interne Verlinkung
-
-### Phase 3: Vertikal (Monat 4-6)
-
-- Neue Kategorien in bestehenden Städten
-- Cross-Verlinkung zwischen Kategorien
-- Spezialisierte Landing Pages
-- Premium-Content für höhere RPM
-
-### Phase 4: Automation (Monat 6+)
-
-- API-basierte Datenaktualisierung
-- Automated Content Generation
-- Multi-Language Expansion
-- White-Label für andere Betreiber
-
-## 📞 Support & Community
-
-### Offizielle Ressourcen
-
+## Ressourcen & Support
 - [AdSense Help Center](https://support.google.com/adsense)
 - [Google Search Central](https://developers.google.com/search)
 - [Schema.org Documentation](https://schema.org/LocalBusiness)
@@ -290,6 +213,9 @@ This will show you exactly which components are missing or need attention.
 
 ---
 
-**💡 Pro-Tipp:** Start small, think big. Eine gut optimierte Pillar-Seite für eine Stadt kann bereits 1.000€+/Monat generieren. Skalierung folgt dann natürlich.
+## Mitwirken & Lizenz
+1. Repo forken, Feature-Branch erstellen.
+2. Änderungen + Tests (`pytest`) durchführen.
+3. Pull Request mit Beschreibung erstellen.
 
-**🎯 Ziel:** Aufbau eines passiven Einkommens durch datengetriebene, SEO-optimierte Verzeichnisse mit minimaler laufender Pflege.
+Lizenz: **MIT** – kommerzielle Nutzung auf eigene Verantwortung.
