@@ -231,6 +231,63 @@ Basiert auf **Page-RPM × Pageviews**:
 
 MIT License - Nutze es kommerziell, aber auf eigene Verantwortung.
 
+## 🔧 Troubleshooting
+
+### Import Errors / GUI Shows "Missing Dependencies" Warning
+
+If you see import errors or the GUI warns about missing modules:
+
+```bash
+pip install -r requirements.txt
+```
+
+Or use the automated setup:
+
+```bash
+bash run_setup.sh
+```
+
+### Missing beautifulsoup4
+
+This is a common issue if you're running an older version. Install it with:
+
+```bash
+pip install beautifulsoup4 lxml
+```
+
+### Python Module Not Found Errors
+
+Make sure you're running from the correct directory:
+
+```bash
+cd Files
+python3 gui_app.py
+```
+
+Or install the package properly from the root directory:
+
+```bash
+pip install -e .
+```
+
+### Verify All Dependencies
+
+Run the verification script to check all imports:
+
+```bash
+python3 verify_imports.py
+```
+
+### System Test
+
+Check the complete system status:
+
+```bash
+cd Files && python3 test_system.py
+```
+
+This will show you exactly which components are missing or need attention.
+
 ---
 
 **💡 Pro-Tipp:** Start small, think big. Eine gut optimierte Pillar-Seite für eine Stadt kann bereits 1.000€+/Monat generieren. Skalierung folgt dann natürlich.

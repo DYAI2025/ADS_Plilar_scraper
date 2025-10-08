@@ -35,7 +35,11 @@ def test_dependencies():
     """Teste wichtige Python-Dependencies"""
     required_modules = [
         'pandas', 'requests', 'tkinter', 
-        'json', 'csv', 'datetime'
+        'json', 'csv', 'datetime',
+        'bs4',
+        'PIL',
+        'jinja2',
+        'yaml'
     ]
     
     missing = []
@@ -43,6 +47,12 @@ def test_dependencies():
         try:
             if module == 'tkinter':
                 import tkinter
+            elif module == 'bs4':
+                from bs4 import BeautifulSoup
+            elif module == 'PIL':
+                from PIL import Image
+            elif module == 'yaml':
+                import yaml
             else:
                 __import__(module)
             print(f"✅ {module} verfügbar")
