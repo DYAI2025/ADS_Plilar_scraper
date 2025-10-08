@@ -134,8 +134,84 @@ pytest
 ## Ressourcen & Support
 - [AdSense Help Center](https://support.google.com/adsense)
 - [Google Search Central](https://developers.google.com/search)
-- [Schema.org LocalBusiness](https://schema.org/LocalBusiness)
-- [PageSpeed Insights](https://pagespeed.web.dev/)
+- [Schema.org Documentation](https://schema.org/LocalBusiness)
+
+### Tools & APIs
+
+- [Google Places API](https://developers.google.com/maps/documentation/places/web-service)
+- [Ahrefs API](https://ahrefs.com/api) - Keyword Research
+- [PageSpeed Insights](https://pagespeed.web.dev/) - Performance
+- [Mobile-Friendly Test](https://search.google.com/test/mobile-friendly)
+
+## 🤝 Beitragen
+
+1. Fork das Repository
+2. Feature-Branch erstellen
+3. Tests schreiben für neue Features
+4. Pull Request mit Beschreibung erstellen
+
+## 📄 Lizenz
+
+MIT License - Nutze es kommerziell, aber auf eigene Verantwortung.
+
+## 🔧 Troubleshooting
+
+### Import Errors / GUI Shows "Missing Dependencies" Warning
+
+If you see import errors or the GUI warns about missing modules:
+
+```bash
+pip install -r requirements.txt
+```
+
+Or use the automated setup:
+
+```bash
+bash run_setup.sh
+```
+
+### Missing beautifulsoup4
+
+This is a common issue if you're running an older version. Install it with:
+
+```bash
+pip install beautifulsoup4 lxml
+```
+
+### Python Module Not Found Errors
+
+Make sure you're running from the correct directory:
+
+```bash
+cd Files
+python3 gui_app.py
+```
+
+Or install the package properly from the root directory:
+
+```bash
+pip install -e .
+```
+
+### Verify All Dependencies
+
+Run the verification script to check all imports:
+
+```bash
+python3 verify_imports.py
+```
+
+### System Test
+
+Check the complete system status:
+
+```bash
+cd Files && python3 test_system.py
+```
+
+This will show you exactly which components are missing or need attention.
+
+---
 
 ## Mitwirken & Lizenz
 1. Repo forken, Feature-Branch erstellen.

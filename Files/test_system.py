@@ -36,14 +36,28 @@ def check_python_import(module_name: str, filepath: str) -> bool:
         print(f"❌ {module_name}.py - Import-Fehler: {exc}")
         return False
 
-
-def check_dependencies(modules: Iterable[str]) -> Tuple[bool, Tuple[str, ...]]:
-    """Prüfe, ob wichtige Python-Module verfügbar sind."""
+def test_dependencies():
+    """Teste wichtige Python-Dependencies"""
+    required_modules = [
+        'pandas', 'requests', 'tkinter', 
+        'json', 'csv', 'datetime',
+        'bs4',
+        'PIL',
+        'jinja2',
+        'yaml'
+    ]
+    
     missing = []
     for module in modules:
         try:
-            if module == "tkinter":  # pragma: no cover - GUI-Backend
-                import tkinter  # noqa: F401
+            if module == 'tkinter':
+                import tkinter
+            elif module == 'bs4':
+                from bs4 import BeautifulSoup
+            elif module == 'PIL':
+                from PIL import Image
+            elif module == 'yaml':
+                import yaml
             else:
                 __import__(module)
             print(f"✅ {module} verfügbar")
