@@ -102,5 +102,5 @@ def test_feature_extraction_regression() -> None:
     assert features["feature_toilets"] is True
     assert features["feature_kids"] is True
     assert features["feature_dogs"] is True
-    # "Kostenlos" sollte bedeuten, dass keine Gebühr verlangt wird.
+    # "Free" should mean that no fee is charged.
     assert features["feature_fee"] is False
