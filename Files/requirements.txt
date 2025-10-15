@@ -4,5 +4,6 @@ pyyaml
 requests
 lxml
 Pillow
+beautifulsoup4
 pytest
 beautifulsoup4
