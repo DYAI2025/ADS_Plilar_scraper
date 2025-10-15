@@ -51,7 +51,7 @@ def check_python_import(module_name, filepath):
         return False
 
 def check_dependencies():
-    """Teste wichtige Python-Dependencies"""
+    """Test important Python dependencies"""
     required_modules = [
         'pandas', 'requests', 'tkinter', 
         'json', 'csv', 'datetime'
