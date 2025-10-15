@@ -7,22 +7,41 @@ Testet alle Hauptkomponenten des Systems
 import os
 import sys
 import importlib.util
-import json
 from pathlib import Path
 
-def test_file_exists(filepath, description):
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+FILES_DIR = PROJECT_ROOT / "Files"
+
+
+def _resolve_path(relative_path: str) -> Path | None:
+    """Return the first matching path within the known project folders."""
+
+    for base in (PROJECT_ROOT, FILES_DIR):
+        candidate = base / relative_path
+        if candidate.exists():
+            return candidate
+    return None
+
+def check_file_exists(filepath, description):
     """Teste ob Datei existiert"""
-    if os.path.exists(filepath):
+
+    resolved = _resolve_path(filepath)
+    if resolved:
         print(f"✅ {description}")
         return True
-    else:
-        print(f"❌ {description} - FEHLT: {filepath}")
-        return False
 
-def test_python_import(module_name, filepath):
+    print(f"❌ {description} - FEHLT: {filepath}")
+    return False
+
+def check_python_import(module_name, filepath):
     """Teste ob Python-Modul importierbar ist"""
     try:
-        spec = importlib.util.spec_from_file_location(module_name, filepath)
+        resolved = _resolve_path(filepath)
+        if not resolved:
+            raise FileNotFoundError(filepath)
+
+        spec = importlib.util.spec_from_file_location(module_name, resolved)
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         print(f"✅ {module_name}.py - Import erfolgreich")
@@ -31,7 +50,7 @@ def test_python_import(module_name, filepath):
         print(f"❌ {module_name}.py - Import-Fehler: {str(e)[:50]}...")
         return False
 
-def test_dependencies():
+def check_dependencies():
     """Teste wichtige Python-Dependencies"""
     required_modules = [
         'pandas', 'requests', 'tkinter', 
@@ -52,7 +71,7 @@ def test_dependencies():
     
     return len(missing) == 0, missing
 
-def test_system_completeness():
+def run_system_completeness():
     """Teste Vollständigkeit des Systems"""
     
     print("🧪 ADS Pillar System - Funktionstest")
@@ -71,7 +90,7 @@ def test_system_completeness():
     
     core_ok = True
     for filename, desc in core_files:
-        if not test_file_exists(filename, desc):
+        if not check_file_exists(filename, desc):
             core_ok = False
     print()
     
@@ -86,7 +105,7 @@ def test_system_completeness():
     
     templates_ok = True
     for filename, desc in template_files:
-        if not test_file_exists(filename, desc):
+        if not check_file_exists(filename, desc):
             templates_ok = False
     print()
     
@@ -100,7 +119,7 @@ def test_system_completeness():
     
     setup_ok = True
     for filename, desc in setup_files:
-        if not test_file_exists(filename, desc):
+        if not check_file_exists(filename, desc):
             setup_ok = False
     print()
     
@@ -115,26 +134,26 @@ def test_system_completeness():
     
     imports_ok = True
     for module_name, filepath in python_modules:
-        if os.path.exists(filepath):
-            if not test_python_import(module_name, filepath):
-                imports_ok = False
-        else:
+        if not check_python_import(module_name, filepath):
             imports_ok = False
     print()
     
     # Teste Dependencies
     print("📦 Python Dependencies:")
-    deps_ok, missing_deps = test_dependencies()
+    deps_ok, missing_deps = check_dependencies()
     print()
     
     # Teste Verzeichnisstruktur
     print("📂 Verzeichnisstruktur:")
     expected_dirs = ['data', 'generated', 'templates']
     dirs_ok = True
-    
+
     for dirname in expected_dirs:
-        if not os.path.exists(dirname):
-            os.makedirs(dirname, exist_ok=True)
+        resolved = _resolve_path(dirname)
+        if not resolved:
+            # create under project root to keep predictable structure
+            created = PROJECT_ROOT / dirname
+            created.mkdir(exist_ok=True)
             print(f"✅ {dirname}/ - Erstellt")
         else:
             print(f"✅ {dirname}/ - Vorhanden")
@@ -197,10 +216,16 @@ def test_system_completeness():
     
     return score_percent >= 80
 
+
+def test_system_completeness():
+    """Pytest entry point."""
+
+    assert run_system_completeness(), "System nicht vollständig eingerichtet"
+
 def main():
     """Hauptfunktion für Systemtest"""
     try:
-        return test_system_completeness()
+        return run_system_completeness()
     except KeyboardInterrupt:
         print("\n\n👋 Test abgebrochen.")
         return False

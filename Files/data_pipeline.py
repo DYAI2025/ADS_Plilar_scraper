@@ -220,10 +220,17 @@ class PillarPageGenerator:
         
         # Insert JSON data
         json_string = json.dumps(json_data, ensure_ascii=False, indent=2)
-        page_content = page_content.replace(
-            'const DATA = [',
-            f'const DATA = {json_string.split("[", 1)[1]}'
-        )
+        placeholder = 'const DATA = ['
+        if placeholder in page_content:
+            before, after = page_content.split(placeholder, 1)
+            end_marker = '];'
+            if end_marker in after:
+                after_remainder = after.split(end_marker, 1)[1]
+                page_content = f"{before}const DATA = {json_string};{after_remainder}"
+            else:
+                page_content = page_content.replace(placeholder, f"const DATA = {json_string};")
+        else:
+            page_content = page_content.replace('const DATA =', f'const DATA = {json_string}')
         
         # Update schema.org
         schema_string = json.dumps({

@@ -1,8 +1,5 @@
-pytest.ini:
-[pytest]
-testpaths = Files
-addopts = -v
+"""Basic sanity check for the test harness."""
 
-test_hello_world.py:
 def test_hello_world():
+    """Ensure the test runner executes a trivial assertion."""
     assert 1 + 1 == 2
