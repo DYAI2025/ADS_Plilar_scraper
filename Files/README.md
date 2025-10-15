@@ -222,7 +222,7 @@ Die End-to-End-Suite generiert echte HTML-Ausgaben und verifiziert, dass Feature
 
 ### Traffic-Qualität
 - Fokus auf organischen Google Search Traffic.
-- Kein bezahlter oder künstlicher Traffic → Risko für AdSense-Ban.
+- Kein bezahlter oder künstlicher Traffic → Risiko für AdSense-Ban.
 - Beobachte Bounce Rate & Session Duration (<30s kritisch).
 
 ---
