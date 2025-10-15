@@ -218,7 +218,7 @@ def run_system_completeness():
 
 
 def test_system_completeness():
-    """Pytest entry point."""
+    """pytest entry point."""
 
     assert run_system_completeness(), "System nicht vollständig eingerichtet"
 
