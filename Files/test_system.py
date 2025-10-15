@@ -35,7 +35,7 @@ def check_file_exists(filepath, description):
     return False
 
 def check_python_import(module_name, filepath):
-    """Teste ob Python-Modul importierbar ist"""
+    """Test if Python module is importable"""
     try:
         resolved = _resolve_path(filepath)
         if not resolved:
