@@ -24,7 +24,7 @@ def _resolve_path(relative_path: str) -> Path | None:
     return None
 
 def check_file_exists(filepath, description):
-    """Teste ob Datei existiert"""
+    """Test if file exists"""
 
     resolved = _resolve_path(filepath)
     if resolved:
