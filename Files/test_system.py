@@ -220,7 +220,7 @@ def run_system_completeness():
 def test_system_completeness():
     """pytest entry point."""
 
-    assert run_system_completeness(), "System nicht vollständig eingerichtet"
+    assert run_system_completeness(), "System not fully configured"
 
 def main():
     """Hauptfunktion für Systemtest"""
