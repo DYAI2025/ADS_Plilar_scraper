@@ -66,7 +66,7 @@ def test_generate_page_end_to_end(tmp_path: Path, sample_location: LocationData)
     """Generate a pillar page and verify the artefacts."""
 
     template_path = FILES_DIR / "pillar_page_skeleton.html"
-    assert template_path.exists(), "Template fehlt für End-to-End-Test"
+    assert template_path.exists(), "Template missing for end-to-end test"
 
     output_path = tmp_path / "berlin-parks.html"
     generator = PillarPageGenerator(str(template_path))
