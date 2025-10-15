@@ -72,7 +72,7 @@ def check_dependencies():
     return len(missing) == 0, missing
 
 def run_system_completeness():
-    """Teste Vollständigkeit des Systems"""
+    """Test system completeness"""
     
     print("🧪 ADS Pillar System - Funktionstest")
     print("=" * 50)
