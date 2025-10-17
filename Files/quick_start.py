@@ -11,192 +11,197 @@ import json
 
 def simple_setup():
     """Einfacher interaktiver Setup"""
-    
+
     print("🚀 ADS Pillar - Einfacher Start")
     print("=" * 40)
     print()
-    
+
     # Sammle grundlegende Informationen
     print("📋 Lass uns dein erstes Projekt konfigurieren:")
     print()
-    
+
     city = input("🏙️  In welcher Stadt? (z.B. Berlin): ").strip() or "Berlin"
-    category = input(
-        "📍 Welche Kategorie? (z.B. Parks, Cafés, Spielplätze): "
-    ).strip() or "Parks"
-    domain = input(
-        "🌐 Deine Domain? (z.B. meine-stadt.de): "
-    ).strip() or "meine-website.de"
-    
+    category = (
+        input("📍 Welche Kategorie? (z.B. Parks, Cafés, Spielplätze): ").strip()
+        or "Parks"
+    )
+    domain = (
+        input("🌐 Deine Domain? (z.B. meine-stadt.de): ").strip() or "meine-website.de"
+    )
+
     print()
     print("🔧 Optional - für erweiterte Funktionen:")
-    google_api_key = input(
-        "🗺️  Google Places API Key (Enter = überspringen): "
-    ).strip()
+    google_api_key = input("🗺️  Google Places API Key (Enter = überspringen): ").strip()
     adsense_id = input("💰 AdSense Publisher ID (Enter = später): ").strip()
-    
+
     # Wähle automatisch passende Nische
     niche_suggestions = {
-        'parks': {
-            'facets': [
-                'shade', 'benches', 'water', 'parking',
-                'toilets', 'wheelchair', 'kids', 'dogs'
+        "parks": {
+            "facets": [
+                "shade",
+                "benches",
+                "water",
+                "parking",
+                "toilets",
+                "wheelchair",
+                "kids",
+                "dogs",
             ],
-            'keywords': ['park', 'grünanlage', 'erholung', 'outdoor'],
-            'rpm_estimate': '8-15'
+            "keywords": ["park", "grünanlage", "erholung", "outdoor"],
+            "rpm_estimate": "8-15",
         },
-        'cafés': {
-            'facets': [
-                'wifi', 'power_outlets', 'quiet', 'workspace', 'parking'
-            ],
-            'keywords': ['café', 'kaffee', 'arbeitsplatz', 'wifi'],
-            'rpm_estimate': '12-20'
+        "cafés": {
+            "facets": ["wifi", "power_outlets", "quiet", "workspace", "parking"],
+            "keywords": ["café", "kaffee", "arbeitsplatz", "wifi"],
+            "rpm_estimate": "12-20",
         },
-        'spielplätze': {
-            'facets': ['age_group', 'shade', 'parking', 'toilets', 'fence'],
-            'keywords': ['spielplatz', 'kinder', 'familie', 'outdoor'],
-            'rpm_estimate': '10-18'
-        }
+        "spielplätze": {
+            "facets": ["age_group", "shade", "parking", "toilets", "fence"],
+            "keywords": ["spielplatz", "kinder", "familie", "outdoor"],
+            "rpm_estimate": "10-18",
+        },
     }
-    
+
     # Erkenne Nische automatisch
     category_lower = category.lower()
     selected_niche = None
     for niche_key in niche_suggestions:
-        if (niche_key in category_lower or
-                any(keyword in category_lower
-                    for keyword in niche_suggestions[niche_key]['keywords'])):
+        if niche_key in category_lower or any(
+            keyword in category_lower
+            for keyword in niche_suggestions[niche_key]["keywords"]
+        ):
             selected_niche = niche_suggestions[niche_key]
             break
-    
+
     if not selected_niche:
-        selected_niche = niche_suggestions['parks']  # Default
-    
+        selected_niche = niche_suggestions["parks"]  # Default
+
     print()
     print("✨ Erkannte Nische-Eigenschaften:")
     print(f"   📊 Geschätzter RPM: €{selected_niche['rpm_estimate']}")
     print(f"   🏷️  Facetten: {', '.join(selected_niche['facets'][:5])}")
     print()
-    
+
     # Erstelle Projekt-Konfiguration
     config = {
-        'project_name': f"{category} in {city}",
-        'city': city,
-        'category': category,
-        'domain': domain,
-        'google_api_key': google_api_key,
-        'adsense_id': adsense_id or "ca-pub-XXXXXXXXXXXXXXXX",
-        'niche_config': selected_niche
+        "project_name": f"{category} in {city}",
+        "city": city,
+        "category": category,
+        "domain": domain,
+        "google_api_key": google_api_key,
+        "adsense_id": adsense_id or "ca-pub-XXXXXXXXXXXXXXXX",
+        "niche_config": selected_niche,
     }
-    
+
     # Speichere Konfiguration
-    with open('quick_config.json', 'w', encoding='utf-8') as f:
+    with open("quick_config.json", "w", encoding="utf-8") as f:
         json.dump(config, f, indent=2, ensure_ascii=False)
-    
+
     print("💾 Konfiguration gespeichert!")
     print()
-    
+
     return config
 
 
 def create_sample_data(config):
     """Erstelle Beispieldaten für die gewählte Nische"""
-    
-    city = config['city']
-    category = config['category']
-    
+
+    city = config["city"]
+    category = config["category"]
+
     # Beispieldaten je nach Kategorie
-    if 'park' in category.lower():
+    if "park" in category.lower():
         sample_places = [
             {
-                'name': f'Stadtpark {city}',
-                'address': f'Parkstraße 1, {city}',
-                'city': city,
-                'latitude': 52.5200,
-                'longitude': 13.4050,
-                'rating': 4.2,
-                'review_count': 156,
-                'feature_shade': True,
-                'feature_benches': True,
-                'feature_water': True,
-                'feature_parking': False,
-                'feature_toilets': True,
-                'feature_wheelchair': True,
-                'feature_kids': True,
-                'feature_dogs': True,
-                'feature_fee': False
+                "name": f"Stadtpark {city}",
+                "address": f"Parkstraße 1, {city}",
+                "city": city,
+                "latitude": 52.5200,
+                "longitude": 13.4050,
+                "rating": 4.2,
+                "review_count": 156,
+                "feature_shade": True,
+                "feature_benches": True,
+                "feature_water": True,
+                "feature_parking": False,
+                "feature_toilets": True,
+                "feature_wheelchair": True,
+                "feature_kids": True,
+                "feature_dogs": True,
+                "feature_fee": False,
             },
             {
-                'name': f'Volkspark {city}',
-                'address': f'Volksstraße 15, {city}',
-                'city': city,
-                'latitude': 52.5300,
-                'longitude': 13.4150,
-                'rating': 4.0,
-                'review_count': 89,
-                'feature_shade': True,
-                'feature_benches': True,
-                'feature_water': False,
-                'feature_parking': True,
-                'feature_toilets': False,
-                'feature_wheelchair': False,
-                'feature_kids': True,
-                'feature_dogs': True,
-                'feature_fee': False
-            }
+                "name": f"Volkspark {city}",
+                "address": f"Volksstraße 15, {city}",
+                "city": city,
+                "latitude": 52.5300,
+                "longitude": 13.4150,
+                "rating": 4.0,
+                "review_count": 89,
+                "feature_shade": True,
+                "feature_benches": True,
+                "feature_water": False,
+                "feature_parking": True,
+                "feature_toilets": False,
+                "feature_wheelchair": False,
+                "feature_kids": True,
+                "feature_dogs": True,
+                "feature_fee": False,
+            },
         ]
-    elif 'café' in category.lower():
+    elif "café" in category.lower():
         sample_places = [
             {
-                'name': f'Café Central {city}',
-                'address': f'Hauptstraße 10, {city}',
-                'city': city,
-                'latitude': 52.5200,
-                'longitude': 13.4050,
-                'rating': 4.5,
-                'review_count': 234,
-                'feature_wifi': True,
-                'feature_power_outlets': True,
-                'feature_quiet': False,
-                'feature_workspace': True,
-                'feature_parking': True,
-                'feature_wheelchair': True,
-                'feature_fee': True
+                "name": f"Café Central {city}",
+                "address": f"Hauptstraße 10, {city}",
+                "city": city,
+                "latitude": 52.5200,
+                "longitude": 13.4050,
+                "rating": 4.5,
+                "review_count": 234,
+                "feature_wifi": True,
+                "feature_power_outlets": True,
+                "feature_quiet": False,
+                "feature_workspace": True,
+                "feature_parking": True,
+                "feature_wheelchair": True,
+                "feature_fee": True,
             }
         ]
     else:
         # Generic sample
         sample_places = [
             {
-                'name': f'{category} Beispiel',
-                'address': f'Musterstraße 1, {city}',
-                'city': city,
-                'latitude': 52.5200,
-                'longitude': 13.4050,
-                'rating': 4.0,
-                'review_count': 100
+                "name": f"{category} Beispiel",
+                "address": f"Musterstraße 1, {city}",
+                "city": city,
+                "latitude": 52.5200,
+                "longitude": 13.4050,
+                "rating": 4.0,
+                "review_count": 100,
             }
         ]
-    
+
     # Speichere als CSV
     import pandas as pd
+
     df = pd.DataFrame(sample_places)
-    
-    os.makedirs('data', exist_ok=True)
+
+    os.makedirs("data", exist_ok=True)
     filename = f"data/{city.lower()}_{category.lower()}_sample.csv"
     df.to_csv(filename, index=False)
-    
+
     print(f"✅ Beispieldaten erstellt: {filename}")
     return filename
 
 
 def generate_quick_page(config, _unused_data_file=None):
     """Generiere eine einfache Demo-Seite"""
-    
-    city = config['city']
-    category = config['category']
-    domain = config['domain']
-    
+
+    city = config["city"]
+    category = config["category"]
+    domain = config["domain"]
+
     # Einfaches HTML Template
     html_content = f"""<!DOCTYPE html>
 <html lang="de">
@@ -278,20 +283,21 @@ def generate_quick_page(config, _unused_data_file=None):
     </div>
 </body>
 </html>"""
-    
+
     # Speichere HTML
-    os.makedirs('generated', exist_ok=True)
+    os.makedirs("generated", exist_ok=True)
     output_file = f"generated/{city.lower()}_{category.lower()}_demo.html"
-    
-    with open(output_file, 'w', encoding='utf-8') as f:
+
+    with open(output_file, "w", encoding="utf-8") as f:
         f.write(html_content)
-    
+
     print(f"✅ Demo-Seite erstellt: {output_file}")
     return output_file
 
+
 def show_next_steps(config, html_file):
     """Zeige die nächsten Schritte"""
-    
+
     print()
     print("🎉 Dein ADS Pillar Demo ist bereit!")
     print("=" * 40)
@@ -299,17 +305,19 @@ def show_next_steps(config, html_file):
     print("📁 Generierte Dateien:")
     print(f"   • {html_file} - Demo-Website")
     print("   • quick_config.json - Projekt-Konfiguration")
-    print(f"   • data/{config['city'].lower()}_{config['category'].lower()}_sample.csv - Beispieldaten")
+    print(
+        f"   • data/{config['city'].lower()}_{config['category'].lower()}_sample.csv - Beispieldaten"
+    )
     print()
-    
+
     print("👀 Demo ansehen:")
     print(f"   open {html_file}")
     print()
-    
+
     print("🚀 Nächste Schritte für ECHTES Projekt:")
     print()
     print("1️⃣  ECHTE DATEN sammeln:")
-    if config.get('google_api_key'):
+    if config.get("google_api_key"):
         print("   ✅ Google API Key vorhanden - führe aus:")
         print("   python3 enhanced_scrapers.py")
     else:
@@ -317,67 +325,73 @@ def show_next_steps(config, html_file):
         print("   https://console.cloud.google.com/")
         print("   Oder CSV mit echten Orten erstellen")
     print()
-    
+
     print("2️⃣  ADSENSE einrichten:")
-    if config.get('adsense_id') and 'XXXX' not in config['adsense_id']:
+    if config.get("adsense_id") and "XXXX" not in config["adsense_id"]:
         print("   ✅ AdSense ID vorhanden")
     else:
         print("   💰 AdSense Konto erstellen:")
         print("   https://www.google.com/adsense/")
     print()
-    
+
     print("3️⃣  WEBSITE live schalten:")
     print("   🌐 Domain/Hosting besorgen")
-    print("   📤 HTML-Dateien hochladen") 
+    print("   📤 HTML-Dateien hochladen")
     print("   🔍 Google Search Console konfigurieren")
     print()
-    
+
     print("4️⃣  ERWEITERTE FEATURES nutzen:")
     print("   🖥️  GUI starten: python3 gui_app.py")
     print("   🔧 Vollsetup: ./run_setup.sh")
     print("   📊 Nischen-Analyse: python3 niche_research.py")
     print()
-    
+
     print("💰 REVENUE-POTENZIAL für dein Projekt:")
-    niche_config = config.get('niche_config', {})
-    rpm_estimate = niche_config.get('rpm_estimate', '10-15')
+    niche_config = config.get("niche_config", {})
+    rpm_estimate = niche_config.get("rpm_estimate", "10-15")
     print(f"   📊 Geschätzter RPM: €{rpm_estimate}")
-    print(f"   📈 Bei 25K Pageviews/Monat: €{int(rpm_estimate.split('-')[0]) * 25}€ - €{int(rpm_estimate.split('-')[1]) * 25}€")
-    print(f"   📈 Bei 50K Pageviews/Monat: €{int(rpm_estimate.split('-')[0]) * 50}€ - €{int(rpm_estimate.split('-')[1]) * 50}€")
+    print(
+        f"   📈 Bei 25K Pageviews/Monat: €{int(rpm_estimate.split('-')[0]) * 25}€ - €{int(rpm_estimate.split('-')[1]) * 25}€"
+    )
+    print(
+        f"   📈 Bei 50K Pageviews/Monat: €{int(rpm_estimate.split('-')[0]) * 50}€ - €{int(rpm_estimate.split('-')[1]) * 50}€"
+    )
     print()
-    
+
     print("❓ HILFE & SUPPORT:")
     print("   📖 README.md lesen")
     print("   ✅ adsense_policy_checklist.md beachten")
     print("   🚀 launch_checklist.md für Go-Live")
 
+
 def main():
     """Hauptfunktion für einfachen Start"""
-    
+
     try:
         # Setup
         config = simple_setup()
-        
+
         # Erstelle Beispieldaten
         data_file = create_sample_data(config)
-        
+
         # Generiere Demo-Seite
         html_file = generate_quick_page(config, data_file)
-        
+
         # Zeige nächste Schritte
         show_next_steps(config, html_file)
-        
+
         # Öffne Demo automatisch (wenn möglich)
         try:
             import webbrowser
+
             print("🌐 Öffne Demo im Browser...")
             webbrowser.open(f"file://{os.path.abspath(html_file)}")
         except Exception:
             pass
-        
+
         print()
         print("✨ Happy Building! 🚀")
-        
+
     except KeyboardInterrupt:
         print("\n\n👋 Setup abgebrochen. Bis später!")
         sys.exit(0)
@@ -387,6 +401,7 @@ def main():
         print("   python3 gui_app.py    # GUI-Version")
         print("   ./run_setup.sh        # Vollständiges Setup")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()
