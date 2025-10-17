@@ -98,6 +98,12 @@ def test_system_health():
         ("START_HERE.md", "Schnellstart-Guide"),
     ]
     for filename, desc in template_files:
+        if not check_file_exists(filename, desc):
+            templates_ok = False
+    print()
+    
+    # Teste Setup-Dateien
+    print("🔧 Setup & Konfiguration:")
         assert check_file_exists(filename, desc), f"{filename} fehlt"
 
     setup_files = [
@@ -106,8 +112,12 @@ def test_system_health():
         ("revenue_model.csv", "Revenue-Berechnungsmodell"),
     ]
     for filename, desc in setup_files:
-        assert check_file_exists(filename, desc), f"{filename} fehlt"
-
+        if not check_file_exists(filename, desc):
+            setup_ok = False
+    print()
+    
+    # Teste Python-Module Imports
+    print("🐍 Python Module Tests:")
     python_modules = [
         ("gui_app", "gui_app.py"),
         ("data_pipeline", "data_pipeline.py"),
@@ -146,16 +156,21 @@ def test_system_health():
         ), f"Verzeichnis {dirname} konnte nicht angelegt werden"
         print(f"✅ {dirname}/ - vorhanden")
 
+def test_system_completeness():
+    """pytest entry point."""
 
-def main() -> int:
-    """Erlaube das Skript manuell auszuführen."""
+    assert run_system_completeness(), "System not fully configured"
+
+def main():
+    """Hauptfunktion für Systemtest"""
     try:
-        test_system_health()
-        return 0
-    except AssertionError as exc:
-        print(f"\n❌ Test-Fehler: {exc}")
-        return 1
-
+        return run_system_completeness()
+    except KeyboardInterrupt:
+        print("\n\n👋 Test abgebrochen.")
+        return False
+    except Exception as e:
+        print(f"\n❌ Test-Fehler: {e}")
+        return False
 
 if __name__ == "__main__":  # pragma: no cover - CLI entry
     raise SystemExit(main())
