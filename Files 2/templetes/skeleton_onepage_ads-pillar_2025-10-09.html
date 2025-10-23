@@ -1,0 +1,320 @@
+<!-- Files/templates/skeleton_onepage_ads-pillar_2025-10-09.html -->
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>
+      {{PAGE_TITLE | default: "Park Babelsberg & Schlossgarten – Guide"}}
+    </title>
+    <meta name="description" content="{{PAGE_DESCRIPTION | default: "Alles zu
+    Spots, Gastronomie, Regeln & Anreise rund um Park Babelsberg."}}" /> <link
+    rel="canonical" href="{{CANONICAL_URL | default:
+    "https://babelsberger.info"}}" />
+    <meta name="theme-color" content="#ffffff" />
+
+    <!-- LCP Hint: Hero wird per Partial injiziert; preload optional -->
+    <!-- <link rel="preload" as="image" href="{{HERO_SRC | default: "images/park-babelsberg/hero.webp"}}" imagesrcset="{{HERO_SRCSET}}" > -->
+
+    <!-- AdSense Auto-Ads: Publisher-ID wird V4-seitig injiziert (ca-pub-XXXXXXXXXXXXXXXX) -->
+    <script
+      async
+      src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX"
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- GA4 wird bei include_analytics=true vom Generator nachgerüstet -->
+
+    <style>
+      /* Minimal, mobile-first */
+      :root {
+        --fg: #1b1b1b;
+        --muted: #646464;
+        --bg: #fff;
+        --card: #f7f7f7;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu,
+          "Helvetica Neue", Arial;
+      }
+      header {
+        position: sticky;
+        top: 0;
+        background: #fff8;
+        border-bottom: 1px solid #eee;
+        backdrop-filter: blur(6px);
+        z-index: 10;
+      }
+      .wrap {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.6rem;
+        line-height: 1.2;
+        margin: 10px 0 8px;
+      }
+      .sub {
+        color: var(--muted);
+        font-size: 0.95rem;
+        margin: 0 0 12px;
+      }
+      .filters {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin: 10px 0;
+      }
+      .chip {
+        border: 1px solid #ddd;
+        border-radius: 999px;
+        padding: 6px 10px;
+        background: #fff;
+        cursor: pointer;
+        font-size: 0.9rem;
+      }
+      .chip.active {
+        background: #111;
+        color: #fff;
+        border-color: #111;
+      }
+      .search {
+        display: flex;
+        gap: 0.5rem;
+        margin: 8px 0;
+      }
+      .search input {
+        flex: 1;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 10px 12px;
+        font-size: 1rem;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+      @media (min-width: 720px) {
+        .grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+      @media (min-width: 1024px) {
+        .grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+      .card {
+        background: var(--card);
+        border-radius: 14px;
+        overflow: hidden;
+        border: 1px solid #eee;
+      }
+      .card img {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        display: block;
+      }
+      .card .cbody {
+        padding: 10px 12px;
+      }
+      .meta {
+        font-size: 0.85rem;
+        color: var(--muted);
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      section {
+        margin: 18px 0;
+      }
+      .section-title {
+        font-size: 1.25rem;
+        margin: 4px 0 10px;
+      }
+      .faq dt {
+        font-weight: 600;
+        margin-top: 8px;
+      }
+      .faq dd {
+        margin: 0 0 8px 0;
+        color: var(--muted);
+      }
+      footer {
+        border-top: 1px solid #eee;
+        margin-top: 20px;
+      }
+      .hero-image img {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+      .gallery {
+        margin-top: 8px;
+      }
+      .gallery .gallery-item {
+        background: #fff;
+        border: 1px solid #eee;
+        border-radius: 12px;
+        overflow: hidden;
+      }
+      .gallery img {
+        width: 100%;
+        height: 160px;
+        object-fit: cover;
+        display: block;
+      }
+      .gallery figcaption {
+        font-size: 0.85rem;
+        color: var(--muted);
+        padding: 6px 8px;
+      }
+      .notice {
+        padding: 10px;
+        border: 1px dashed #ddd;
+        border-radius: 10px;
+        background: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="wrap">
+        <div class="sub">babelsberger.info</div>
+        <h1>{{H1 | default:"Park Babelsberg & Schlossgarten"}}</h1>
+        <!-- V4-Injector fügt das Hero-Partial direkt nach </h1> ein -->
+      </div>
+    </header>
+
+    <main class="wrap">
+      <p class="sub">
+        Live-Guide mit echten Daten (CSV/Manifest). Filtere Orte, prüfe Regeln &
+        sieh die besten Spots.
+      </p>
+
+      <!-- Filter & Suche -->
+      <div class="search">
+        <input
+          id="q"
+          type="search"
+          placeholder="Suche z. B. Café, Biergarten, Spielplatz…"
+          aria-label="Suche"
+        />
+      </div>
+      <div class="filters" id="filters">
+        <button class="chip active" data-filter="all">Alle</button>
+        <button class="chip" data-filter="restaurant">Restaurant</button>
+        <button class="chip" data-filter="cafe">Café</button>
+        <button class="chip" data-filter="biergarten">Biergarten</button>
+        <button class="chip" data-filter="spot">Spot</button>
+        <button class="chip" data-filter="rules">Regeln</button>
+      </div>
+
+      <!-- Kartenliste -->
+      <section id="liste">
+        <h2 class="section-title">Orte & Einkehr</h2>
+        <div class="grid" id="poi-list">
+          <!-- Generator rendert Cards hier hinein -->
+          <!-- Beispiel (wird vom Generator ersetzt)
+        <article class="card" data-cat="cafe" data-name="Café Babelsberg">
+          <img src="images/park-babelsberg/cafe-babelsberg.webp" alt="Café Babelsberg">
+          <div class="cbody">
+            <h3>Café Babelsberg</h3>
+            <div class="meta">
+              <span>Heute: 09–18 Uhr</span><span>•</span><span>am Parkeingang</span>
+            </div>
+            <a href="https://example.org/cafe" target="_blank" rel="nofollow">Website</a>
+          </div>
+        </article>
+        --></div>
+      </section>
+
+      <!-- Regeln/FAQ -->
+      <section id="regeln">
+        <h2 class="section-title">Regeln im Park</h2>
+        <div class="faq">
+          <!-- Generator füllt Inhalte (Hunde anleinen, Drohnenverbot, Feuer etc.) -->
+          <!-- Optional: kleines Hinweisfeld -->
+          <p class="notice">
+            Bitte respektiere Park-Regeln und Naturschutz. Angaben ohne Gewähr.
+            Letztes Update: {{LAST_UPDATED | default:"2025-10-09"}}.
+          </p>
+        </div>
+      </section>
+
+      <!-- Galerie (wird vom Injector vor </main> eingefügt) -->
+      <!-- Der Injector fügt gallery.html vor </main> ein -->
+
+      <!-- Anreise -->
+      <section id="anreise">
+        <h2 class="section-title">Anreise</h2>
+        <div>
+          <!-- Generator füllt Details (ÖPNV, Parkplätze, Radwege, Baustellen) -->
+        </div>
+      </section>
+    </main>
+
+    <footer class="wrap">
+      <p class="sub">
+        © {{YEAR | default:"2025"}} babelsberger.info • People-first,
+        werbefinanziert • <a href="/impressum.html">Impressum</a> •
+        <a href="/datenschutz.html">Datenschutz</a>
+      </p>
+    </footer>
+
+    <!-- JSON-LD Hooks: Generator ersetzt/füllt -->
+    <script type="application/ld+json" id="jsonld-itemlist">
+      {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        "name": "Orte im Park Babelsberg",
+        "numberOfItems": {{ITEM_COUNT | default: 0}},
+        "itemListElement": [
+          /* Generator füllt Listeneinträge vom Typ ListItem → Place/LocalBusiness */
+        ]
+      }
+    </script>
+
+    <script defer>
+      // ultra-kleines Filter-Script (client-seitig)
+      (function () {
+        const q = document.getElementById("q");
+        const chips = Array.from(document.querySelectorAll(".chip"));
+        const cards = () =>
+          Array.from(document.querySelectorAll("#poi-list .card"));
+        let active = "all";
+        chips.forEach((c) =>
+          c.addEventListener("click", () => {
+            chips.forEach((x) => x.classList.remove("active"));
+            c.classList.add("active");
+            active = c.dataset.filter;
+            apply();
+          })
+        );
+        q.addEventListener("input", apply);
+        function apply() {
+          const term = (q.value || "").toLowerCase();
+          cards().forEach((card) => {
+            const name = (card.dataset.name || "").toLowerCase();
+            const cat = (card.dataset.cat || "").toLowerCase();
+            const matchCat = active === "all" || cat.indexOf(active) > -1;
+            const matchText = !term || name.indexOf(term) > -1;
+            card.style.display = matchCat && matchText ? "" : "none";
+          });
+        }
+      })();
+    </script>
+    <noscript
+      >Diese Seite nutzt minimale Skripte für Filter. Ohne JavaScript wird alles
+      angezeigt.</noscript
+    >
+  </body>
+</html>

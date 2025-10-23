@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Park Babelsberg - Potsdam's Premier Park Destination</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      :root {
+        --primary-color: #2c3e50;
+        --secondary-color: #3498db;
+        --accent-color: #e74c3c;
+        --light-bg: #f8f9fa;
+        --dark-text: #2c3e50;
+        --light-text: #6c757d;
+        --white: #ffffff;
+        --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        --border-radius: 12px;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        line-height: 1.6;
+        color: var(--dark-text);
+        background-color: var(--light-bg);
+        overflow-x: hidden;
+      }
+      /* Navigation */
+
+      nav {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.95);
+        -webkit-backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        transition: all 0.3s ease;
+      }
+
+      nav.scrolled {
+        background: rgba(255, 255, 255, 0.98);
+        box-shadow: var(--shadow);
+      }
+
+      .nav-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 70px;
+      }
+
+      .logo {
+        font-family: "Playfair Display", serif;
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        text-decoration: none;
+      }
+
+      .nav-links {
+        display: flex;
+        list-style: none;
+        gap: 30px;
+      }
+
+      .nav-links a {
+        text-decoration: none;
+        color: var(--dark-text);
+        font-weight: 500;
+        transition: color 0.3s ease;
+        position: relative;
+      }
+
+      .nav-links a:hover {
+        color: var(--secondary-color);
+      }
+
+      .nav-links a::after {
+        content: "";
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: -5px;
+        left: 0;
+        background: var(--secondary-color);
+        transition: width 0.3s ease;
+      }
+
+      .nav-links a:hover::after {
+        width: 100%;
+      }
+      /* Hero Section */
+
+      .hero {
+        height: 100vh;
+        background: linear-gradient(
+            135deg,
+            rgba(52, 152, 219, 0.9) 0%,
+            rgba(44, 62, 80, 0.9) 100%
+          ),
+          url("images/Brücke.jpeg");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: var(--white);
+        position: relative;
+      }
+
+      .hero::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.3);
+      }
+
+      .hero-content {
+        position: relative;
+        z-index: 2;
+        max-width: 800px;
+        padding: 20px;
+      }
+
+      .hero h1 {
+        font-family: "Playfair Display", serif;
+        font-size: 4rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        animation: fadeInUp 1s ease-out;
+      }
+
+      .hero p {
+        font-size: 1.3rem;
+        margin-bottom: 30px;
+        opacity: 0.9;
+        animation: fadeInUp 1.2s ease-out;
+      }
+
+      .cta-button {
+        display: inline-block;
+        padding: 15px 30px;
+        background: var(--accent-color);
+        color: var(--white);
+        text-decoration: none;
+        border-radius: var(--border-radius);
+        font-weight: 600;
+        transition: all 0.3s ease;
+        animation: fadeInUp 1.4s ease-out;
+      }
+
+      .cta-button:hover {
+        background: #c0392b;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(231, 76, 60, 0.3);
+      }
+      /* Main Content */
+
+      .main-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 80px 20px;
+      }
+
+      .section {
+        margin-bottom: 80px;
+      }
+
+      .section-title {
+        font-family: "Playfair Display", serif;
+        font-size: 2.5rem;
+        text-align: center;
+        margin-bottom: 20px;
+        color: var(--primary-color);
+      }
+
+      .section-subtitle {
+        text-align: center;
+        font-size: 1.1rem;
+        color: var(--light-text);
+        margin-bottom: 50px;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      /* Gallery */
+
+      .gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 30px;
+      }
+
+      .gallery-item {
+        background: var(--white);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        transition: all 0.3s ease;
+        position: relative;
+      }
+
+      .gallery-item:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+      }
+
+      .gallery-item img {
+        width: 100%;
+        height: 250px;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+      }
+
+      .gallery-item:hover img {
+        transform: scale(1.05);
+      }
+
+      .gallery-content {
+        padding: 25px;
+      }
+
+      .gallery-title {
+        font-family: "Playfair Display", serif;
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: var(--primary-color);
+      }
+
+      .gallery-description {
+        color: var(--light-text);
+        font-size: 0.95rem;
+        line-height: 1.6;
+      }
+      /* Features Section */
+
+      .features {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 30px;
+        margin-top: 50px;
+      }
+
+      .feature-card {
+        background: var(--white);
+        padding: 30px;
+        border-radius: var(--border-radius);
+        text-align: center;
+        box-shadow: var(--shadow);
+        transition: transform 0.3s ease;
+      }
+
+      .feature-card:hover {
+        transform: translateY(-5px);
+      }
+
+      .feature-icon {
+        font-size: 3rem;
+        margin-bottom: 20px;
+        display: block;
+      }
+
+      .feature-title {
+        font-family: "Playfair Display", serif;
+        font-size: 1.2rem;
+        margin-bottom: 15px;
+        color: var(--primary-color);
+      }
+
+      .feature-description {
+        color: var(--light-text);
+        font-size: 0.95rem;
+      }
+      /* Footer */
+
+      footer {
+        background: var(--primary-color);
+        color: var(--white);
+        padding: 50px 0 30px;
+        margin-top: 80px;
+      }
+
+      .footer-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 30px;
+      }
+
+      .footer-section h3 {
+        font-family: "Playfair Display", serif;
+        margin-bottom: 20px;
+        color: var(--white);
+      }
+
+      .footer-section p,
+      .footer-section a {
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: none;
+        line-height: 1.6;
+      }
+
+      .footer-section a:hover {
+        color: var(--secondary-color);
+      }
+
+      .footer-bottom {
+        text-align: center;
+        margin-top: 40px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.6);
+      }
+      /* Animations */
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      /* Responsive Design */
+
+      @media (max-width: 768px) {
+        .nav-links {
+          display: none;
+        }
+        .hero h1 {
+          font-size: 2.5rem;
+        }
+        .hero p {
+          font-size: 1.1rem;
+        }
+        .section-title {
+          font-size: 2rem;
+        }
+        .gallery {
+          grid-template-columns: 1fr;
+        }
+        .gallery-item img {
+          height: 200px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .hero h1 {
+          font-size: 2rem;
+        }
+        .nav-container {
+          padding: 0 15px;
+        }
+        .main-content {
+          padding: 40px 15px;
+        }
+      }
+
+      .about-content {
+        max-width: 800px;
+        margin: 0 auto;
+        text-align: center;
+      }
+
+      .about-text {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: var(--light-text);
+        margin-bottom: 30px;
+      }
+
+      .about-text:last-child {
+        margin-bottom: 0;
+      }
+    </style>
+  </head>
+
+  <body>
+    <nav id="navbar">
+      <div class="nav-container">
+        <a href="#" class="logo">Park Babelsberg</a>
+        <ul class="nav-links">
+          <li><a href="#home">Home</a></li>
+          <li><a href="#gallery">Gallery</a></li>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#about">About</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <section class="hero" id="home">
+      <div class="hero-content">
+        <h1>Discover Park Babelsberg</h1>
+        <p>
+          Experience the breathtaking beauty of Potsdam's most enchanting park,
+          where history meets nature in perfect harmony.
+        </p>
+        <a href="#gallery" class="cta-button">Explore Gallery</a>
+      </div>
+    </section>
+
+    <main class="main-content">
+      <section class="section" id="gallery">
+        <h2 class="section-title">Photo Gallery</h2>
+        <p class="section-subtitle">
+          Immerse yourself in the stunning landscapes and architectural wonders
+          of Park Babelsberg
+        </p>
+
+        <div class="gallery">
+          <div class="gallery-item">
+            <img src="images/Brücke.jpeg" alt="The Famous Bridge" />
+            <div class="gallery-content">
+              <h3 class="gallery-title">The Iconic Bridge</h3>
+              <p class="gallery-description">
+                A magnificent architectural masterpiece that serves as the
+                gateway to the park's many wonders.
+              </p>
+            </div>
+          </div>
+
+          <div class="gallery-item">
+            <img src="images/Brücke02.jpeg" alt="Bridge Perspective" />
+            <div class="gallery-content">
+              <h3 class="gallery-title">Bridge Vista</h3>
+              <p class="gallery-description">
+                Experience the bridge from a different angle, showcasing its
+                elegant design and surroundings.
+              </p>
+            </div>
+          </div>
+
+          <div class="gallery-item">
+            <img src="images/Haus01.jpeg" alt="Historic Mansion" />
+            <div class="gallery-content">
+              <h3 class="gallery-title">Historic Mansion</h3>
+              <p class="gallery-description">
+                A stunning example of 19th-century architecture, reflecting the
+                park's rich Prussian heritage.
+              </p>
+            </div>
+          </div>
+
+          <div class="gallery-item">
+            <img src="images/Haus002_Anwesen.jpeg" alt="Estate Property" />
+            <div class="gallery-content">
+              <h3 class="gallery-title">Grand Estate</h3>
+              <p class="gallery-description">
+                Magnificent estate buildings that showcase the opulent lifestyle
+                of Prussian nobility.
+              </p>
+            </div>
+          </div>
+
+          <div class="gallery-item">
+            <img src="images/See_Boot01.jpeg" alt="Lake with Boat" />
+            <div class="gallery-content">
+              <h3 class="gallery-title">Serene Lake Views</h3>
+              <p class="gallery-description">
+                Tranquil water features perfect for boating and enjoying
+                nature's peaceful beauty.
+              </p>
+            </div>
+          </div>
+
+          <div class="gallery-item">
+            <img src="images/Zypressen_Allee.jpeg" alt="Cypress Avenue" />
+            <div class="gallery-content">
+              <h3 class="gallery-title">Cypress Avenue</h3>
+              <p class="gallery-description">
+                A majestic tree-lined pathway that creates a natural corridor of
+                stunning beauty.
+              </p>
+            </div>
+          </div>
+
+          <div class="gallery-item">
+            <img src="images/LiegeWiese.jpeg" alt="Relaxation Meadow" />
+            <div class="gallery-content">
+              <h3 class="gallery-title">Peaceful Meadows</h3>
+              <p class="gallery-description">
+                Lush green spaces ideal for relaxation, picnics, and connecting
+                with nature.
+              </p>
+            </div>
+          </div>
+
+          <div class="gallery-item">
+            <img src="images/Picknick_Optioe.jpeg" alt="Picnic Area" />
+            <div class="gallery-content">
+              <h3 class="gallery-title">Picnic Paradise</h3>
+              <p class="gallery-description">
+                Scenic locations perfect for outdoor gatherings and enjoying al
+                fresco dining.
+              </p>
+            </div>
+          </div>
+
+          <div class="gallery-item">
+            <img src="images/Schild_Spielplatz.jpeg" alt="Playground" />
+            <div class="gallery-content">
+              <h3 class="gallery-title">Family Playground</h3>
+              <p class="gallery-description">
+                Fun recreational areas designed for children to play and explore
+                safely.
+              </p>
+            </div>
+          </div>
+
+          <div class="gallery-item">
+            <img src="images/Sitzgelgenheit01jpeg.jpeg" alt="Park Bench" />
+            <div class="gallery-content">
+              <h3 class="gallery-title">Resting Spots</h3>
+              <p class="gallery-description">
+                Comfortable seating areas strategically placed for enjoying the
+                park's beauty.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="features">
+        <h2 class="section-title">Why Visit Park Babelsberg?</h2>
+        <p class="section-subtitle">
+          Discover what makes this park a truly unique destination
+        </p>
+
+        <div class="features">
+          <div class="feature-card">
+            <span class="feature-icon">🏰</span>
+            <h3 class="feature-title">Historic Architecture</h3>
+            <p class="feature-description">
+              Explore stunning 19th-century buildings and monuments that tell
+              the story of Prussian history.
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <span class="feature-icon">🌳</span>
+            <h3 class="feature-title">Natural Beauty</h3>
+            <p class="feature-description">
+              Immerse yourself in lush landscapes, serene lakes, and
+              meticulously maintained gardens.
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <span class="feature-icon">🚲</span>
+            <h3 class="feature-title">Recreational Activities</h3>
+            <p class="feature-description">
+              Enjoy boating, cycling, picnicking, and various outdoor activities
+              for all ages.
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <span class="feature-icon">📸</span>
+            <h3 class="feature-title">Photography Paradise</h3>
+            <p class="feature-description">
+              Capture breathtaking landscapes and architectural wonders at every
+              turn.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="about">
+        <h2 class="section-title">About Park Babelsberg</h2>
+        <p class="section-subtitle">
+          Learn about the history and significance of this remarkable park
+        </p>
+
+        <div class="about-content">
+          <p class="about-text">
+            Park Babelsberg, located in Potsdam, Germany, is a stunning
+            landscape park that spans over 500 acres. Created in the 19th
+            century, it features a unique blend of natural beauty and
+            architectural masterpieces, making it one of Europe's most beautiful
+            parks.
+          </p>
+          <p class="about-text">
+            The park is home to numerous historic buildings, picturesque lakes,
+            and meticulously landscaped gardens. It's a perfect destination for
+            nature lovers, history enthusiasts, and anyone seeking a peaceful
+            retreat from the hustle and bustle of city life.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="footer-content">
+        <div class="footer-section">
+          <h3>Park Babelsberg</h3>
+          <p>
+            Experience the beauty of Potsdam's premier park destination, where
+            history and nature come together in perfect harmony.
+          </p>
+        </div>
+
+        <div class="footer-section">
+          <h3>Quick Links</h3>
+          <p><a href="#home">Home</a></p>
+          <p><a href="#gallery">Gallery</a></p>
+          <p><a href="#features">Features</a></p>
+          <p><a href="#about">About</a></p>
+        </div>
+
+        <div class="footer-section">
+          <h3>Visit Information</h3>
+          <p>📍 Potsdam, Germany</p>
+          <p>🕒 Open daily, sunrise to sunset</p>
+          <p>🎫 Free entry</p>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>
+          &copy; 2025 Park Babelsberg. All rights reserved. | Created with ❤️
+          for nature lovers
+        </p>
+      </div>
+    </footer>
+
+    <script>
+      // Smooth scrolling for navigation links
+      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener("click", function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute("href"));
+          if (target) {
+            target.scrollIntoView({
+              behavior: "smooth",
+              block: "start",
+            });
+          }
+        });
+      });
+
+      // Navbar scroll effect
+      window.addEventListener("scroll", function () {
+        const navbar = document.getElementById("navbar");
+        if (window.scrollY > 50) {
+          navbar.classList.add("scrolled");
+        } else {
+          navbar.classList.remove("scrolled");
+        }
+      });
+
+      // Intersection Observer for animations
+      const observerOptions = {
+        threshold: 0.1,
+        rootMargin: "0px 0px -50px 0px",
+      };
+
+      const observer = new IntersectionObserver(function (entries) {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.style.opacity = "1";
+            entry.target.style.transform = "translateY(0)";
+          }
+        });
+      }, observerOptions);
+
+      // Observe gallery items for animation
+      document.querySelectorAll(".gallery-item").forEach((item) => {
+        item.style.opacity = "0";
+        item.style.transform = "translateY(30px)";
+        item.style.transition = "opacity 0.6s ease, transform 0.6s ease";
+        observer.observe(item);
+      });
+    </script>
+  </body>
+</html>

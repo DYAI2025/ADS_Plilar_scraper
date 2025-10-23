@@ -1,0 +1,2 @@
+id,name,street,city,region,country,postcode,latitude,longitude,url,phone,email,opening_hours,rating,review_count,feature_shade,feature_benches,feature_water,feature_parking,feature_toilets,feature_wheelchair_accessible,feature_kids_friendly,feature_dogs_allowed,feature_fee,feature_seasonal,tags
+1,Tiergarten,Unter den Linden 1,Potsdam,Berlin,Deutschland,10117,52.5144,13.3501,https://berlin.de/tiergarten,+49 30 123456,,Mo-So 06:00-22:00,4.5,1250,True,True,True,False,True,True,True,True,False,False,"park,zentral,tourist"

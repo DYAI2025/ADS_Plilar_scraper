@@ -1,0 +1,121 @@
+<!-- Files/templates/skeleton_attraction_ads-pillar_2025-10-09.html -->
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{PLACE_NAME}} – Infos, Öffnungszeiten & Lage</title>
+    <meta name="description" content="{{PLACE_DESC}}" />
+    <link rel="canonical" href="{{PLACE_URL}}" />
+    <meta name="theme-color" content="#ffffff" />
+    <script
+      async
+      src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX"
+      crossorigin="anonymous"
+    ></script>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu,
+          "Helvetica Neue", Arial;
+        color: #1b1b1b;
+      }
+      .wrap {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.6rem;
+        margin: 10px 0;
+      }
+      .meta {
+        color: #646464;
+        font-size: 0.95rem;
+      }
+      .hero img {
+        width: 100%;
+        height: auto;
+        display: block;
+        border-radius: 12px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+      @media (min-width: 860px) {
+        .grid {
+          grid-template-columns: 2fr 1fr;
+        }
+      }
+      .card {
+        background: #f7f7f7;
+        border: 1px solid #eee;
+        border-radius: 12px;
+        padding: 10px;
+      }
+      .map {
+        aspect-ratio: 4/3;
+        border: 0;
+        border-radius: 12px;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <h1>{{PLACE_NAME}}</h1>
+      <div class="hero">
+        <img src="{{PLACE_HERO_SRC}}" alt="{{PLACE_NAME}}" />
+      </div>
+      <div class="grid">
+        <article class="card">
+          <h2>Beschreibung</h2>
+          <p>{{PLACE_LONG_DESC}}</p>
+          <h3>Öffnungszeiten</h3>
+          <p class="meta">{{OPENING_HOURS}}</p>
+          <h3>Adresse</h3>
+          <p>{{ADDRESS}}</p>
+          <p>
+            <a href="{{WEBSITE}}" rel="nofollow" target="_blank">Website</a>
+          </p>
+        </article>
+        <aside class="card">
+          <h2>Auf einen Blick</h2>
+          <ul>
+            <li>Kategorie: {{CATEGORY}}</li>
+            <li>Geeignet für: {{TAGS}}</li>
+            <li>Parkplätze: {{PARKING}}</li>
+            <li>Radwege: {{BIKE}}</li>
+            <li>Baustellen/Hinweise: {{WORKS}}</li>
+          </ul>
+          <h3>Lage</h3>
+          <!-- Leaflet/OSM optional; Platzhalter-Iframe -->
+          <iframe
+            class="map"
+            src="{{MAP_IFRAME_SRC}}"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+          ></iframe>
+        </aside>
+      </div>
+    </main>
+
+    <!-- JSON-LD Place -->
+    <script type="application/ld+json">
+      {
+        "@context":"https://schema.org",
+        "@type":"Place",
+        "name":"{{PLACE_NAME}}",
+        "description":"{{PLACE_DESC}}",
+        "image":"{{PLACE_HERO_SRC}}",
+        "url":"{{PLACE_URL}}",
+        "address":"{{ADDRESS}}",
+        "geo":{"@type":"GeoCoordinates","latitude":{{LAT}},"longitude":{{LON}}},
+        "openingHours":"{{OPENING_HOURS}}"
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,86 @@
+[
+  {
+    "category": "Schloss Babelsberg",
+    "title": "Schloss Babelsberg – Südseite",
+    "alt": "Schloss Babelsberg im Herbstlicht",
+    "caption": "Blick vom Uferweg. Geeignet als Header/Hero.",
+    "export": "images/park-babelsberg/hero.webp"
+  },
+  {
+    "title": "Schloss Babelsberg – Gesamtansicht",
+    "alt": "Schloss Babelsberg von außen",
+    "caption": "Architektur & Sichtachsen – gutes Motiv bei Abendlicht.",
+    "export": "images/park-babelsberg/attractions/schloss-babelsberg-1.webp"
+  },
+  {
+    "title": "Flatowturm",
+    "alt": "Flatowturm im Park Babelsberg",
+    "caption": "Wahrzeichen im Ostteil des Parks; Panorama-Blicke.",
+    "export": "images/park-babelsberg/attractions/flatowturm-1.webp"
+  },
+  {
+    "title": "Uferweg Nord – Tiefer See",
+    "alt": "Uferweg mit Blick über den Tiefen See",
+    "caption": "Fester Belag, viele Bänke; Sonnenuntergangs-Spot.",
+    "export": "images/park-babelsberg/attractions/uferweg-nord-1.webp"
+  },
+  {
+    "title": "Liegewiese am Wasser",
+    "alt": "Liegewiese mit Schattenplätzen",
+    "caption": "Ruhige Wiese mit Baumschatten – Erholung.",
+    "export": "images/park-babelsberg/attractions/liegewiese-1.webp"
+  },
+  {
+    "title": "Matrosenhaus",
+    "alt": "Matrosenhaus im Park Babelsberg",
+    "caption": "Historisches Gebäude am Wasser, fotogen aus der Distanz.",
+    "export": "images/park-babelsberg/attractions/matrosenhaus-1.webp"
+  },
+  {
+    "title": "Treppenspot am Ufer",
+    "alt": "Steintreppe zum Wasser",
+    "caption": "Beliebter Foto- und Sitzplatz direkt am Seeufer.",
+    "export": "images/park-babelsberg/attractions/treppe-ufer-1.webp"
+  },
+  {
+    "title": "Wegekreuzung mit Sichtachse",
+    "alt": "Wegekreuzung im Park",
+    "caption": "Offene Achsen, gute Übersicht; geeignet für Familien.",
+    "export": "images/park-babelsberg/attractions/wegekreuzung-1.webp"
+  },
+  {
+    "category": "info",
+    "title": "Parkordnung (Aushang)",
+    "alt": "Aushang Parkordnung",
+    "caption": "Wesentliche Regeln vor Ort – Stand laut Foto.",
+    "export": "images/park-babelsberg/info/parkordnung.webp"
+  },
+  {
+    "category": "info",
+    "title": "Hunde an Leine",
+    "alt": "Schild: Hunde an der Leine führen",
+    "caption": "Leinenpflicht – bitte Beutel mitführen.",
+    "export": "images/park-babelsberg/drohne-hunde-feuer-verbote.webp"
+  },
+  {
+    "category": "hero",
+    "title": "Jagdschloss im Herbst,
+    "alt": "Panoramablick über die Havel",
+    "caption": "Blick von Schloss-Seite Richtung Jagdschloss",
+    "export": "images/park-babelsberg/hero.webp"
+  },
+  {
+    "category": "info",
+    "title": "Toiletten vor dem Schloss",
+    "alt": "WC-Schild",
+    "caption": "Toiletten vor den Eingängen.",
+    "export": "images/park-babelsberg/wc.webp"
+  },
+  {
+    "category": "info",
+    "title": "Radfahren – Wege beachten",
+    "alt": "Schild: Radfahren/gesperrte Bereiche",
+    "caption": "Hauptwege nutzen; Sperrbereiche beachten.",
+    "export": "images/park-babelsberg/info/rschild-fahrrad-verboten02.webp"
+  }
+]

@@ -1,0 +1,27 @@
+{
+  "project_name": "Freizeit outdoor, Spielplatz, Grillen, FKK) in Potsdam",
+  "city": "Potsdam",
+  "category": "Freizeit outdoor, Spielplatz, Grillen, FKK)",
+  "domain": "meine-website.de",
+  "google_api_key": "",
+  "adsense_id": "ca-pub-XXXXXXXXXXXXXXXX",
+  "niche_config": {
+    "facets": [
+      "shade",
+      "benches",
+      "water",
+      "parking",
+      "toilets",
+      "wheelchair",
+      "kids",
+      "dogs"
+    ],
+    "keywords": [
+      "park",
+      "grünanlage",
+      "erholung",
+      "outdoor"
+    ],
+    "rpm_estimate": "8-15"
+  }
+}

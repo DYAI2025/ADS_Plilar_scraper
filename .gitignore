@@ -17,6 +17,7 @@ __pycache__/
 # Builds/outputs
 build/
 dist/
+ADS_Plilar_scraper/
 
 # Project-specific: ignore ALL image files anywhere
 **/*.jpg
