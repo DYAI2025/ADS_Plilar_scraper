@@ -2,6 +2,11 @@
 
 This directory contains supplementary documentation for the ADS Pillar Scraper project.
 
+## Quick Fix
+
+### [QUICK_FIX.md](QUICK_FIX.md) ⚡
+**2-minute solution** if Claude only works in this repository. Quick step-by-step guide.
+
 ## Available Guides
 
 ### [CLAUDE_REPOSITORY_ACCESS.md](CLAUDE_REPOSITORY_ACCESS.md)
@@ -28,6 +33,7 @@ For general project information, see:
 
 ## Getting Help
 
-1. Check the relevant guide in this directory
-2. Review the main [CLAUDE.md](../CLAUDE.md) for technical details
-3. Open an issue on [GitHub](https://github.com/DYAI2025/ADS_Plilar_scraper/issues)
+1. **Quick issue?** → Start with [QUICK_FIX.md](QUICK_FIX.md)
+2. **Detailed help?** → Check the relevant guide in this directory
+3. **Technical details?** → Review [../CLAUDE.md](../CLAUDE.md)
+4. **Still stuck?** → Open an issue on [GitHub](https://github.com/DYAI2025/ADS_Plilar_scraper/issues)
