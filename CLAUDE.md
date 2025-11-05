@@ -183,6 +183,13 @@ generator.generate_page(
 **Workflows** (`.github/workflows/`):
 - `test.yml`: Full test suite on Python 3.8-3.12, lint checks
 - `ci.yml`: Quick pytest run on push/PR
+- `claude.yml`: Claude Code integration for issue/PR assistance
+- `claude-code-review.yml`: Automated code review on PRs
+
+**Claude Code Integration**:
+- Uses `CLAUDE_CODE_OAUTH_TOKEN` secret for authentication
+- Triggered by `@claude` mentions in issues/PRs
+- **Troubleshooting**: If Claude only works in this repo, see [docs/CLAUDE_REPOSITORY_ACCESS.md](docs/CLAUDE_REPOSITORY_ACCESS.md)
 
 **Pre-commit Hooks** (`.pre-commit-config.yaml`):
 - Black formatting
@@ -213,6 +220,11 @@ generator.generate_page(
 
 5. **Python Version**: Project supports Python 3.8-3.12 (tested in CI)
    - Use Python 3.11+ for best compatibility with all dependencies
+
+6. **Claude Code Access**: If Claude only works in this repository:
+   - See [docs/CLAUDE_REPOSITORY_ACCESS.md](docs/CLAUDE_REPOSITORY_ACCESS.md) for solution
+   - Issue: OAuth token needs expanded repository permissions
+   - Fix: Update GitHub App installation settings
 
 ## Working with Tests
 
