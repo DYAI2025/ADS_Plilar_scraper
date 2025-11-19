@@ -10,7 +10,13 @@ from __future__ import annotations
 
 import importlib.util
 import os
+from pathlib import Path
 from typing import Iterable, Tuple
+
+# Determine the Files directory - works whether running from root or Files/
+TEST_DIR = Path(__file__).resolve().parent
+FILES_DIR = TEST_DIR.parent
+PROJECT_ROOT = FILES_DIR.parent
 
 
 def check_file_exists(filepath: str, description: str) -> bool:
@@ -81,90 +87,98 @@ def test_system_health():
     print("🧪 ADS Pillar System - Funktionstest")
     print("=" * 50)
 
-    core_files = [
-        ("gui_app.py", "GUI Hauptanwendung"),
-        ("data_pipeline.py", "Datenverarbeitung & Generator"),
-        ("enhanced_scrapers.py", "Multi-Source Datensammlung"),
-        ("niche_research.py", "Nischen-Analyse Tools"),
-        ("quick_start.py", "Ein-Klick Starter"),
-    ]
-    for filename, desc in core_files:
-        assert check_file_exists(filename, desc), f"{filename} fehlt"
-
-    template_files = [
-        ("pillar_page_skeleton.html", "Haupt-HTML-Template"),
-        ("ads.txt", "AdSense Ads.txt"),
-        ("README.md", "Haupt-Dokumentation"),
-        ("START_HERE.md", "Schnellstart-Guide"),
-    ]
-    for filename, desc in template_files:
-        if not check_file_exists(filename, desc):
-            templates_ok = False
-    print()
+    # Change to Files directory for file checks
+    original_dir = os.getcwd()
+    os.chdir(FILES_DIR)
     
-    # Teste Setup-Dateien
-    print("🔧 Setup & Konfiguration:")
-        assert check_file_exists(filename, desc), f"{filename} fehlt"
+    try:
+        core_files = [
+            ("gui_app.py", "GUI Hauptanwendung"),
+            ("data_pipeline.py", "Datenverarbeitung & Generator"),
+            ("enhanced_scrapers.py", "Multi-Source Datensammlung"),
+            ("niche_research.py", "Nischen-Analyse Tools"),
+            ("quick_start.py", "Ein-Klick Starter"),
+        ]
+        for filename, desc in core_files:
+            assert check_file_exists(filename, desc), f"{filename} fehlt"
 
-    setup_files = [
-        ("run_setup.sh", "Automatisches Setup Script"),
-        ("adsense_policy_checklist.md", "AdSense Compliance Guide"),
-        ("revenue_model.csv", "Revenue-Berechnungsmodell"),
-    ]
-    for filename, desc in setup_files:
-        if not check_file_exists(filename, desc):
-            setup_ok = False
-    print()
-    
-    # Teste Python-Module Imports
-    print("🐍 Python Module Tests:")
-    python_modules = [
-        ("gui_app", "gui_app.py"),
-        ("data_pipeline", "data_pipeline.py"),
-        ("enhanced_scrapers", "enhanced_scrapers.py"),
-        ("niche_research", "niche_research.py"),
-    ]
-    for module_name, filepath in python_modules:
-        if os.path.exists(filepath):
-            # gui_app may fail in headless environment without tkinter
-            # but that's expected and acceptable
-            if module_name == "gui_app":
-                try:
-                    import tkinter  # noqa: F401
+        template_files = [
+            ("pillar_page_skeleton.html", "Haupt-HTML-Template"),
+            ("ads.txt", "AdSense Ads.txt"),
+            ("README.md", "Haupt-Dokumentation"),
+            ("START_HERE.md", "Schnellstart-Guide"),
+        ]
+        for filename, desc in template_files:
+            if not check_file_exists(filename, desc):
+                templates_ok = False
+        print()
+        
+        # Teste Setup-Dateien
+        print("🔧 Setup & Konfiguration:")
 
+        setup_files = [
+            ("run_setup.sh", "Automatisches Setup Script"),
+            ("adsense_policy_checklist.md", "AdSense Compliance Guide"),
+            ("revenue_model.csv", "Revenue-Berechnungsmodell"),
+        ]
+        for filename, desc in setup_files:
+            if not check_file_exists(filename, desc):
+                setup_ok = False
+        print()
+        
+        # Teste Python-Module Imports
+        print("🐍 Python Module Tests:")
+        python_modules = [
+            ("gui_app", "gui_app.py"),
+            ("data_pipeline", "data_pipeline.py"),
+            ("enhanced_scrapers", "enhanced_scrapers.py"),
+            ("niche_research", "niche_research.py"),
+        ]
+        for module_name, filepath in python_modules:
+            if os.path.exists(filepath):
+                # gui_app may fail in headless environment without tkinter
+                # but that's expected and acceptable
+                if module_name == "gui_app":
+                    try:
+                        import tkinter  # noqa: F401
+
+                        assert check_python_import(
+                            module_name, filepath
+                        ), f"Import von {module_name} fehlgeschlagen"
+                    except ImportError:
+                        print(
+                            f"⚠️  gui_app.py - Übersprungen (tkinter nicht verfügbar in headless Umgebung)"
+                        )
+                else:
                     assert check_python_import(
                         module_name, filepath
                     ), f"Import von {module_name} fehlgeschlagen"
-                except ImportError:
-                    print(
-                        f"⚠️  gui_app.py - Übersprungen (tkinter nicht verfügbar in headless Umgebung)"
-                    )
             else:
-                assert check_python_import(
-                    module_name, filepath
-                ), f"Import von {module_name} fehlgeschlagen"
-        else:
-            raise AssertionError(f"Datei {filepath} fehlt für Import-Test")
+                raise AssertionError(f"Datei {filepath} fehlt für Import-Test")
 
-    deps_ok, missing_deps = test_dependencies()
-    assert deps_ok, f"Fehlende Dependencies: {', '.join(missing_deps)}"
+        deps_ok, missing_deps = test_dependencies()
+        assert deps_ok, f"Fehlende Dependencies: {', '.join(missing_deps)}"
 
-    for dirname in ("data", "generated", "templates"):
-        os.makedirs(dirname, exist_ok=True)
-        assert os.path.exists(
-            dirname
-        ), f"Verzeichnis {dirname} konnte nicht angelegt werden"
-        print(f"✅ {dirname}/ - vorhanden")
+        for dirname in ("data", "generated", "templates"):
+            os.makedirs(dirname, exist_ok=True)
+            assert os.path.exists(
+                dirname
+            ), f"Verzeichnis {dirname} konnte nicht angelegt werden"
+            print(f"✅ {dirname}/ - vorhanden")
+    
+    finally:
+        # Restore original directory
+        os.chdir(original_dir)
 
 def test_system_completeness():
-    """pytest entry point."""
-
-    assert run_system_completeness(), "System not fully configured"
+    """pytest entry point that runs the full system health check."""
+    test_system_health()
 
 def main():
     """Hauptfunktion für Systemtest"""
     try:
-        return run_system_completeness()
+        test_system_health()
+        return True
     except KeyboardInterrupt:
         print("\n\n👋 Test abgebrochen.")
         return False
@@ -173,4 +187,4 @@ def main():
         return False
 
 if __name__ == "__main__":  # pragma: no cover - CLI entry
-    raise SystemExit(main())
+    raise SystemExit(0 if main() else 1)
