@@ -104,7 +104,6 @@ def test_system_health():
     
     # Teste Setup-Dateien
     print("🔧 Setup & Konfiguration:")
-        assert check_file_exists(filename, desc), f"{filename} fehlt"
 
     setup_files = [
         ("run_setup.sh", "Automatisches Setup Script"),
