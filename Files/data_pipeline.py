@@ -326,12 +326,13 @@ class PillarPageGenerator:
 
         # Insert JSON data (already sanitized) into template
         json_string = json.dumps(json_data, ensure_ascii=False, indent=2)
+        # Replace the DATA array in the template (works with existing "const DATA = [" syntax)
         page_content = page_content.replace(
-            "/* DATA_PLACEHOLDER */",
-            f"const DATA = {json_string};"
+            "const DATA = [",
+            f"const DATA = {json_string}; // Original: ["
         )
 
-        # Update schema.org
+        # Update schema.org JSON-LD
         schema_string = json.dumps(
             {
                 "@context": "https://schema.org",
@@ -342,6 +343,12 @@ class PillarPageGenerator:
             ensure_ascii=False,
             indent=2,
         )
+
+        # Replace the schema.org placeholder section in the template
+        # Find and replace the entire JSON-LD script block
+        schema_pattern = r'<script type="application/ld\+json">\s*\{[^<]*\}\s*</script>'
+        schema_replacement = f'<script type="application/ld+json">\n  {schema_string}\n  </script>'
+        page_content = re.sub(schema_pattern, schema_replacement, page_content, count=1, flags=re.DOTALL)
 
         # Write output
         with open(output_path, "w", encoding="utf-8") as f:
