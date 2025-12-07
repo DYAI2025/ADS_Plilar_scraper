@@ -4,10 +4,11 @@ Generate AI-SEO optimized Babelsberg site
 Optimized for ChatGPT, Perplexity, Claude, and other AI search engines
 """
 
-import json
 import csv
-from pathlib import Path
+import html
+import json
 from datetime import datetime
+from pathlib import Path
 
 # Configuration - AI SEO optimized
 config = {
@@ -140,17 +141,22 @@ def prepare_location_data(locations):
     """Prepare locations for JavaScript with AI-friendly structure"""
     js_data = []
     for loc in locations:
+        def sanitize(value):
+            if value is None:
+                return ""
+            return html.escape(str(value))
+
         item = {
-            "name": loc['name'],
-            "address": loc.get('address', ''),
-            "city": loc['city'],
+            "name": sanitize(loc['name']),
+            "address": sanitize(loc.get('address', '')),
+            "city": sanitize(loc['city']),
             "rating": float(loc['rating']) if loc.get('rating') else 0,
             "review_count": int(loc.get('review_count', 0)),
-            "description": loc.get('description_de', ''),
-            "tags": loc.get('tags', ''),
-            "image": loc.get('main_image', ''),
-            "opening_hours": loc.get('opening_hours', ''),
-            "website": loc.get('website', ''),
+            "description": sanitize(loc.get('description_de', '')),
+            "tags": sanitize(loc.get('tags', '')),
+            "image": sanitize(loc.get('main_image', '')),
+            "opening_hours": sanitize(loc.get('opening_hours', '')),
+            "website": sanitize(loc.get('website', '')),
             "latitude": float(loc['latitude']),
             "longitude": float(loc['longitude']),
             "feature_shade": convert_bool(loc.get('feature_shade')),

@@ -1,9 +1,12 @@
 import pandas as pd
 import json
-import requests
-from typing import Dict, List, Optional
+import html
+import re
 import time
 from dataclasses import dataclass
+from typing import Dict, List, Optional
+
+import requests
 
 
 @dataclass
@@ -229,6 +232,13 @@ class PillarPageGenerator:
     def __init__(self, template_path: str = "pillar_page_skeleton.html"):
         self.template_path = template_path
 
+    @staticmethod
+    def _sanitize_text(value: str) -> str:
+        """Escape user-provided text to keep generated pages authentic and safe."""
+        if value is None:
+            return ""
+        return html.escape(str(value))
+
     def generate_page(
         self,
         data: List[LocationData],
@@ -248,11 +258,15 @@ class PillarPageGenerator:
         schema_items = []
 
         for i, location in enumerate(data):
+            safe_name = self._sanitize_text(location.name)
+            safe_street = self._sanitize_text(location.street)
+            safe_city = self._sanitize_text(location.city)
+
             json_data.append(
                 {
-                    "name": location.name,
-                    "street": location.street,
-                    "city": location.city,
+                    "name": safe_name,
+                    "street": safe_street,
+                    "city": safe_city,
                     "rating": location.rating,
                     "feature_shade": location.feature_shade,
                     "feature_water": location.feature_water,
@@ -264,7 +278,7 @@ class PillarPageGenerator:
                     "feature_dogs_allowed": location.feature_dogs_allowed,
                     "feature_fee": location.feature_fee,
                     "feature_seasonal": location.feature_seasonal,
-                    "url": location.url,
+                    "url": self._sanitize_text(location.url),
                 }
             )
 
@@ -275,21 +289,21 @@ class PillarPageGenerator:
                     "position": i + 1,
                     "item": {
                         "@type": "LocalBusiness",
-                        "name": location.name,
+                        "name": safe_name,
                         "address": {
                             "@type": "PostalAddress",
-                            "streetAddress": location.street,
-                            "addressLocality": location.city,
-                            "postalCode": location.postcode,
-                            "addressCountry": location.country,
+                            "streetAddress": safe_street,
+                            "addressLocality": safe_city,
+                            "postalCode": self._sanitize_text(location.postcode),
+                            "addressCountry": self._sanitize_text(location.country),
                         },
                         "geo": {
                             "@type": "GeoCoordinates",
                             "latitude": location.latitude,
                             "longitude": location.longitude,
                         },
-                        "url": location.url,
-                        "telephone": location.phone,
+                        "url": self._sanitize_text(location.url),
+                        "telephone": self._sanitize_text(location.phone),
                         "aggregateRating": (
                             {
                                 "@type": "AggregateRating",
@@ -301,17 +315,22 @@ class PillarPageGenerator:
                         ),
                     },
                 }
-            )
+        )
 
         # Replace placeholders
-        page_content = template.replace("{{CITY}}", city)
-        page_content = page_content.replace("{{CATEGORY}}", category)
-        page_content = page_content.replace("{{CANONICAL_URL}}", canonical_url)
-
-        # Insert JSON data
-        json_string = json.dumps(json_data, ensure_ascii=False, indent=2)
+        page_content = template.replace("{{CITY}}", self._sanitize_text(city))
+        page_content = page_content.replace("{{CATEGORY}}", self._sanitize_text(category))
         page_content = page_content.replace(
-            "const DATA = [", f'const DATA = {json_string.split("[", 1)[1]}'
+            "{{CANONICAL_URL}}", self._sanitize_text(canonical_url)
+        )
+
+        # Insert JSON data (replace placeholder block with sanitized JSON)
+        json_string = json.dumps(json_data, ensure_ascii=False, indent=2)
+        page_content = re.sub(
+            r"const DATA = \[.*?\];",
+            f"const DATA = {json_string};",
+            page_content,
+            flags=re.DOTALL,
         )
 
         # Update schema.org

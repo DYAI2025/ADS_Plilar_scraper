@@ -64,6 +64,12 @@ Nach Änderungen:
 python3 generate_ai_optimized_site.py
 ```
 
+## 🧪 Tests & Qualitätssicherung
+
+- Test-Suite lokal ausführen: `pytest`
+- GitHub Actions Workflow `tests.yml` führt die Tests bei jedem Push/PR automatisch aus.
+- Alle eingehenden Standortdaten werden vor dem Rendering geescaped, um die Authentizität der Inhalte zu sichern und Script-Injektionen zu verhindern.
+
 ## 🚀 Deployment
 
 ### Automatisches Deployment (GitHub Actions)
