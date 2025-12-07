@@ -139,26 +139,37 @@ ads-pillar-niche
 
 ```python
 from Files.enhanced_scrapers import GooglePlacesScraper, UniversalScraper
-from Files.data_pipeline import PillarPageGenerator
+from Files.data_pipeline import PillarPageGenerator, LocationData
 
 # Scrape locations
 scraper = GooglePlacesScraper(api_key="YOUR_API_KEY")
-locations = scraper.search_places("parks", "Berlin")
+scraped_places = scraper.search_places("parks", "Berlin")
 
-# Generate HTML page
+# Convert to LocationData objects (if needed - depending on scraper output)
+# If using enhanced_scrapers, they already return compatible format
+
+# Generate HTML page with configuration
+config = {
+    "site_name": "Berlin Parks Guide",
+    "adsense_id": "pub-XXXXXXXXXXXXXXXX",  # Your AdSense publisher ID
+    "ga_id": "G-XXXXXXXXXX"  # Your Google Analytics ID (optional)
+}
+
 generator = PillarPageGenerator(
     template_path="Files/pillar_page_skeleton.html",
-    config={
-        "site_name": "Berlin Parks Guide",
-        "adsense_id": "ca-pub-XXXXXXXX",
-        "ga_id": "GA_MEASUREMENT_ID"
-    }
+    config=config
 )
+
 generator.generate_page(
-    locations=locations,
-    output_path="generated/index.html"
+    data=scraped_places,  # List of LocationData objects
+    city="Berlin",
+    category="Parks",
+    output_path="generated/berlin_parks.html",
+    canonical_url="https://yourdomain.com/berlin-parks"
 )
 ```
+
+**Note:** The config parameter is optional - if omitted, placeholders will be used for AdSense IDs and Google Analytics will be disabled.
 
 ## Configuration
 
