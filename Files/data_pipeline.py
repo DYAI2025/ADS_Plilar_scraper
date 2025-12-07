@@ -324,7 +324,7 @@ class PillarPageGenerator:
             "{{CANONICAL_URL}}", self._sanitize_text(canonical_url)
         )
 
-        # Insert JSON data (replace placeholder block with sanitized JSON)
+        # Insert JSON data (already sanitized) into template
         json_string = json.dumps(json_data, ensure_ascii=False, indent=2)
         page_content = page_content.replace(
             "/* DATA_PLACEHOLDER */",
