@@ -326,11 +326,9 @@ class PillarPageGenerator:
 
         # Insert JSON data (replace placeholder block with sanitized JSON)
         json_string = json.dumps(json_data, ensure_ascii=False, indent=2)
-        page_content = re.sub(
-            r"const DATA = \[.*?\];",
-            f"const DATA = {json_string};",
-            page_content,
-            flags=re.DOTALL,
+        page_content = page_content.replace(
+            "/* DATA_PLACEHOLDER */",
+            f"const DATA = {json_string};"
         )
 
         # Update schema.org
