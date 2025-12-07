@@ -43,8 +43,8 @@ def check_python_import(module_name: str, filepath: str) -> bool:
         return False
 
 
-def test_dependencies():
-    """Teste wichtige Python-Dependencies"""
+def _check_dependencies() -> Tuple[bool, Tuple[str, ...]]:
+    """Helper: Prüfe wichtige Python-Dependencies und gib Ergebnis zurück."""
     required_modules = [
         "pandas",
         "requests",
@@ -80,6 +80,12 @@ def test_dependencies():
                 print(f"❌ {module} FEHLT")
                 missing.append(module)
     return len(missing) == 0, tuple(missing)
+
+
+def test_dependencies():
+    """Teste wichtige Python-Dependencies"""
+    deps_ok, missing_deps = _check_dependencies()
+    assert deps_ok, f"Fehlende Dependencies: {', '.join(missing_deps)}"
 
 
 def test_system_health():
@@ -156,7 +162,7 @@ def test_system_health():
             else:
                 raise AssertionError(f"Datei {filepath} fehlt für Import-Test")
 
-        deps_ok, missing_deps = test_dependencies()
+        deps_ok, missing_deps = _check_dependencies()
         assert deps_ok, f"Fehlende Dependencies: {', '.join(missing_deps)}"
 
         for dirname in ("data", "generated", "templates"):
