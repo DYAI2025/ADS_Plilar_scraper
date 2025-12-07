@@ -221,7 +221,8 @@ MIT License - Siehe LICENSE für Details
 Bei Fragen oder Problemen:
 1. [GitHub Issues](https://github.com/DYAI2025/ADS_Plilar_scraper/issues)
 2. Prüfe [CLAUDE.md](./CLAUDE.md) für technische Details
-3. Siehe [LAUNCH_SUMMARY.md](./LAUNCH_SUMMARY.md) für Deployment-Infos
+3. **Claude Code funktioniert nur hier?** → Siehe [docs/CLAUDE_REPOSITORY_ACCESS.md](docs/CLAUDE_REPOSITORY_ACCESS.md)
+4. Siehe [LAUNCH_SUMMARY.md](./LAUNCH_SUMMARY.md) für Deployment-Infos
 
 ## 📊 Status & Metrics
 
