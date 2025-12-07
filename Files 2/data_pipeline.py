@@ -4,6 +4,8 @@ import requests
 from typing import Dict, List, Optional
 import time
 from dataclasses import dataclass
+from pathlib import Path
+import re
 
 
 @dataclass
@@ -226,8 +228,11 @@ class DataScraper:
 class PillarPageGenerator:
     """Generate pillar pages from data"""
 
-    def __init__(self, template_path: str = "pillar_page_skeleton.html"):
+    def __init__(
+        self, template_path: str = "pillar_page_skeleton.html", config: Optional[Dict] = None
+    ):
         self.template_path = template_path
+        self.config = config or {}
 
     def generate_page(
         self,
@@ -238,6 +243,19 @@ class PillarPageGenerator:
         canonical_url: str,
     ) -> None:
         """Generate a complete pillar page"""
+
+        # Validate inputs
+        if not data:
+            raise ValueError("No location data provided - cannot generate empty page")
+        if not city or not category:
+            raise ValueError("City and category are required")
+        if not Path(self.template_path).exists():
+            raise FileNotFoundError(
+                f"Template not found: {self.template_path}"
+            )
+
+        # Ensure output directory exists
+        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
 
         # Read template
         with open(self.template_path, "r", encoding="utf-8") as f:
@@ -326,6 +344,56 @@ class PillarPageGenerator:
             indent=2,
         )
 
+        # CRITICAL FIX: Inject Schema.org JSON-LD into template
+        # Replace the static example schema with dynamic data
+        schema_injection = f'<script type="application/ld+json">\n{schema_string}\n</script>'
+        # Find and replace the first <script type="application/ld+json"> block
+        page_content = re.sub(
+            r'<script type="application/ld\+json">.*?</script>',
+            schema_injection,
+            page_content,
+            count=1,
+            flags=re.DOTALL
+        )
+
+        # Replace AdSense IDs
+        adsense_id = self.config.get("adsense_id", "ca-pub-XXXXXXXXXXXXXXXX")
+        # Remove 'pub-' prefix if present in config (template expects it)
+        if adsense_id.startswith("pub-"):
+            adsense_id = adsense_id[4:]  # Remove 'pub-' prefix
+        page_content = page_content.replace("ca-pub-XXXXXXXXXXXXXXXX", f"ca-pub-{adsense_id}")
+
+        # Add Google Analytics if configured
+        ga_id = self.config.get("ga_id", "")
+        if ga_id:
+            ga_code = f"""
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id={ga_id}"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){{dataLayer.push(arguments);}}
+      gtag('js', new Date());
+      gtag('config', '{ga_id}');
+    </script>
+"""
+            # Insert before </head>
+            page_content = page_content.replace("</head>", f"{ga_code}</head>")
+
+        # Log data quality metrics
+        locations_with_coords = [loc for loc in data if loc.latitude != 0.0 and loc.longitude != 0.0]
+        locations_with_ratings = [loc for loc in data if loc.rating > 0]
+
+        print(f"📊 Data Quality Report:")
+        print(f"   Total locations: {len(data)}")
+        print(f"   With coordinates: {len(locations_with_coords)} ({len(locations_with_coords)*100//len(data)}%)")
+        print(f"   With ratings: {len(locations_with_ratings)} ({len(locations_with_ratings)*100//len(data)}%)")
+
+        if len(locations_with_coords) < len(data):
+            print(f"   ⚠️  {len(data) - len(locations_with_coords)} locations missing coordinates")
+
+        if len(locations_with_ratings) < len(data) * 0.8:
+            print(f"   ⚠️  Only {len(locations_with_ratings)}/{len(data)} locations have ratings")
+
         # Write output
         with open(output_path, "w", encoding="utf-8") as f:
             f.write(page_content)
@@ -371,8 +439,17 @@ def example_usage():
         )
     ]
 
-    # 3. Generate pillar page
-    generator = PillarPageGenerator("pillar_page_skeleton.html")
+    # 3. Generate pillar page with configuration
+    config = {
+        "site_name": "Berlin Parks Guide",
+        "adsense_id": "pub-1234567890123456",  # Your AdSense publisher ID
+        "ga_id": "G-XXXXXXXXXX",  # Your Google Analytics ID (optional)
+    }
+
+    generator = PillarPageGenerator(
+        template_path="pillar_page_skeleton.html",
+        config=config
+    )
     generator.generate_page(
         data=sample_data,
         city="Berlin",
