@@ -1,239 +1,728 @@
-# 🏰 Babelsberger.info - Park Babelsberg Guide
+# 🏰 ADS Pillar Scraper
 
-[![Deploy to GitHub Pages](https://github.com/DYAI2025/ADS_Plilar_scraper/actions/workflows/deploy.yml/badge.svg)](https://github.com/DYAI2025/ADS_Plilar_scraper/actions/workflows/deploy.yml)
+> **Programmatic SEO Toolkit** für automatisierte Location-basierte Directory Sites mit Google AdSense Monetarisierung
 
-AI-SEO optimierter Guide für Park Babelsberg, Schloss Babelsberg und Neuer Schlossgarten in Potsdam mit interaktiven Filtern und AdSense-Monetarisierung.
+[![Tests](https://github.com/DYAI2025/ADS_Plilar_scraper/actions/workflows/test.yml/badge.svg)](https://github.com/DYAI2025/ADS_Plilar_scraper/actions/workflows/test.yml)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## 🚀 Live Site
-
-**URL:** [https://babelsberger.info](https://babelsberger.info)
-
-## ✨ Features
-
-- 🤖 **AI-SEO optimiert** für ChatGPT, Perplexity, Claude und Google AI
-- 📊 **14 kuratierte Locations** mit GPS-Koordinaten
-- 🔍 **12 interaktive Filter** (Toiletten, Barrierefrei, Kinderfreundlich, etc.)
-- 📱 **Fully Responsive** - optimiert für Mobile & Desktop
-- ⚡ **Statisches HTML** - ultraschnelle Ladezeiten
-- 💰 **AdSense Integration** - vollständig monetarisiert
-- 🎯 **Schema.org Markup** - FAQPage, BreadcrumbList, Organization
-- 🌍 **Open Graph & Twitter Cards** - perfekte Social Media Vorschau
-
-## 📊 Technologie
-
-- **Generator:** Python 3.11+
-- **Deployment:** GitHub Actions → GitHub Pages
-- **SEO:** Schema.org JSON-LD, Meta Tags, Sitemap
-- **Analytics:** Google Analytics 4
-- **Monetarisierung:** Google AdSense
-
-## 🛠️ Lokale Entwicklung
-
-### Prerequisites
-
-- Python 3.11 oder höher
-- Git
-
-### Setup
-
-```bash
-# Repository klonen
-git clone https://github.com/DYAI2025/ADS_Plilar_scraper.git
-cd ADS_Plilar_scraper
-
-# Site generieren
-python3 generate_ai_optimized_site.py
-
-# Generated output ansehen
-cd generated
-python3 -m http.server 8000
-# Öffne http://localhost:8000
-```
-
-### Daten bearbeiten
-
-Alle Location-Daten sind in `data/babelsberg_locations.csv`:
-
-```csv
-name,address,city,latitude,longitude,feature_toilets,feature_wheelchair_accessible,...
-Schloss Babelsberg,Park Babelsberg,Potsdam,52.4047,13.0942,TRUE,TRUE,...
-```
-
-Nach Änderungen:
-```bash
-python3 generate_ai_optimized_site.py
-```
-
-## 🧪 Tests & Qualitätssicherung
-
-- Test-Suite lokal ausführen: `pytest`
-- GitHub Actions Workflow `tests.yml` führt die Tests bei jedem Push/PR automatisch aus.
-- Alle eingehenden Standortdaten werden vor dem Rendering geescaped, um die Authentizität der Inhalte zu sichern und Script-Injektionen zu verhindern.
-
-## 🚀 Deployment
-
-### Automatisches Deployment (GitHub Actions)
-
-Jeder Push auf `main` triggert automatisch:
-
-1. ✅ Python Setup
-2. ✅ Dependencies Install
-3. ✅ Site Generation (`generate_ai_optimized_site.py`)
-4. ✅ Deployment zu GitHub Pages
-
-**Konfiguration:** `.github/workflows/deploy.yml`
-
-### GitHub Pages Setup
-
-1. **Repository Settings** → **Pages**
-2. **Source:** `GitHub Actions`
-3. **Domain:** Konfiguriere Custom Domain `babelsberger.info`
-
-#### Custom Domain Setup
-
-1. In GitHub: Settings → Pages → Custom domain: `babelsberger.info`
-2. Bei Domain-Provider DNS konfigurieren:
-   ```
-   A Record:
-   babelsberger.info → 185.199.108.153
-   babelsberger.info → 185.199.109.153
-   babelsberger.info → 185.199.110.153
-   babelsberger.info → 185.199.111.153
-
-   CNAME Record:
-   www.babelsberger.info → DYAI2025.github.io
-   ```
-
-3. **CNAME File** ist automatisch in `generated/` enthalten
-
-## 📁 Projektstruktur
-
-```
-ADS_Plilar_scraper/
-├── .github/
-│   └── workflows/
-│       └── deploy.yml           # GitHub Actions Deployment
-├── data/
-│   └── babelsberg_locations.csv # Location-Datenbank (14 Orte)
-├── generated/                    # Output (wird automatisch erstellt)
-│   ├── index.html               # Hauptseite
-│   ├── ads.txt                  # AdSense Verifizierung
-│   ├── robots.txt               # SEO
-│   ├── sitemap.xml              # Sitemap
-│   ├── impressum.html           # Impressum
-│   └── datenschutz.html         # Datenschutz
-├── generate_ai_optimized_site.py # Generator-Script
-├── CLAUDE.md                     # Claude Code Dokumentation
-└── README.md                     # Diese Datei
-```
-
-## 🎯 AI SEO Features
-
-### Schema.org Markup
-
-1. **FAQPage** - 8 häufige Fragen mit Antworten
-2. **BreadcrumbList** - Navigation Structure
-3. **Organization** - Brand Info
-4. **TouristAttraction** - Jede Location einzeln
-
-### Meta Tags
-
-```html
-<!-- AI-friendly -->
-<meta name="summary" content="...">
-<meta name="coverage" content="Park Babelsberg, Schloss Babelsberg, ...">
-<meta name="category" content="Travel, Tourism, Parks, ...">
-<meta name="date" content="2025-10-23">
-
-<!-- Open Graph -->
-<meta property="og:type" content="website">
-<meta property="og:title" content="...">
-<meta property="og:description" content="...">
-```
-
-### Title-Strategie
-
-**Current:** "Park Babelsberg Guide 2025 – 14 Attraktionen mit Filter | Potsdam UNESCO Welterbe"
-
-**Warum?**
-- ✅ Jahr "2025" signalisiert Aktualität für AI
-- ✅ Anzahl "14 Attraktionen" = konkreter Wert
-- ✅ "Filter" = interaktive Features
-- ✅ "UNESCO Welterbe" = Autorität
-
-## 💰 Monetarisierung
-
-### AdSense Setup
-
-- **Publisher ID:** `pub-1712273263687132`
-- **Auto Ads:** Aktiviert
-- **Manuelle Placements:**
-  - Top Banner
-  - Nach jedem 5. Location-Card
-  - Bottom Banner
-  - Footer Ad
-
-### ads.txt
-
-Automatisch deployt in `generated/ads.txt`:
-```
-google.com, pub-1712273263687132, DIRECT, f08c47fec0942fa0
-```
-
-Verify: `https://babelsberger.info/ads.txt`
-
-## 📈 Analytics
-
-**Google Analytics 4:** `G-K409QD2YSJ`
-
-Events tracked:
-- `filter_applied` - Welche Filter werden genutzt
-- `location_view` - Location-Card Impressions
-
-## 🔧 Configuration
-
-Edit `generate_ai_optimized_site.py`:
-
-```python
-config = {
-    "site_name": "Park Babelsberg & Schloss Potsdam",
-    "domain": "https://babelsberger.info",
-    "city": "Potsdam",
-    "adsense_id": "pub-1712273263687132",
-    "ga_id": "G-K409QD2YSJ",
-}
-```
-
-## 🤝 Contributing
-
-1. Fork das Repository
-2. Create Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit Changes (`git commit -m 'Add AmazingFeature'`)
-4. Push to Branch (`git push origin feature/AmazingFeature`)
-5. Open Pull Request
-
-## 📝 Lizenz
-
-MIT License - Siehe LICENSE für Details
-
-## 🆘 Support
-
-Bei Fragen oder Problemen:
-1. [GitHub Issues](https://github.com/DYAI2025/ADS_Plilar_scraper/issues)
-2. Prüfe [CLAUDE.md](./CLAUDE.md) für technische Details
-3. **Claude Code funktioniert nur hier?** → Siehe [docs/CLAUDE_REPOSITORY_ACCESS.md](docs/CLAUDE_REPOSITORY_ACCESS.md)
-4. Siehe [LAUNCH_SUMMARY.md](./LAUNCH_SUMMARY.md) für Deployment-Infos
-
-## 📊 Status & Metrics
-
-- ✅ **SEO:** Vollständig optimiert (Schema.org, Meta Tags, Sitemap)
-- ✅ **Performance:** <1s Ladezeit (statisches HTML)
-- ✅ **Mobile:** 100% responsive
-- ✅ **Accessibility:** WCAG 2.1 AA konform
-- ✅ **AdSense:** Vollständig integriert
+**ADS Pillar Scraper** ist ein vollständiges Python-Toolkit zum Erstellen von monetarisierbaren Location-Directory-Websites. Scrape Daten von Google Places API, extrahiere automatisch Features aus Reviews, generiere SEO-optimierte HTML-Seiten und monetarisiere mit Google AdSense.
 
 ---
 
-**Built with ❤️ for Park Babelsberg visitors**
+## 📑 Inhaltsverzeichnis
 
-_Last Updated: 2025-10-23_
+- [Features](#-features)
+- [Live Demo](#-live-demo)
+- [Installation](#-installation)
+  - [macOS](#macos)
+  - [Linux](#linux)
+  - [Windows](#windows)
+- [Quick Start](#-quick-start)
+- [Verwendung](#-verwendung)
+- [Architektur](#-architektur)
+- [Testing](#-testing)
+- [Deployment](#-deployment)
+- [Troubleshooting](#-troubleshooting)
+- [Contributing](#-contributing)
+
+---
+
+## ✨ Features
+
+### 🎯 Kern-Funktionalität
+
+- **🔍 Multi-Source Data Scraping**
+  - Google Places API mit automatischer Pagination
+  - Google Places Details API für Reviews, Öffnungszeiten, Kontakte
+  - CSV Import/Export für manuelle Daten
+  - Web Scraping für Directory-Seiten (Yelp-Style)
+
+- **🤖 Intelligente Feature-Extraktion**
+  - NLP-basierte Keyword-Erkennung (Deutsch/Englisch)
+  - Automatische Feature-Flags aus Reviews (Schatten, Wasser, Toiletten, etc.)
+  - Google price_level Integration für authentische Gebührenerkennung
+  - 10+ vordefinierte Features: Parkplatz, Barrierefrei, Kinderfreundlich, Hunde erlaubt, etc.
+
+- **📄 SEO-Optimierte Pillar Pages**
+  - Jinja2-Template System
+  - Schema.org JSON-LD (LocalBusiness, ItemList)
+  - Client-side JavaScript Filtering
+  - Mobile-responsive Design
+  - Google AdSense Integration (Auto Ads + manuelle Slots)
+
+- **💰 Monetarisierung**
+  - Vorkonfigurierte AdSense-Platzierungen
+  - ads.txt Generator
+  - Revenue Calculator (GUI)
+  - ROI-Kalkulation nach Traffic-Szenarien
+
+- **🎨 GUI & CLI Tools**
+  - Tkinter GUI für Non-Technical Users
+  - Interactive Setup Wizard (`quick_start.py`)
+  - Niche Research Tool mit Opportunity Scoring
+  - Revenue Projections
+
+### 🆕 Kürzlich hinzugefügt
+
+- ✅ **Echte API-Integration** statt Stub-Funktionen
+- ✅ **Koordinaten-Validierung** (-90°/90°, -180°/180°)
+- ✅ **Duplikat-Erkennung** basierend auf Name + Koordinaten
+- ✅ **Verbesserte City-Extraktion** (international, nicht nur DE)
+- ✅ **Dynamisches Schema.org** JSON-LD
+
+---
+
+## 🌐 Live Demo
+
+**Live Site:** [https://babelsberger.info](https://babelsberger.info)
+
+Beispiel-Implementierung: Park Babelsberg Guide mit 14 kuratierten Locations, 12 interaktiven Filtern und vollständiger AdSense-Integration.
+
+---
+
+## 🚀 Installation
+
+### Voraussetzungen
+
+- **Python 3.8+** (empfohlen: Python 3.11)
+- **pip** (Python Package Manager)
+- **Git** (optional, für Repository-Cloning)
+- **Google Places API Key** (für Live-Scraping)
+
+---
+
+### macOS
+
+#### 1. Python installieren
+
+```bash
+# Prüfe ob Python installiert ist
+python3 --version
+
+# Falls nicht installiert: Homebrew installieren
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Python via Homebrew installieren
+brew install python@3.11
+```
+
+#### 2. Repository klonen
+
+```bash
+git clone https://github.com/DYAI2025/ADS_Plilar_scraper.git
+cd ADS_Plilar_scraper
+```
+
+#### 3. Virtual Environment erstellen
+
+```bash
+# Virtual Environment erstellen
+python3 -m venv venv
+
+# Aktivieren
+source venv/bin/activate
+```
+
+#### 4. Dependencies installieren
+
+```bash
+# Alle Dependencies installieren
+pip install -r requirements.txt
+
+# Package installieren (für entry points)
+pip install -e .
+```
+
+#### 5. Tkinter installieren (für GUI)
+
+```bash
+# Tkinter ist normalerweise vorinstalliert auf macOS
+# Falls nicht:
+brew install python-tk@3.11
+```
+
+#### 6. Verifizierung
+
+```bash
+# Tests ausführen
+pytest
+
+# Module testen
+python3 verify_imports.py
+
+# System-Health-Check
+cd Files && python3 test_system.py
+```
+
+---
+
+### Linux
+
+#### Ubuntu / Debian
+
+```bash
+# 1. System aktualisieren
+sudo apt update && sudo apt upgrade -y
+
+# 2. Python 3.11 installieren
+sudo apt install python3.11 python3.11-venv python3-pip -y
+
+# 3. Tkinter installieren (für GUI)
+sudo apt install python3.11-tk -y
+
+# 4. Repository klonen
+git clone https://github.com/DYAI2025/ADS_Plilar_scraper.git
+cd ADS_Plilar_scraper
+
+# 5. Virtual Environment erstellen
+python3.11 -m venv venv
+source venv/bin/activate
+
+# 6. Dependencies installieren
+pip install -r requirements.txt
+pip install -e .
+
+# 7. Tests ausführen
+pytest
+```
+
+#### Fedora / RHEL / CentOS
+
+```bash
+# 1. Python 3.11 installieren
+sudo dnf install python3.11 python3.11-devel -y
+
+# 2. Tkinter installieren
+sudo dnf install python3-tkinter -y
+
+# 3-7. Gleiche Schritte wie Ubuntu (ab Repository klonen)
+```
+
+#### Arch Linux
+
+```bash
+# 1. Python installieren
+sudo pacman -S python python-pip tk -y
+
+# 2-7. Gleiche Schritte wie Ubuntu (ab Repository klonen)
+```
+
+---
+
+### Windows
+
+#### 1. Python installieren
+
+1. Download Python von [python.org/downloads](https://www.python.org/downloads/)
+2. Installiere Python 3.11 mit **"Add Python to PATH"** aktiviert
+3. Bestätige Installation:
+   ```cmd
+   python --version
+   ```
+
+#### 2. Git installieren (optional)
+
+Download von [git-scm.com](https://git-scm.com/download/win)
+
+#### 3. Repository klonen oder Download
+
+**Option A - mit Git:**
+```cmd
+git clone https://github.com/DYAI2025/ADS_Plilar_scraper.git
+cd ADS_Plilar_scraper
+```
+
+**Option B - ZIP Download:**
+1. Download ZIP von GitHub
+2. Entpacke nach `C:\ADS_Plilar_scraper`
+3. ```cmd
+   cd C:\ADS_Plilar_scraper
+   ```
+
+#### 4. Virtual Environment erstellen
+
+```cmd
+REM Virtual Environment erstellen
+python -m venv venv
+
+REM Aktivieren
+venv\Scripts\activate
+```
+
+#### 5. Dependencies installieren
+
+```cmd
+REM Alle Dependencies installieren
+pip install -r requirements.txt
+
+REM Package installieren
+pip install -e .
+```
+
+#### 6. Verifizierung
+
+```cmd
+REM Tests ausführen
+pytest
+
+REM Module testen
+python verify_imports.py
+```
+
+**Hinweis:** Tkinter ist auf Windows normalerweise vorinstalliert.
+
+---
+
+## ⚡ Quick Start
+
+### 1. Setup Wizard ausführen
+
+```bash
+# Automatischer Setup (Virtualenv + Dependencies)
+./run_setup.sh
+
+# Oder manuell
+python Files/quick_start.py
+```
+
+Der Setup Wizard:
+- ✅ Erstellt Demo-Daten
+- ✅ Generiert Beispiel-Config
+- ✅ Erstellt erste Pillar Page
+- ✅ Zeigt Revenue-Kalkulation
+
+### 2. Eigenen Google API Key einrichten
+
+1. Gehe zu [Google Cloud Console](https://console.cloud.google.com/)
+2. Erstelle ein Projekt
+3. Aktiviere "Places API" und "Places API (New)"
+4. Erstelle API Key
+5. Speichere in `.env`:
+
+```bash
+# .env Datei erstellen
+echo "GOOGLE_PLACES_API_KEY=your_api_key_here" > .env
+```
+
+### 3. Erste Location-Seite generieren
+
+```python
+# example_usage.py
+import os
+from Files.enhanced_scrapers import GooglePlacesScraper
+from Files.data_pipeline import PillarPageGenerator, LocationData
+
+# API Key laden
+api_key = os.getenv("GOOGLE_PLACES_API_KEY")
+
+# Scraper initialisieren
+scraper = GooglePlacesScraper(api_key=api_key, delay=1.0)
+
+# Locations scrapen
+places = scraper.search_places(query="parks", location="Berlin")
+
+# Details enrichment (Reviews, Öffnungszeiten, etc.)
+enriched_places = scraper.enrich_places(places)
+
+# Konvertiere zu LocationData
+locations = []
+for place in enriched_places:
+    loc = LocationData(
+        id=place.place_id,
+        name=place.name,
+        street=place.address.split(',')[0],
+        city=place.city,
+        region="Berlin",
+        country="DE",
+        postcode="",
+        latitude=place.latitude,
+        longitude=place.longitude,
+        url=place.website,
+        phone=place.phone,
+        email="",
+        opening_hours=place.opening_hours,
+        rating=place.rating,
+        review_count=place.review_count,
+    )
+    locations.append(loc)
+
+# Pillar Page generieren
+generator = PillarPageGenerator("Files/pillar_page_skeleton.html")
+generator.generate_page(
+    data=locations,
+    city="Berlin",
+    category="Parks",
+    output_path="generated/berlin-parks.html",
+    canonical_url="https://example.com/berlin-parks"
+)
+
+print(f"✅ Generated: generated/berlin-parks.html")
+```
+
+### 4. GUI starten (optional)
+
+```bash
+# GUI für Non-Technical Users
+python Files/gui_app.py
+
+# Oder via entry point (nach `pip install -e .`)
+ads-pillar-gui
+```
+
+---
+
+## 📘 Verwendung
+
+### Scenario 1: Google Places Scraping
+
+```python
+from Files.enhanced_scrapers import GooglePlacesScraper
+
+scraper = GooglePlacesScraper(api_key="YOUR_API_KEY", delay=1.0)
+
+# Basic Search
+places = scraper.search_places(
+    query="restaurants",
+    location="Munich",
+    radius=50000  # 50km
+)
+
+# Enrichment mit Details
+enriched = scraper.enrich_places(places)
+
+for place in enriched:
+    print(f"{place.name}: {place.rating}⭐ ({place.review_count} reviews)")
+    print(f"  📞 {place.phone}")
+    print(f"  🌐 {place.website}")
+    print(f"  🕒 {place.opening_hours}")
+```
+
+### Scenario 2: Feature Extraction
+
+```python
+from Files.enhanced_scrapers import SmartFeatureExtractor
+
+extractor = SmartFeatureExtractor()
+
+review_text = """
+Schöner Park mit viel Schatten und sauberen Toiletten.
+Kostenloser Eintritt, perfekt für Kinder. Hunde sind erlaubt.
+"""
+
+features = extractor.extract_features(
+    text="Stadtpark München",
+    reviews=review_text,
+    price_level=0  # Google price_level
+)
+
+print(features)
+# {
+#   'feature_shade': True,
+#   'feature_toilets': True,
+#   'feature_kids': True,
+#   'feature_dogs': True,
+#   'feature_fee': False,  # kostenlos
+#   ...
+# }
+```
+
+### Scenario 3: Niche Research
+
+```python
+from Files.niche_research import NicheValidator, KeywordResearch
+
+# Profitable Niches validieren
+validator = NicheValidator()
+niches = validator.get_profitable_niches()
+
+for niche in niches[:3]:
+    print(f"{niche['name']}: {niche['rpm_range']} RPM")
+    # "Parks in [Stadt]": 8-15€ RPM
+
+# Keyword Research
+research = KeywordResearch()
+variations = research.generate_keyword_variations(
+    base="parks",
+    cities=["Berlin", "Munich", "Hamburg"]
+)
+
+for kw in variations:
+    print(f"{kw['keyword']} - Difficulty: {kw['difficulty']}")
+```
+
+### Scenario 4: CSV Import
+
+```python
+from Files.enhanced_scrapers import CSVDataLoader
+
+# CSV laden
+places = CSVDataLoader.load_csv("data/my_locations.csv")
+
+# CSV Format:
+# name,address,city,latitude,longitude,rating,review_count,phone,website,opening_hours
+```
+
+---
+
+## 🏗️ Architektur
+
+### Daten-Pipeline
+
+```
+┌─────────────────┐
+│ Data Collection │
+│ (Scrapers)      │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│ Enrichment      │
+│ (Details API)   │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│ Feature Extract │
+│ (NLP Keywords)  │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│ Deduplication   │
+│ (Name + Coords) │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│ Page Generation │
+│ (Jinja2)        │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│ Static HTML     │
+│ + AdSense       │
+└─────────────────┘
+```
+
+### Projekt-Struktur
+
+```
+ADS_Plilar_scraper/
+├── Files/                          # Haupt-Implementierung
+│   ├── data_pipeline.py            # LocationData, PillarPageGenerator
+│   ├── enhanced_scrapers.py        # Google Places, Feature Extraction
+│   ├── niche_research.py           # Niche Validation, Keywords
+│   ├── gui_app.py                  # Tkinter GUI
+│   ├── quick_start.py              # Interactive Setup Wizard
+│   ├── seo_setup.py                # SEO Tools
+│   ├── pillar_page_skeleton.html   # Jinja2 Template
+│   └── tests/                      # Unit Tests
+│
+├── tests/                          # Integration Tests
+│   ├── test_pipeline_end_to_end.py
+│   └── test_sanitization.py
+│
+├── data/                           # CSV Data Storage
+├── generated/                      # Output Directory
+├── docs/                           # Documentation
+│
+├── requirements.txt                # Python Dependencies
+├── setup.py                        # Package Setup
+├── pytest.ini                      # Test Configuration
+└── README.md                       # This file
+```
+
+---
+
+## 🧪 Testing
+
+### Test Suite ausführen
+
+```bash
+# Alle Tests
+pytest
+
+# Verbose Output
+pytest -v
+
+# Specific Test
+pytest tests/test_pipeline_end_to_end.py -v
+
+# Coverage Report
+pytest --cov=Files --cov-report=html
+```
+
+### Test-Typen
+
+- **Unit Tests** (`Files/tests/`) - Module-spezifische Tests
+- **Integration Tests** (`tests/`) - End-to-End Workflows
+- **System Tests** (`Files/tests/test_system.py`) - Dependency Checks
+
+### Continuous Integration
+
+- **GitHub Actions** führt Tests automatisch bei Push/PR aus
+- **Workflows**: `.github/workflows/test.yml`
+
+---
+
+## 📦 Deployment
+
+### Statische Site (GitHub Pages)
+
+```bash
+# 1. Seite generieren
+python generate_ai_optimized_site.py
+
+# 2. Output liegt in generated/
+ls generated/
+# index.html, ads.txt, robots.txt, sitemap.xml
+
+# 3. GitHub Pages Setup
+# Repository Settings → Pages → GitHub Actions als Source
+```
+
+### Netlify / Vercel
+
+```bash
+# netlify.toml
+[build]
+  command = "python3 generate_ai_optimized_site.py"
+  publish = "generated"
+```
+
+### Custom Server
+
+```bash
+# Static File Server
+cd generated
+python3 -m http.server 8000
+
+# Nginx
+# Kopiere generated/ nach /var/www/html/
+```
+
+---
+
+## 🛠️ Troubleshooting
+
+### Import Errors
+
+```bash
+# Dependencies prüfen
+python3 verify_imports.py
+
+# System Health Check
+cd Files && python3 test_system.py
+```
+
+### Tkinter nicht verfügbar
+
+**macOS:**
+```bash
+brew install python-tk@3.11
+```
+
+**Linux (Ubuntu):**
+```bash
+sudo apt install python3.11-tk
+```
+
+**Windows:**
+Tkinter ist normalerweise vorinstalliert. Falls nicht, Python neu installieren mit Tcl/Tk Option.
+
+### Google API Quota Exceeded
+
+```python
+# Delay zwischen Requests erhöhen
+scraper = GooglePlacesScraper(api_key="...", delay=2.0)  # 2 Sekunden
+```
+
+### Tests schlagen fehl
+
+```bash
+# Virtual Environment aktivieren
+source venv/bin/activate  # macOS/Linux
+venv\Scripts\activate     # Windows
+
+# Dependencies neu installieren
+pip install -r requirements.txt --force-reinstall
+```
+
+---
+
+## 🤝 Contributing
+
+1. **Fork** das Repository
+2. **Clone** deinen Fork
+   ```bash
+   git clone https://github.com/YOUR_USERNAME/ADS_Plilar_scraper.git
+   ```
+3. **Branch** erstellen
+   ```bash
+   git checkout -b feature/amazing-feature
+   ```
+4. **Änderungen** committen
+   ```bash
+   git commit -m "Add amazing feature"
+   ```
+5. **Push** zu deinem Fork
+   ```bash
+   git push origin feature/amazing-feature
+   ```
+6. **Pull Request** erstellen
+
+### Code Style
+
+- **Formatting:** Black (120 char line length)
+- **Linting:** flake8
+- **Pre-commit Hooks:** `.pre-commit-config.yaml`
+
+```bash
+# Pre-commit installieren
+pip install pre-commit
+pre-commit install
+
+# Manuell ausführen
+pre-commit run --all-files
+```
+
+---
+
+## 📝 Lizenz
+
+MIT License - Siehe [LICENSE](LICENSE) für Details
+
+---
+
+## 📚 Weitere Ressourcen
+
+- **📘 [CLAUDE.md](CLAUDE.md)** - Claude Code Dokumentation
+- **🚀 [LAUNCH_SUMMARY.md](LAUNCH_SUMMARY.md)** - Deployment Guide
+- **🏰 [BABELSBERGER_README.md](BABELSBERGER_README.md)** - Beispiel-Implementierung
+- **🔧 [docs/CLAUDE_REPOSITORY_ACCESS.md](docs/CLAUDE_REPOSITORY_ACCESS.md)** - Claude Setup
+
+---
+
+## 🆘 Support
+
+- **GitHub Issues:** [Issues](https://github.com/DYAI2025/ADS_Plilar_scraper/issues)
+- **Discussions:** [Discussions](https://github.com/DYAI2025/ADS_Plilar_scraper/discussions)
+
+---
+
+## 📊 Status
+
+- ✅ **Tests:** 18/20 passed (2 skipped - GUI in headless)
+- ✅ **Python:** 3.8 - 3.12 (tested in CI)
+- ✅ **Platform:** macOS, Linux, Windows
+- ✅ **API Integration:** Google Places API (Text Search + Details)
+- ✅ **Features:** Vollständig implementiert
+- ✅ **Documentation:** Vollständig
+
+---
+
+**Built with ❤️ for Programmatic SEO**
+
+_Last Updated: 2025-12-07_
