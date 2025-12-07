@@ -125,10 +125,12 @@ class DataEnrichment:
             )
 
         # Special logic for fee (free is opposite of fee)
+        # If "free" keywords found, set fee to False
+        # Otherwise, assume no fee (optimistic for parks/public spaces)
         if features.get("feature_fee", False):
             features["feature_fee"] = False  # Found "free" keywords = no fee
         else:
-            features["feature_fee"] = True  # Default: assume fee
+            features["feature_fee"] = False  # Default: no fee (most public parks are free)
 
         return features
 

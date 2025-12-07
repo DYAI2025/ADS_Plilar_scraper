@@ -38,6 +38,7 @@ class ScrapedLocation:
     categories: List[str] = None
     reviews_text: str = ""
     photos: List[str] = None
+    place_id: str = ""  # Google Places ID for enrichment
 
     def __post_init__(self):
         if self.categories is None:
@@ -109,7 +110,7 @@ class GooglePlacesScraper:
         return all_places
 
     def enrich_places(self, places: List[ScrapedLocation]) -> List[ScrapedLocation]:
-        """Enrich places with detailed information"""
+        """Enrich places with detailed information from Google Places Details API"""
 
         enriched_places = []
 
@@ -117,10 +118,24 @@ class GooglePlacesScraper:
             logger.info(f"Enriching place {i+1}/{len(places)}: {place.name}")
 
             try:
-                # Get place details (would need place_id from search)
-                # This is a simplified version
-                enriched_place = place
-                enriched_places.append(enriched_place)
+                # Only enrich if we have a place_id
+                if not place.place_id:
+                    logger.warning(f"No place_id for {place.name}, skipping enrichment")
+                    enriched_places.append(place)
+                    continue
+
+                # Call Google Places Details API
+                details = self._get_place_details(place.place_id)
+
+                if details:
+                    # Update place with detailed information
+                    place.phone = details.get("phone", place.phone)
+                    place.website = details.get("website", place.website)
+                    place.opening_hours = details.get("opening_hours", place.opening_hours)
+                    place.reviews_text = details.get("reviews_text", place.reviews_text)
+                    place.photos = details.get("photos", place.photos)
+
+                enriched_places.append(place)
 
             except Exception as e:
                 logger.error(f"Error enriching place {place.name}: {e}")
@@ -130,6 +145,59 @@ class GooglePlacesScraper:
 
         return enriched_places
 
+    def _get_place_details(self, place_id: str) -> Optional[Dict]:
+        """Get detailed information for a specific place"""
+
+        url = f"{self.base_url}/details/json"
+        params = {
+            "place_id": place_id,
+            "key": self.api_key,
+            "fields": "formatted_phone_number,international_phone_number,website,opening_hours,reviews,photos",
+        }
+
+        try:
+            response = self.session.get(url, params=params)
+            response.raise_for_status()
+            data = response.json()
+
+            if data.get("status") != "OK":
+                logger.warning(
+                    f"Details API returned status: {data.get('status')} for place_id: {place_id}"
+                )
+                return None
+
+            result = data.get("result", {})
+
+            # Extract reviews text
+            reviews = result.get("reviews", [])
+            reviews_text = " ".join([review.get("text", "") for review in reviews[:5]])
+
+            # Extract opening hours
+            opening_hours_data = result.get("opening_hours", {})
+            opening_hours = ", ".join(
+                opening_hours_data.get("weekday_text", [])
+            )
+
+            # Extract photos (up to 3)
+            photos_data = result.get("photos", [])
+            photos = [
+                f"https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference={photo.get('photo_reference')}&key={self.api_key}"
+                for photo in photos_data[:3]
+            ]
+
+            return {
+                "phone": result.get("international_phone_number")
+                or result.get("formatted_phone_number", ""),
+                "website": result.get("website", ""),
+                "opening_hours": opening_hours,
+                "reviews_text": reviews_text,
+                "photos": photos,
+            }
+
+        except Exception as e:
+            logger.error(f"Error getting place details for {place_id}: {e}")
+            return None
+
     def _parse_place_basic(self, place_data: Dict) -> Optional[ScrapedLocation]:
         """Parse basic place data from API response"""
 
@@ -137,18 +205,29 @@ class GooglePlacesScraper:
             geometry = place_data.get("geometry", {})
             location = geometry.get("location", {})
 
+            lat = location.get("lat", 0.0)
+            lng = location.get("lng", 0.0)
+
+            # Validate coordinates
+            if not self._validate_coordinates(lat, lng):
+                logger.warning(
+                    f"Invalid coordinates for {place_data.get('name', 'unknown')}: lat={lat}, lng={lng}"
+                )
+                # Don't skip the place, but log the issue
+
             return ScrapedLocation(
                 name=place_data.get("name", ""),
                 address=place_data.get("formatted_address", ""),
                 city=self._extract_city_from_address(
                     place_data.get("formatted_address", "")
                 ),
-                latitude=location.get("lat", 0.0),
-                longitude=location.get("lng", 0.0),
+                latitude=lat,
+                longitude=lng,
                 rating=place_data.get("rating", 0.0),
                 review_count=place_data.get("user_ratings_total", 0),
                 price_level=place_data.get("price_level", 0),
                 categories=place_data.get("types", []),
+                place_id=place_data.get("place_id", ""),  # Save for enrichment
             )
 
         except Exception as e:
@@ -160,12 +239,29 @@ class GooglePlacesScraper:
         if not address:
             return ""
 
-        # Simple regex for German addresses
+        # Simple regex for German addresses (PLZ + City)
         city_match = re.search(r"\d{5}\s+([^,]+)", address)
         if city_match:
             return city_match.group(1).strip()
 
+        # Fallback: try comma-separated format (City, Country)
+        parts = address.split(",")
+        if len(parts) >= 2:
+            # Return second-to-last part (usually city)
+            return parts[-2].strip()
+
         return ""
+
+    @staticmethod
+    def _validate_coordinates(lat: float, lng: float) -> bool:
+        """Validate that coordinates are plausible (not 0.0 and within valid range)"""
+        if lat == 0.0 and lng == 0.0:
+            return False
+        if not (-90 <= lat <= 90):
+            return False
+        if not (-180 <= lng <= 180):
+            return False
+        return True
 
 
 class WebScraper:
@@ -410,8 +506,19 @@ class SmartFeatureExtractor:
     }
 
     @classmethod
-    def extract_features(cls, text: str, reviews: str = "") -> Dict[str, bool]:
-        """Extract boolean features from text and reviews"""
+    def extract_features(
+        cls, text: str, reviews: str = "", price_level: int = 0
+    ) -> Dict[str, bool]:
+        """Extract boolean features from text, reviews, and price_level
+
+        Args:
+            text: Location name and description
+            reviews: Reviews text from Google Places
+            price_level: Google Places price_level (0=free, 1-4=paid)
+
+        Returns:
+            Dictionary of feature flags
+        """
 
         combined_text = f"{text} {reviews}".lower()
         features = {}
@@ -428,7 +535,15 @@ class SmartFeatureExtractor:
             feature_key = f"feature_{feature_name}"
             if feature_name == "free":
                 feature_key = "feature_fee"
-                feature_found = not feature_found  # Invert for fee
+                # Use price_level if available (Google's authoritative data)
+                if price_level > 0:
+                    feature_found = True  # Has fee (price_level indicates paid)
+                elif feature_found:
+                    # Found "free" keywords in text
+                    feature_found = False  # No fee
+                else:
+                    # No price_level and no keywords → assume free (optimistic for public places)
+                    feature_found = False
 
             features[feature_key] = feature_found
 
@@ -530,7 +645,9 @@ class UniversalScraper:
         enriched_places = []
         for place in unique_places:
             features = self.feature_extractor.extract_features(
-                f"{place.name} {place.address}", place.reviews_text
+                f"{place.name} {place.address}",
+                place.reviews_text,
+                place.price_level,  # Pass price_level for accurate fee detection
             )
 
             # Convert to dictionary format
@@ -545,6 +662,7 @@ class UniversalScraper:
                 "phone": place.phone,
                 "website": place.website,
                 "opening_hours": place.opening_hours,
+                "price_level": place.price_level,
                 **features,
             }
 
@@ -556,18 +674,29 @@ class UniversalScraper:
     def _deduplicate_places(
         self, places: List[ScrapedLocation]
     ) -> List[ScrapedLocation]:
-        """Remove duplicate places based on name and address similarity"""
+        """Remove duplicate places based on name, address, and coordinate similarity"""
 
         unique_places = []
-        seen = set()
+        seen_names = set()
+        seen_coords = set()
 
         for place in places:
-            # Create a normalized key for deduplication
-            key = f"{place.name.lower().strip()}_{place.address.lower().strip()}"
-            key = re.sub(r"\s+", " ", key)  # Normalize whitespace
+            # Create a normalized key for name+address deduplication
+            name_key = f"{place.name.lower().strip()}_{place.address.lower().strip()}"
+            name_key = re.sub(r"\s+", " ", name_key)  # Normalize whitespace
 
-            if key not in seen:
-                seen.add(key)
+            # Create coordinate key (rounded to 4 decimal places for ~11m precision)
+            coord_key = (round(place.latitude, 4), round(place.longitude, 4))
+
+            # Check if duplicate by name/address OR by coordinates
+            is_duplicate = name_key in seen_names or (
+                coord_key in seen_coords and coord_key != (0.0, 0.0)
+            )
+
+            if not is_duplicate:
+                seen_names.add(name_key)
+                if coord_key != (0.0, 0.0):
+                    seen_coords.add(coord_key)
                 unique_places.append(place)
             else:
                 logger.debug(f"Duplicate found: {place.name}")
