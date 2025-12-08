@@ -1,9 +1,11 @@
-import requests
-import pandas as pd
 import json
-from typing import List, Dict
 import time
+from pathlib import Path
+from typing import Dict, List, Optional
 from urllib.parse import quote
+
+import pandas as pd
+import requests
 
 
 class KeywordResearch:
@@ -88,110 +90,172 @@ class KeywordResearch:
 
 
 class NicheValidator:
-    """Validate niche opportunities"""
+    """Validate niche opportunities using live geo data instead of placeholders"""
 
-    NICHE_IDEAS = [
-        {
-            "name": "Hundeparks",
-            "keywords": ["hundepark", "dog park", "hundezone", "freilaufzone"],
-            "facets": [
-                "zaun",
-                "wasser",
-                "schatten",
-                "größe",
-                "agility",
-                "kleine_hunde",
-            ],
-            "cities": ["Berlin", "München", "Hamburg", "Köln", "Frankfurt"],
-            "seasonality": "low",
-            "monetization_potential": "medium",
-        },
-        {
-            "name": "Sauna & Kaltwasser",
-            "keywords": ["sauna", "kaltwasser", "eisbad", "wellness", "spa"],
-            "facets": ["temperatur", "außen_bereich", "ruheraum", "aufguss", "preise"],
-            "cities": ["Berlin", "München", "Hamburg", "Stuttgart", "Dresden"],
-            "seasonality": "medium",
-            "monetization_potential": "high",
-        },
-        {
-            "name": "Arbeitsplätze & Cafés",
-            "keywords": [
-                "coworking",
-                "wifi cafe",
-                "arbeitsplatz",
-                "laptop cafe",
-                "study spot",
-            ],
-            "facets": ["wifi", "steckdosen", "lärmpegel", "öffnungszeiten", "getränke"],
-            "cities": ["Berlin", "München", "Hamburg", "Frankfurt", "Düsseldorf"],
-            "seasonality": "low",
-            "monetization_potential": "high",
-        },
-        {
-            "name": "Spielplätze",
-            "keywords": [
-                "spielplatz",
-                "playground",
-                "kinderpark",
-                "abenteuerspielplatz",
-            ],
-            "facets": ["altersgruppe", "zaun", "schatten", "parking", "toiletten"],
-            "cities": ["Berlin", "München", "Hamburg", "Köln", "Stuttgart"],
-            "seasonality": "medium",
-            "monetization_potential": "medium",
-        },
-        {
-            "name": "Fotospots",
-            "keywords": [
-                "fotospot",
-                "instagram spot",
-                "photo location",
-                "aussichtspunkt",
-            ],
-            "facets": [
-                "beste_zeit",
-                "equipment",
-                "erlaubnis",
-                "menschenmenge",
-                "wetter",
-            ],
-            "cities": ["Berlin", "München", "Hamburg", "Dresden", "Rothenburg"],
-            "seasonality": "high",
-            "monetization_potential": "medium",
-        },
-    ]
+    def __init__(
+        self,
+        config_path: str = "quick_config.json",
+        data_sources: Optional[List[Path]] = None,
+    ):
+        self.config = self._load_config(config_path)
+        self.data_sources = data_sources or [
+            Path("data/babelsberg_locations.csv"),
+            Path("data/active.csv"),
+            Path("data/collected_data.csv"),
+        ]
+        self.analytics_df = self._load_geolocation_data()
+        self.niches = self._build_dynamic_niches()
+
+    def _load_config(self, config_path: str) -> Dict:
+        path = Path(config_path)
+        if path.exists():
+            with open(path, "r", encoding="utf-8") as f:
+                return json.load(f)
+
+        return {
+            "city": "Berlin",
+            "category": "Parks",
+            "google_api_key": "",
+        }
+
+    @staticmethod
+    def _normalize_bool(series: pd.Series) -> pd.Series:
+        return series.astype(str).str.upper().isin({"TRUE", "1", "JA", "YES", "Y"})
+
+    def _load_geolocation_data(self) -> pd.DataFrame:
+        frames: List[pd.DataFrame] = []
+        for path in self.data_sources:
+            if not path.exists():
+                continue
+            try:
+                df = pd.read_csv(path)
+                frames.append(df)
+            except Exception as exc:
+                print(f"⚠️  Konnte {path} nicht laden: {exc}")
+
+        if not frames:
+            return pd.DataFrame()
+
+        df = pd.concat(frames, ignore_index=True, sort=False)
+        if "review_count" in df.columns:
+            df["review_count"] = pd.to_numeric(df["review_count"], errors="coerce").fillna(0)
+        if "rating" in df.columns:
+            df["rating"] = pd.to_numeric(df["rating"], errors="coerce").fillna(0)
+        return df
+
+    @staticmethod
+    def _feature_to_label(feature_name: str) -> str:
+        mapping = {
+            "feature_dogs_allowed": "Hundefreundliche Spots",
+            "feature_kids_friendly": "Familienfreundliche Orte",
+            "feature_parking": "Parkplätze in der Nähe",
+            "feature_toilets": "Orte mit Toiletten",
+            "feature_water": "Am Wasser",
+            "feature_shade": "Schattenplätze",
+            "feature_wheelchair_accessible": "Barrierefreie Orte",
+            "feature_restaurant": "Gastro & Snacks",
+        }
+        return mapping.get(feature_name, feature_name.replace("feature_", "").replace("_", " ").title())
+
+    @staticmethod
+    def _monetization_bucket(total_reviews: float) -> str:
+        if total_reviews >= 10000:
+            return "high"
+        if total_reviews >= 2500:
+            return "medium"
+        return "emerging"
+
+    def _extract_tags(self, feature_df: pd.DataFrame) -> List[str]:
+        if "tags" not in feature_df.columns:
+            return []
+
+        tag_scores: Dict[str, float] = {}
+        for _, row in feature_df.iterrows():
+            weight = float(row.get("review_count", 0)) or 1.0
+            for tag in str(row.get("tags", "")).split(","):
+                tag_clean = tag.strip()
+                if not tag_clean:
+                    continue
+                tag_scores[tag_clean] = tag_scores.get(tag_clean, 0.0) + weight
+
+        return [tag for tag, _ in sorted(tag_scores.items(), key=lambda x: x[1], reverse=True)]
+
+    def _build_dynamic_niches(self) -> List[Dict]:
+        if self.analytics_df.empty:
+            return []
+
+        feature_columns = [col for col in self.analytics_df.columns if col.startswith("feature_")]
+        niches: List[Dict] = []
+
+        for feature in feature_columns:
+            feature_mask = self._normalize_bool(self.analytics_df[feature])
+            feature_df = self.analytics_df[feature_mask]
+            if feature_df.empty:
+                continue
+
+            total_reviews = float(feature_df.get("review_count", pd.Series([])).sum())
+            tags = self._extract_tags(feature_df)
+            display_name = self._feature_to_label(feature)
+            niche_keywords = [display_name.lower()] + [t.lower() for t in tags[:3]]
+
+            niches.append(
+                {
+                    "name": display_name,
+                    "feature_column": feature,
+                    "keywords": niche_keywords,
+                    "facets": tags[:5] if tags else [display_name],
+                    "cities": [self.config.get("city", "") or "Berlin"],
+                    "seasonality": "live",
+                    "monetization_potential": self._monetization_bucket(total_reviews),
+                    "analytics": {
+                        "locations": len(feature_df),
+                        "total_reviews": int(total_reviews),
+                        "avg_rating": round(feature_df.get("rating", pd.Series([])).mean(), 2),
+                    },
+                }
+            )
+
+        niches.sort(key=lambda n: n["analytics"]["total_reviews"], reverse=True)
+        return niches
 
     def analyze_niche(self, niche_name: str) -> Dict:
-        """Analyze a specific niche opportunity"""
+        """Analyze a specific niche opportunity based on collected geo data"""
 
         niche = next(
-            (n for n in self.NICHE_IDEAS if n["name"].lower() == niche_name.lower()),
-            None,
+            (n for n in self.niches if n["name"].lower() == niche_name.lower()), None
         )
         if not niche:
             return {"error": f'Niche "{niche_name}" not found'}
 
+        feature_df = self.analytics_df[
+            self._normalize_bool(self.analytics_df[niche["feature_column"]])
+        ]
+
         print(f"📊 Analyzing niche: {niche['name']}")
 
-        # Generate keyword research
         researcher = KeywordResearch()
-        all_keywords = []
+        base_city = niche["cities"][0]
+        all_keywords: List[Dict] = []
 
-        for keyword in niche["keywords"][:2]:  # Limit for demo
-            variations = researcher.generate_keyword_variations(
-                keyword, niche["cities"][:3]
-            )
+        for keyword in niche["keywords"][:3]:
+            variations = researcher.generate_keyword_variations(keyword, [base_city])
+            for entry in variations:
+                entry["estimated_volume"] = int(niche["analytics"]["total_reviews"])
+                entry["competition"] = (
+                    "Low" if niche["analytics"]["total_reviews"] < 2500 else "Medium"
+                )
             all_keywords.extend(variations)
 
-        # Calculate opportunity score
         total_volume = sum(kw["estimated_volume"] for kw in all_keywords)
         low_competition_count = sum(
-            1 for kw in all_keywords if kw["competition"] == "Low"
+            1 for kw in all_keywords if kw["competition"].lower() == "low"
         )
 
         opportunity_score = min(
-            100, (total_volume / 1000) + (low_competition_count * 5)
+            100,
+            (total_volume / 1000)
+            + (float(feature_df.get("rating", pd.Series([])).mean()) * 5)
+            + (low_competition_count * 2),
         )
 
         return {
@@ -201,13 +265,14 @@ class NicheValidator:
             "low_competition_keywords": low_competition_count,
             "opportunity_score": round(opportunity_score, 1),
             "recommended": opportunity_score > 50,
+            "analytics": niche["analytics"],
         }
 
     def get_niche_recommendations(self) -> List[Dict]:
         """Get all niche recommendations ranked by opportunity"""
 
         recommendations = []
-        for niche in self.NICHE_IDEAS:
+        for niche in self.niches:
             analysis = self.analyze_niche(niche["name"])
             if "error" not in analysis:
                 recommendations.append(analysis)
