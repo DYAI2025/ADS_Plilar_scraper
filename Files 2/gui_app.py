@@ -51,7 +51,20 @@ class ADSPillarGUI:
         self.root = root
         self.root.title("ADS Pillar - GUI Dashboard")
         self.root.geometry("1200x800")
-        
+
+        # Center window on screen (FIX for macOS where window can be off-screen)
+        self.root.update_idletasks()
+        width = 1200
+        height = 800
+        x = (self.root.winfo_screenwidth() // 2) - (width // 2)
+        y = (self.root.winfo_screenheight() // 2) - (height // 2)
+        self.root.geometry(f'{width}x{height}+{x}+{y}')
+
+        # Bring window to front (especially important on macOS)
+        self.root.lift()
+        self.root.attributes('-topmost', True)
+        self.root.after_idle(self.root.attributes, '-topmost', False)
+
         # Variables
         self.project_config = {
             'site_name': tk.StringVar(value="Local Places Guide"),
@@ -311,19 +324,30 @@ class ADSPillarGUI:
         # KPI Dashboard
         kpi_frame = ttk.LabelFrame(main_frame, text="📊 KPI Dashboard")
         kpi_frame.pack(fill="x", pady=(0, 20))
-        
-        # KPI values (mock data for demo)
+
+        # WARNING: NO LIVE DATA - PLACEHOLDER ONLY
+        warning_label = ttk.Label(
+            kpi_frame,
+            text="⚠️ Keine Live-Daten verfügbar\nVerbinde Google Analytics und AdSense für echte KPIs",
+            font=("Arial", 12),
+            foreground="orange",
+            justify="center"
+        )
+        warning_label.grid(row=0, column=0, columnspan=6, pady=20, padx=10)
+
+        # Placeholder KPIs (clearly marked as NO DATA)
         kpis = [
-            ("Pageviews (Monat):", "45,230", "↗️ +15%"),
-            ("Page RPM:", "€12.45", "↗️ +2.1%"),
-            ("AdSense Revenue:", "€563.12", "↗️ +18%"),
-            ("Avg. Position:", "23.4", "↗️ -3.2"),
+            ("Pageviews (Monat):", "-- (keine Daten)", "⚠️"),
+            ("Page RPM:", "-- €", "⚠️"),
+            ("AdSense Revenue:", "-- €", "⚠️"),
+            ("Avg. Position:", "--", "⚠️"),
         ]
-        
+
         for i, (label, value, trend) in enumerate(kpis):
-            ttk.Label(kpi_frame, text=label).grid(row=i//2, column=(i%2)*3, sticky="w", padx=5, pady=5)
-            ttk.Label(kpi_frame, text=value, font=("Arial", 12, "bold")).grid(row=i//2, column=(i%2)*3+1, padx=5, pady=5)
-            ttk.Label(kpi_frame, text=trend).grid(row=i//2, column=(i%2)*3+2, padx=5, pady=5)
+            row_offset = 1  # Offset because of warning label
+            ttk.Label(kpi_frame, text=label).grid(row=row_offset + i//2, column=(i%2)*3, sticky="w", padx=5, pady=5)
+            ttk.Label(kpi_frame, text=value, font=("Arial", 12), foreground="gray").grid(row=row_offset + i//2, column=(i%2)*3+1, padx=5, pady=5)
+            ttk.Label(kpi_frame, text=trend, foreground="gray").grid(row=row_offset + i//2, column=(i%2)*3+2, padx=5, pady=5)
         
         # Revenue calculator
         calc_frame = ttk.LabelFrame(main_frame, text="💰 Revenue Calculator")
@@ -425,26 +449,48 @@ class ADSPillarGUI:
         threading.Thread(target=setup_thread, daemon=True).start()
         
     def create_sample_data(self):
-        """Create sample data file"""
+        """Create DEMO sample data file - WARNING: NOT REAL DATA!
+
+        ⚠️ CRITICAL: This data is for DEMO/TESTING purposes only.
+        DO NOT use in production - it contains fake ratings and review counts!
+        """
+        print("⚠️ WARNING: Creating DEMO data with fake values!")
+        print("   This data is for testing only - DO NOT use in production!")
+
         sample_data = [
             {
-                'id': 1, 'name': 'Tiergarten', 'street': 'Unter den Linden 1',
-                'city': self.project_config['city'].get(), 'region': 'Berlin',
-                'country': 'Deutschland', 'postcode': '10117',
-                'latitude': 52.5144, 'longitude': 13.3501,
-                'url': 'https://berlin.de/tiergarten', 'phone': '+49 30 123456',
-                'email': '', 'opening_hours': 'Mo-So 06:00-22:00',
-                'rating': 4.5, 'review_count': 1250,
-                'feature_shade': True, 'feature_benches': True, 'feature_water': True,
-                'feature_parking': False, 'feature_toilets': True,
-                'feature_wheelchair_accessible': True, 'feature_kids_friendly': True,
-                'feature_dogs_allowed': True, 'feature_fee': False,
-                'feature_seasonal': False, 'tags': 'park,zentral,tourist'
+                'id': 'DEMO_001',  # Marked as DEMO
+                'name': '[DEMO] Beispiel-Park',  # Clear prefix
+                'street': 'Beispielstraße 1',
+                'city': self.project_config['city'].get(),
+                'region': 'Berlin',
+                'country': 'Deutschland',
+                'postcode': '10117',
+                'latitude': 52.5144,
+                'longitude': 13.3501,
+                'url': '',  # Empty - no fake URL
+                'phone': '',  # Empty - no fake phone number
+                'email': '',
+                'opening_hours': '',  # Empty - no fake hours
+                'rating': 0.0,  # NO FAKE RATINGS!
+                'review_count': 0,  # NO FAKE REVIEW COUNTS!
+                'feature_shade': True,
+                'feature_benches': True,
+                'feature_water': True,
+                'feature_parking': False,
+                'feature_toilets': True,
+                'feature_wheelchair_accessible': True,
+                'feature_kids_friendly': True,
+                'feature_dogs_allowed': True,
+                'feature_fee': False,
+                'feature_seasonal': False,
+                'tags': 'demo,test,beispiel'
             }
         ]
-        
+
         df = pd.DataFrame(sample_data)
         df.to_csv("data/sample_data.csv", index=False)
+        print("✅ DEMO data saved to data/sample_data.csv")
         
     def analyze_niches(self):
         """Analyze available niches"""
