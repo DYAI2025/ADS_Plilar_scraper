@@ -12,6 +12,7 @@ import os
 import sys
 import json
 from pathlib import Path
+from typing import Dict, List, Any
 
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(__file__))
@@ -19,7 +20,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 from niche_research import ReviewDemandAnalyzer
 
 
-def _print_detailed_report(analysis: dict, ideas: list, category: str, city: str):
+def _print_detailed_report(analysis: Dict[str, Any], ideas: List[Dict[str, Any]], category: str, city: str):
     """
     Print a detailed analysis report using pre-computed analysis and ideas.
     This avoids redundant API calls when results are already available.
@@ -192,18 +193,26 @@ Examples:
     # Run analysis
     try:
         # Always run analysis once and cache results to avoid redundant API calls
-        analysis = analyzer.analyze_review_sentiment(
-            category=args.category,
-            city=args.city,
-            min_reviews=args.min_reviews,
-            max_places=args.max_places
-        )
+        try:
+            analysis = analyzer.analyze_review_sentiment(
+                category=args.category,
+                city=args.city,
+                min_reviews=args.min_reviews,
+                max_places=args.max_places
+            )
+        except Exception as e:
+            print(f"\n❌ Error during sentiment analysis: {e}")
+            raise
 
-        ideas = analyzer.generate_content_ideas(
-            category=args.category,
-            city=args.city,
-            max_places=args.max_places
-        )
+        try:
+            ideas = analyzer.generate_content_ideas(
+                category=args.category,
+                city=args.city,
+                max_places=args.max_places
+            )
+        except Exception as e:
+            print(f"\n❌ Error generating content ideas: {e}")
+            raise
         
         # Display results based on quiet mode
         if args.quiet:
