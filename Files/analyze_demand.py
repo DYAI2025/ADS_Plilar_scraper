@@ -164,7 +164,7 @@ Examples:
 
         # Save to JSON if requested
         if args.output:
-            # Reuse cached results if available (from quiet mode)
+            # Reuse cached results if available (from quiet or verbose mode)
             # Otherwise, run analysis now
             if cached_analysis is None:
                 cached_analysis = analyzer.analyze_review_sentiment(
