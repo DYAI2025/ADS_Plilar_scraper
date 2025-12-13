@@ -1,7 +1,7 @@
 import json
 import time
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 from urllib.parse import quote
 import re
 from collections import Counter
@@ -784,6 +784,10 @@ class ReviewDemandAnalyzer:
 
     def _is_too_generic(self, phrase: str) -> bool:
         """Check if a phrase is too generic to be useful."""
+        # Handle None or empty input
+        if not phrase or not phrase.strip():
+            return True
+        
         generic_patterns = [
             r"^sehr\s+", r"^gut\s+", r"^schlecht\s+",
             r"^very\s+", r"^good\s+", r"^bad\s+",
