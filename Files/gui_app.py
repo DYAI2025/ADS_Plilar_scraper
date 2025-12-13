@@ -1002,7 +1002,8 @@ class ADSPillarGUI:
         if not api_key or not isinstance(api_key, str):
             return False
         
-        # Basic format check - Google API keys are typically 39 characters starting with AIza
+        # Basic format check - Google API keys typically start with AIza and are at least 30 characters
+        # (most are 39 characters, but we use 30 as minimum to accommodate variations)
         if not api_key.startswith("AIza") or len(api_key) < 30:
             return False
         
@@ -1027,7 +1028,9 @@ class ADSPillarGUI:
             
             return True
         except (requests.RequestException, ValueError, KeyError):
-            # If validation request fails, assume key might be valid (network issues, etc.)
+            # If validation request fails due to network issues, we err on the side of accepting the key
+            # to avoid blocking users when Google's API is temporarily unavailable or network is down.
+            # The actual API call will provide proper error messages if the key is truly invalid.
             return True
 
     def upload_page(self):
