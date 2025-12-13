@@ -10,11 +10,11 @@ import sys
 
 # Import GooglePlacesScraper for review data
 try:
-    from enhanced_scrapers import GooglePlacesScraper, ScrapedLocation
+    from enhanced_scrapers import GooglePlacesScraper
 except ImportError:
     # Fallback for when running from different directory
     sys.path.insert(0, os.path.dirname(__file__))
-    from enhanced_scrapers import GooglePlacesScraper, ScrapedLocation
+    from enhanced_scrapers import GooglePlacesScraper
 
 import pandas as pd
 import requests
