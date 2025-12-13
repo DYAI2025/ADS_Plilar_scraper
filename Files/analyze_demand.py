@@ -127,16 +127,20 @@ Examples:
 
     # Run analysis
     try:
+        # Cache results to avoid redundant API calls when saving to JSON
+        cached_analysis = None
+        cached_ideas = None
+        
         if args.quiet:
             # Quick analysis without detailed report
-            analysis = analyzer.analyze_review_sentiment(
+            cached_analysis = analyzer.analyze_review_sentiment(
                 category=args.category,
                 city=args.city,
                 min_reviews=args.min_reviews,
                 max_places=args.max_places
             )
 
-            ideas = analyzer.generate_content_ideas(
+            cached_ideas = analyzer.generate_content_ideas(
                 category=args.category,
                 city=args.city,
                 max_places=args.max_places
@@ -144,15 +148,15 @@ Examples:
 
             # Print summary only
             print(f"\n📊 ANALYSIS SUMMARY")
-            print(f"   Reviews Analyzed: {analysis['total_reviews_analyzed']}")
-            print(f"   Avg Rating: {analysis['avg_rating']:.2f}/5.0")
-            print(f"   Top Complaint: {analysis['top_complaints'][0][0] if analysis['top_complaints'] else 'N/A'}")
-            print(f"   Top Unmet Need: {analysis['unmet_needs'][0][0] if analysis['unmet_needs'] else 'N/A'}")
-            print(f"   Content Ideas Generated: {len(ideas)}\n")
+            print(f"   Reviews Analyzed: {cached_analysis['total_reviews_analyzed']}")
+            print(f"   Avg Rating: {cached_analysis['avg_rating']:.2f}/5.0")
+            print(f"   Top Complaint: {cached_analysis['top_complaints'][0][0] if cached_analysis['top_complaints'] else 'N/A'}")
+            print(f"   Top Unmet Need: {cached_analysis['unmet_needs'][0][0] if cached_analysis['unmet_needs'] else 'N/A'}")
+            print(f"   Content Ideas Generated: {len(cached_ideas)}\n")
 
         else:
-            # Full detailed report
-            analyzer.print_analysis_report(
+            # Full detailed report - now returns results to avoid redundant API calls
+            cached_analysis, cached_ideas = analyzer.print_analysis_report(
                 category=args.category,
                 city=args.city,
                 max_places=args.max_places
@@ -160,24 +164,28 @@ Examples:
 
         # Save to JSON if requested
         if args.output:
-            analysis = analyzer.analyze_review_sentiment(
-                category=args.category,
-                city=args.city,
-                min_reviews=args.min_reviews,
-                max_places=args.max_places
-            )
+            # Reuse cached results if available (from quiet mode)
+            # Otherwise, run analysis now
+            if cached_analysis is None:
+                cached_analysis = analyzer.analyze_review_sentiment(
+                    category=args.category,
+                    city=args.city,
+                    min_reviews=args.min_reviews,
+                    max_places=args.max_places
+                )
 
-            ideas = analyzer.generate_content_ideas(
-                category=args.category,
-                city=args.city,
-                max_places=args.max_places
-            )
+            if cached_ideas is None:
+                cached_ideas = analyzer.generate_content_ideas(
+                    category=args.category,
+                    city=args.city,
+                    max_places=args.max_places
+                )
 
             output_data = {
                 "category": args.category,
                 "city": args.city,
-                "analysis": analysis,
-                "content_ideas": ideas,
+                "analysis": cached_analysis,
+                "content_ideas": cached_ideas,
                 "parameters": {
                     "max_places": args.max_places,
                     "min_reviews": args.min_reviews
