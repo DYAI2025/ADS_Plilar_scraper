@@ -13,9 +13,10 @@ import threading
 from pathlib import Path
 import webbrowser
 import shutil
+import requests
 
 try:
-    from data_pipeline import DataScraper, PillarPageGenerator, LocationData, DataEnrichment
+    from data_pipeline import DataScraper, PillarPageGenerator, LocationData
     MODULES_AVAILABLE = True
     IMPORT_ERROR_MSG = None
 except Exception as e:
@@ -865,6 +866,16 @@ class ADSPillarGUI:
                         self.update_status("Bereit")
                         return
 
+                # Validate API key
+                self.niche_details.insert(tk.END, "🔑 Validiere API Key...\n")
+                if not self._validate_api_key(api_key):
+                    self.niche_details.insert(tk.END, "❌ Ungültiger API Key!\n")
+                    self.niche_details.insert(tk.END, "   • Key muss mit 'AIza' beginnen\n")
+                    self.niche_details.insert(tk.END, "   • Key wird von Google API abgelehnt\n")
+                    self.niche_details.insert(tk.END, "   Tipp: Prüfe deinen API Key in der Google Cloud Console\n")
+                    self.update_status("Bereit")
+                    return
+
                 self.niche_details.insert(tk.END, f"📍 Analysiere: {category} in {city}\n")
                 self.niche_details.insert(tk.END, "=" * 60 + "\n\n")
 
@@ -980,6 +991,47 @@ class ADSPillarGUI:
         self.root.wait_window(dialog)
 
         return result["key"]
+
+    def _validate_api_key(self, api_key: str) -> bool:
+        """
+        Validate API key format and attempt a simple test request.
+        
+        Returns:
+            True if key appears valid, False otherwise
+        """
+        if not api_key or not isinstance(api_key, str):
+            return False
+        
+        # Basic format check - Google API keys typically start with AIza and are at least 30 characters
+        # (most are 39 characters, but we use 30 as minimum to accommodate variations)
+        if not api_key.startswith("AIza") or len(api_key) < 30:
+            return False
+        
+        # Try a simple API call to validate the key works
+        try:
+            test_url = "https://maps.googleapis.com/maps/api/place/findplacefromtext/json"
+            test_params = {
+                "input": "test",
+                "inputtype": "textquery",
+                "key": api_key,
+                "fields": "place_id"
+            }
+            response = requests.get(test_url, params=test_params, timeout=5)
+            data = response.json()
+            
+            # Check if the API key is accepted (not necessarily finding results, just not rejected)
+            status = data.get("status")
+            if status in ["REQUEST_DENIED", "INVALID_REQUEST"]:
+                error_msg = data.get("error_message", "")
+                if "API key" in error_msg or "invalid" in error_msg.lower():
+                    return False
+            
+            return True
+        except (requests.RequestException, ValueError, KeyError):
+            # If validation request fails due to network issues, we err on the side of accepting the key
+            # to avoid blocking users when Google's API is temporarily unavailable or network is down.
+            # The actual API call will provide proper error messages if the key is truly invalid.
+            return True
 
     def upload_page(self):
         """Upload page to server"""

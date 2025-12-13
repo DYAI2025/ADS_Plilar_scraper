@@ -16,7 +16,7 @@ Das Fenster hat keine Position - auf macOS kann es:
 - Komplett off-screen sein
 - Hinter anderen Fenstern versteckt sein
 - Auf einem nicht angeschlossenen Display landen
-- In der Menü-Bar verschw inden
+- In der Menü-Bar verschwinden
 
 **Impact:** Nutzer können GUI nicht sehen → Programm scheint nicht zu funktionieren
 

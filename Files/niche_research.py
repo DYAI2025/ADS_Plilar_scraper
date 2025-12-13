@@ -1,7 +1,7 @@
 import json
 import time
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 from urllib.parse import quote
 import re
 from collections import Counter
@@ -565,7 +565,10 @@ class ReviewDemandAnalyzer:
             response.raise_for_status()
             data = response.json()
 
-            if data.get("status") != "OK":
+            status = data.get("status")
+            if status != "OK":
+                error_msg = data.get("error_message", "Unknown error")
+                print(f"⚠️  Google Places API error for {place_id}: {status} - {error_msg}")
                 return []
 
             result = data.get("result", {})
@@ -583,8 +586,14 @@ class ReviewDemandAnalyzer:
 
             return processed_reviews
 
+        except requests.exceptions.HTTPError as e:
+            print(f"⚠️  HTTP error fetching reviews for {place_id}: Status {e.response.status_code} - {e}")
+            return []
+        except requests.exceptions.RequestException as e:
+            print(f"⚠️  Network error fetching reviews for {place_id}: {e}")
+            return []
         except Exception as e:
-            print(f"⚠️  Error fetching reviews for place {place_id}: {e}")
+            print(f"⚠️  Unexpected error fetching reviews for {place_id}: {type(e).__name__} - {e}")
             return []
 
     def analyze_review_sentiment(self, category: str, city: str,
@@ -615,10 +624,6 @@ class ReviewDemandAnalyzer:
         # Fetch all reviews
         all_reviews = self.get_reviews_for_category(category, city, max_places)
 
-        if len(all_reviews) < min_reviews:
-            print(f"⚠️  Warning: Only {len(all_reviews)} reviews found (min: {min_reviews})")
-            print(f"   Analysis may be less accurate with limited data")
-
         if not all_reviews:
             return {
                 "total_reviews_analyzed": 0,
@@ -630,6 +635,10 @@ class ReviewDemandAnalyzer:
                 "complaint_keywords": [],
                 "praise_keywords": []
             }
+
+        if len(all_reviews) < min_reviews:
+            print(f"⚠️  Warning: Only {len(all_reviews)} reviews found (min: {min_reviews})")
+            print(f"   Analysis may be less accurate with limited data")
 
         # Categorize reviews by rating
         complaints = [r for r in all_reviews if r["rating"] <= 2]
@@ -701,10 +710,16 @@ class ReviewDemandAnalyzer:
             ]
 
         phrases = []
+        # Limit total phrases collected to avoid memory issues with large datasets
+        max_total_phrases = max_phrases * 100  # Collect up to 100x the desired output
 
         for text in texts:
             if not text:
                 continue
+
+            # Early termination if we've collected enough phrases
+            if len(phrases) >= max_total_phrases:
+                break
 
             text_lower = text.lower()
 
@@ -730,6 +745,16 @@ class ReviewDemandAnalyzer:
                         # Filter out phrases that are too generic
                         if len(phrase) >= 8 and not self._is_too_generic(phrase):
                             phrases.append(phrase)
+                            
+                            # Early termination within inner loop
+                            if len(phrases) >= max_total_phrases:
+                                break
+                    
+                    if len(phrases) >= max_total_phrases:
+                        break
+                
+                if len(phrases) >= max_total_phrases:
+                    break
 
         # Count and sort
         phrase_counts = Counter(phrases)
@@ -784,6 +809,10 @@ class ReviewDemandAnalyzer:
 
     def _is_too_generic(self, phrase: str) -> bool:
         """Check if a phrase is too generic to be useful."""
+        # Handle empty or None input
+        if not phrase:
+            return True
+        
         generic_patterns = [
             r"^sehr\s+", r"^gut\s+", r"^schlecht\s+",
             r"^very\s+", r"^good\s+", r"^bad\s+",
