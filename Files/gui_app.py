@@ -1039,8 +1039,11 @@ class ADSPillarGUI:
         
         Google API keys typically:
         - Start with 'AIza'
-        - Are 39 characters long
+        - Are typically 39 characters long, but can vary (30-50 chars accepted)
         - Contain only alphanumeric characters and hyphens/underscores
+        
+        Note: The flexible length range accounts for potential variations in Google's
+        key generation across different services and API versions.
         
         Returns:
             True if format appears valid, False otherwise
@@ -1052,7 +1055,7 @@ class ADSPillarGUI:
         if not api_key.startswith('AIza'):
             return False
         
-        # Check length (typical Google API keys are 39 chars, but allow some flexibility)
+        # Check length (typical Google API keys are 39 chars, but allow flexibility for variations)
         if len(api_key) < 30 or len(api_key) > 50:
             return False
         
@@ -1086,18 +1089,14 @@ class ADSPillarGUI:
             # Google Places API returns a status field
             status = data.get("status", "UNKNOWN_ERROR")
             
-            # Handle specific error messages
-            if "error_message" in data:
-                print(f"API Error: {data['error_message']}")
-            
             return status
             
         except requests.exceptions.Timeout:
-            return "TIMEOUT"
-        except requests.exceptions.RequestException as e:
-            return f"NETWORK_ERROR: {str(e)}"
-        except Exception as e:
-            return f"ERROR: {str(e)}"
+            return "TIMEOUT: Network request to Google Places API timed out after 10 seconds"
+        except requests.exceptions.RequestException:
+            return "NETWORK_ERROR: Unable to connect to Google Places API"
+        except Exception:
+            return "ERROR: Unexpected error while validating API key"
 
     def upload_page(self):
         """Upload page to server"""
