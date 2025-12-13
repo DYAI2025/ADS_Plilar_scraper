@@ -127,6 +127,10 @@ Examples:
 
     # Run analysis
     try:
+        # Store results to avoid redundant API calls
+        analysis = None
+        ideas = None
+        
         if args.quiet:
             # Quick analysis without detailed report
             analysis = analyzer.analyze_review_sentiment(
@@ -160,18 +164,21 @@ Examples:
 
         # Save to JSON if requested
         if args.output:
-            analysis = analyzer.analyze_review_sentiment(
-                category=args.category,
-                city=args.city,
-                min_reviews=args.min_reviews,
-                max_places=args.max_places
-            )
+            # Reuse results from quiet mode, or run analysis if not already done
+            if analysis is None:
+                analysis = analyzer.analyze_review_sentiment(
+                    category=args.category,
+                    city=args.city,
+                    min_reviews=args.min_reviews,
+                    max_places=args.max_places
+                )
 
-            ideas = analyzer.generate_content_ideas(
-                category=args.category,
-                city=args.city,
-                max_places=args.max_places
-            )
+            if ideas is None:
+                ideas = analyzer.generate_content_ideas(
+                    category=args.category,
+                    city=args.city,
+                    max_places=args.max_places
+                )
 
             output_data = {
                 "category": args.category,
