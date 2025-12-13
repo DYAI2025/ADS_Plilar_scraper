@@ -785,7 +785,7 @@ class ReviewDemandAnalyzer:
     def _is_too_generic(self, phrase: str) -> bool:
         """Check if a phrase is too generic to be useful."""
         # Handle None or empty input
-        if not phrase or not phrase.strip():
+        if phrase is None or not phrase.strip():
             return True
         
         generic_patterns = [
