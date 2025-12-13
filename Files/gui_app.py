@@ -13,6 +13,7 @@ import threading
 from pathlib import Path
 import webbrowser
 import shutil
+import requests
 
 try:
     from data_pipeline import DataScraper, PillarPageGenerator, LocationData
@@ -1007,7 +1008,6 @@ class ADSPillarGUI:
         
         # Try a simple API call to validate the key works
         try:
-            import requests
             test_url = "https://maps.googleapis.com/maps/api/place/findplacefromtext/json"
             test_params = {
                 "input": "test",
@@ -1026,7 +1026,7 @@ class ADSPillarGUI:
                     return False
             
             return True
-        except:
+        except (requests.RequestException, ValueError, KeyError):
             # If validation request fails, assume key might be valid (network issues, etc.)
             return True
 
