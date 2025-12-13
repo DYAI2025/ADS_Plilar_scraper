@@ -1,7 +1,7 @@
 import json
 import time
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 from urllib.parse import quote
 import re
 from collections import Counter
