@@ -35,7 +35,7 @@ except Exception as e:
     class DataEnrichment: ...
 
 try:
-    from niche_research import NicheValidator
+    from niche_research import NicheValidator, ReviewDemandAnalyzer
     NICHE_AVAILABLE = True
 except Exception as e:
     NICHE_AVAILABLE = False
@@ -44,6 +44,8 @@ except Exception as e:
     else:
         IMPORT_ERROR_MSG += f"\n{str(e)}"
     class NicheValidator:
+        def __init__(self, *_, **__): ...
+    class ReviewDemandAnalyzer:
         def __init__(self, *_, **__): ...
 
 class ADSPillarGUI:
@@ -192,10 +194,12 @@ class ADSPillarGUI:
         control_frame = ttk.Frame(main_frame)
         control_frame.pack(fill="x", pady=(0, 20))
         
-        ttk.Button(control_frame, text="🔍 Nischen analysieren", 
+        ttk.Button(control_frame, text="🔍 Nischen analysieren",
                   command=self.analyze_niches).pack(side="left", padx=(0, 10))
-        ttk.Button(control_frame, text="📊 Keyword Research", 
-                  command=self.keyword_research).pack(side="left")
+        ttk.Button(control_frame, text="📊 Keyword Research",
+                  command=self.keyword_research).pack(side="left", padx=(0, 10))
+        ttk.Button(control_frame, text="💡 Review Demand Analyse",
+                  command=self.analyze_demand).pack(side="left")
         
         # Results table
         columns = ("Nische", "Score", "Suchvolumen", "Competition", "RPM Potenzial")
@@ -449,48 +453,72 @@ class ADSPillarGUI:
         threading.Thread(target=setup_thread, daemon=True).start()
         
     def create_sample_data(self):
-        """Create DEMO sample data file - WARNING: NOT REAL DATA!
-
-        ⚠️ CRITICAL: This data is for DEMO/TESTING purposes only.
-        DO NOT use in production - it contains fake ratings and review counts!
         """
-        print("⚠️ WARNING: Creating DEMO data with fake values!")
-        print("   This data is for testing only - DO NOT use in production!")
+        ⚠️ KEINE FAKE-DATEN MEHR!
 
-        sample_data = [
-            {
-                'id': 'DEMO_001',  # Marked as DEMO
-                'name': '[DEMO] Beispiel-Park',  # Clear prefix
-                'street': 'Beispielstraße 1',
-                'city': self.project_config['city'].get(),
-                'region': 'Berlin',
-                'country': 'Deutschland',
-                'postcode': '10117',
-                'latitude': 52.5144,
-                'longitude': 13.3501,
-                'url': '',  # Empty - no fake URL
-                'phone': '',  # Empty - no fake phone number
-                'email': '',
-                'opening_hours': '',  # Empty - no fake hours
-                'rating': 0.0,  # NO FAKE RATINGS!
-                'review_count': 0,  # NO FAKE REVIEW COUNTS!
-                'feature_shade': True,
-                'feature_benches': True,
-                'feature_water': True,
-                'feature_parking': False,
-                'feature_toilets': True,
-                'feature_wheelchair_accessible': True,
-                'feature_kids_friendly': True,
-                'feature_dogs_allowed': True,
-                'feature_fee': False,
-                'feature_seasonal': False,
-                'tags': 'demo,test,beispiel'
-            }
-        ]
+        Diese Funktion erstellt KEINE Fake-Daten mehr.
+        Stattdessen wird ein CSV-Template mit Anleitung erstellt.
+        """
+        result = messagebox.askyesno(
+            "Keine Fake-Daten",
+            "❌ Diese Funktion erstellt KEINE Fake/Placeholder-Daten mehr!\n\n"
+            "Um echte Daten zu sammeln:\n"
+            "1. Verwenden Sie 'Daten sammeln' mit Google Places API\n"
+            "2. Oder importieren Sie eine CSV mit echten Daten\n\n"
+            "Möchten Sie ein CSV-Template erstellen?"
+        )
 
-        df = pd.DataFrame(sample_data)
-        df.to_csv("data/sample_data.csv", index=False)
-        print("✅ DEMO data saved to data/sample_data.csv")
+        if not result:
+            self.log_message("Abgebrochen - Keine Daten erstellt")
+            return
+
+        # Erstelle CSV-Template
+        city = self.project_config['city'].get() or 'Ihre Stadt'
+
+        template_data = [{
+            'id': '',
+            'name': '[BITTE ECHTEN NAMEN EINTRAGEN]',
+            'street': '[Adresse hier]',
+            'city': city,
+            'region': '',
+            'country': 'Deutschland',
+            'postcode': '',
+            'latitude': 0.0,
+            'longitude': 0.0,
+            'url': '',
+            'phone': '',
+            'email': '',
+            'opening_hours': '',
+            'rating': 0.0,
+            'review_count': 0,
+            'feature_shade': False,
+            'feature_benches': False,
+            'feature_water': False,
+            'feature_parking': False,
+            'feature_toilets': False,
+            'feature_wheelchair_accessible': False,
+            'feature_kids_friendly': False,
+            'feature_dogs_allowed': False,
+            'feature_fee': False,
+            'feature_seasonal': False,
+            'tags': ''
+        }]
+
+        df = pd.DataFrame(template_data)
+        os.makedirs("data", exist_ok=True)
+        df.to_csv("data/TEMPLATE_bitte_ausfuellen.csv", index=False)
+
+        messagebox.showinfo(
+            "CSV-Template erstellt",
+            "✅ Template erstellt: data/TEMPLATE_bitte_ausfuellen.csv\n\n"
+            "→ Öffnen Sie diese Datei\n"
+            "→ Fügen Sie ECHTE Daten hinzu\n"
+            "→ Speichern Sie als neue CSV\n"
+            "→ Importieren Sie die CSV in der GUI\n\n"
+            "❌ KEINE Fake-Daten werden mehr generiert!"
+        )
+
+        self.log_message("✅ CSV-Template erstellt (KEINE Fake-Daten)")
         
     def analyze_niches(self):
         """Analyze available niches"""
@@ -837,7 +865,146 @@ class ADSPillarGUI:
                 self.update_status("Bereit")
         
         threading.Thread(target=research_thread, daemon=True).start()
-        
+
+    def analyze_demand(self):
+        """Run Review-Based Demand Analysis"""
+        def demand_thread():
+            try:
+                # Clear details area
+                self.niche_details.delete('1.0', tk.END)
+                self.niche_details.insert(tk.END, "🔍 Review Demand Analyse läuft...\n\n")
+                self.update_status("Analysiere Google Places Reviews...")
+
+                # Get configuration
+                city = self.project_config['city'].get()
+                category = self.project_config['category'].get()
+
+                # Check for API key
+                api_key = os.getenv("GOOGLE_PLACES_API_KEY")
+                if not api_key:
+                    # Prompt user for API key
+                    api_key = self._prompt_api_key()
+                    if not api_key:
+                        self.niche_details.insert(tk.END, "❌ Abgebrochen: Kein API Key angegeben\n")
+                        self.update_status("Bereit")
+                        return
+
+                self.niche_details.insert(tk.END, f"📍 Analysiere: {category} in {city}\n")
+                self.niche_details.insert(tk.END, "=" * 60 + "\n\n")
+
+                # Initialize analyzer
+                analyzer = ReviewDemandAnalyzer(api_key=api_key, delay=1.0)
+
+                # Run analysis
+                analysis = analyzer.analyze_review_sentiment(
+                    category=category,
+                    city=city,
+                    min_reviews=50,  # Lower threshold for GUI
+                    max_places=20    # Limit to avoid long waits
+                )
+
+                if analysis["total_reviews_analyzed"] == 0:
+                    self.niche_details.insert(tk.END, "❌ Keine Reviews gefunden\n")
+                    self.niche_details.insert(tk.END, "   Tipp: Prüfe API Key und Kategorie/Stadt\n")
+                    self.update_status("Bereit")
+                    return
+
+                # Display results
+                self.niche_details.insert(tk.END, f"📊 ANALYSEERGEBNIS\n")
+                self.niche_details.insert(tk.END, f"{'='*60}\n\n")
+
+                self.niche_details.insert(tk.END, f"📈 Zusammenfassung:\n")
+                self.niche_details.insert(tk.END, f"   Reviews analysiert: {analysis['total_reviews_analyzed']}\n")
+                self.niche_details.insert(tk.END, f"   Durchschnittliche Bewertung: {analysis['avg_rating']:.2f}/5.0\n")
+                self.niche_details.insert(tk.END, f"   Sentiment Score: {analysis['sentiment_score']:.2f}\n\n")
+
+                # Top complaints
+                self.niche_details.insert(tk.END, "🔴 TOP BESCHWERDEN (Was fehlt):\n")
+                for i, (phrase, count) in enumerate(analysis["top_complaints"][:7], 1):
+                    self.niche_details.insert(tk.END, f"   {i}. '{phrase}' ({count}x)\n")
+                self.niche_details.insert(tk.END, "\n")
+
+                # Unmet needs
+                self.niche_details.insert(tk.END, "💡 UNERFÜLLTE BEDÜRFNISSE (Opportunities!):\n")
+                if analysis["unmet_needs"]:
+                    for i, (feature, count) in enumerate(analysis["unmet_needs"][:5], 1):
+                        self.niche_details.insert(tk.END, f"   {i}. {feature.upper()} ({count} Erwähnungen) ⭐\n")
+                else:
+                    self.niche_details.insert(tk.END, "   Keine erkannt - alle Bedürfnisse gedeckt\n")
+                self.niche_details.insert(tk.END, "\n")
+
+                # Top praise
+                self.niche_details.insert(tk.END, "🟢 TOP LOB (Was Nutzer lieben):\n")
+                for i, (phrase, count) in enumerate(analysis["top_praise"][:5], 1):
+                    self.niche_details.insert(tk.END, f"   {i}. '{phrase}' ({count}x)\n")
+                self.niche_details.insert(tk.END, "\n")
+
+                # Generate content ideas
+                self.update_status("Generiere Content-Ideen...")
+                ideas = analyzer.generate_content_ideas(category, city, max_places=20)
+
+                self.niche_details.insert(tk.END, "🎯 CONTENT-IDEEN (Sofort umsetzbar!):\n")
+                self.niche_details.insert(tk.END, f"{'='*60}\n\n")
+
+                for i, idea in enumerate(ideas[:4], 1):  # Show top 4 ideas
+                    self.niche_details.insert(tk.END, f"{i}. [{idea['priority']}] {idea['title']}\n")
+                    self.niche_details.insert(tk.END, f"   Typ: {idea['type']}\n")
+                    self.niche_details.insert(tk.END, f"   Impact: {idea['estimated_impact']}\n")
+                    self.niche_details.insert(tk.END, f"   Beschreibung: {idea['description']}\n\n")
+
+                self.niche_details.insert(tk.END, f"{'='*60}\n")
+                self.niche_details.insert(tk.END, "✅ Analyse abgeschlossen!\n")
+                self.niche_details.insert(tk.END, "\nTipp: Nutze die Unmet Needs als Filter-Features für deine Pillar Page!\n")
+
+                self.update_status("Review Demand Analyse abgeschlossen")
+
+            except Exception as e:
+                import traceback
+                error_msg = str(e)
+                self.niche_details.insert(tk.END, f"\n❌ Fehler: {error_msg}\n")
+                self.niche_details.insert(tk.END, f"\nDetails:\n{traceback.format_exc()}\n")
+                self.update_status("Bereit")
+
+        threading.Thread(target=demand_thread, daemon=True).start()
+
+    def _prompt_api_key(self):
+        """Prompt user for Google Places API key"""
+        dialog = tk.Toplevel(self.root)
+        dialog.title("Google Places API Key")
+        dialog.geometry("500x200")
+
+        ttk.Label(dialog, text="Google Places API Key benötigt:",
+                 font=("Arial", 12, "bold")).pack(pady=(20, 10))
+
+        ttk.Label(dialog, text="Bitte gib deinen Google Places API Key ein:").pack()
+
+        api_key_var = tk.StringVar()
+        entry = ttk.Entry(dialog, textvariable=api_key_var, width=50)
+        entry.pack(pady=10)
+        entry.focus()
+
+        result = {"key": None}
+
+        def on_ok():
+            result["key"] = api_key_var.get().strip()
+            dialog.destroy()
+
+        def on_cancel():
+            dialog.destroy()
+
+        button_frame = ttk.Frame(dialog)
+        button_frame.pack(pady=20)
+
+        ttk.Button(button_frame, text="OK", command=on_ok).pack(side="left", padx=5)
+        ttk.Button(button_frame, text="Abbrechen", command=on_cancel).pack(side="left", padx=5)
+
+        # Make dialog modal
+        dialog.transient(self.root)
+        dialog.grab_set()
+        self.root.wait_window(dialog)
+
+        return result["key"]
+
     def upload_page(self):
         """Upload page to server"""
         try:

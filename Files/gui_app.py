@@ -453,48 +453,72 @@ class ADSPillarGUI:
         threading.Thread(target=setup_thread, daemon=True).start()
         
     def create_sample_data(self):
-        """Create DEMO sample data file - WARNING: NOT REAL DATA!
-
-        ⚠️ CRITICAL: This data is for DEMO/TESTING purposes only.
-        DO NOT use in production - it contains fake ratings and review counts!
         """
-        print("⚠️ WARNING: Creating DEMO data with fake values!")
-        print("   This data is for testing only - DO NOT use in production!")
+        ⚠️ KEINE FAKE-DATEN MEHR!
 
-        sample_data = [
-            {
-                'id': 'DEMO_001',  # Marked as DEMO
-                'name': '[DEMO] Beispiel-Park',  # Clear prefix
-                'street': 'Beispielstraße 1',
-                'city': self.project_config['city'].get(),
-                'region': 'Berlin',
-                'country': 'Deutschland',
-                'postcode': '10117',
-                'latitude': 52.5144,
-                'longitude': 13.3501,
-                'url': '',  # Empty - no fake URL
-                'phone': '',  # Empty - no fake phone number
-                'email': '',
-                'opening_hours': '',  # Empty - no fake hours
-                'rating': 0.0,  # NO FAKE RATINGS!
-                'review_count': 0,  # NO FAKE REVIEW COUNTS!
-                'feature_shade': True,
-                'feature_benches': True,
-                'feature_water': True,
-                'feature_parking': False,
-                'feature_toilets': True,
-                'feature_wheelchair_accessible': True,
-                'feature_kids_friendly': True,
-                'feature_dogs_allowed': True,
-                'feature_fee': False,
-                'feature_seasonal': False,
-                'tags': 'demo,test,beispiel'
-            }
-        ]
+        Diese Funktion erstellt KEINE Fake-Daten mehr.
+        Stattdessen wird ein CSV-Template mit Anleitung erstellt.
+        """
+        result = messagebox.askyesno(
+            "Keine Fake-Daten",
+            "❌ Diese Funktion erstellt KEINE Fake/Placeholder-Daten mehr!\n\n"
+            "Um echte Daten zu sammeln:\n"
+            "1. Verwenden Sie 'Daten sammeln' mit Google Places API\n"
+            "2. Oder importieren Sie eine CSV mit echten Daten\n\n"
+            "Möchten Sie ein CSV-Template erstellen?"
+        )
 
-        df = pd.DataFrame(sample_data)
-        df.to_csv("data/sample_data.csv", index=False)
-        print("✅ DEMO data saved to data/sample_data.csv")
+        if not result:
+            self.log_message("Abgebrochen - Keine Daten erstellt")
+            return
+
+        # Erstelle CSV-Template
+        city = self.project_config['city'].get() or 'Ihre Stadt'
+
+        template_data = [{
+            'id': '',
+            'name': '[BITTE ECHTEN NAMEN EINTRAGEN]',
+            'street': '[Adresse hier]',
+            'city': city,
+            'region': '',
+            'country': 'Deutschland',
+            'postcode': '',
+            'latitude': 0.0,
+            'longitude': 0.0,
+            'url': '',
+            'phone': '',
+            'email': '',
+            'opening_hours': '',
+            'rating': 0.0,
+            'review_count': 0,
+            'feature_shade': False,
+            'feature_benches': False,
+            'feature_water': False,
+            'feature_parking': False,
+            'feature_toilets': False,
+            'feature_wheelchair_accessible': False,
+            'feature_kids_friendly': False,
+            'feature_dogs_allowed': False,
+            'feature_fee': False,
+            'feature_seasonal': False,
+            'tags': ''
+        }]
+
+        df = pd.DataFrame(template_data)
+        os.makedirs("data", exist_ok=True)
+        df.to_csv("data/TEMPLATE_bitte_ausfuellen.csv", index=False)
+
+        messagebox.showinfo(
+            "CSV-Template erstellt",
+            "✅ Template erstellt: data/TEMPLATE_bitte_ausfuellen.csv\n\n"
+            "→ Öffnen Sie diese Datei\n"
+            "→ Fügen Sie ECHTE Daten hinzu\n"
+            "→ Speichern Sie als neue CSV\n"
+            "→ Importieren Sie die CSV in der GUI\n\n"
+            "❌ KEINE Fake-Daten werden mehr generiert!"
+        )
+
+        self.log_message("✅ CSV-Template erstellt (KEINE Fake-Daten)")
         
     def analyze_niches(self):
         """Analyze available niches"""

@@ -104,195 +104,181 @@ def simple_setup():
 
 
 def create_sample_data(config):
-    """Erstelle Beispieldaten für die gewählte Nische"""
+    """
+    ⚠️ WARNUNG: KEINE FAKE-DATEN MEHR!
+
+    Diese Funktion zeigt eine Anleitung, wie echte Daten gesammelt werden.
+    Fake/Placeholder-Daten werden NICHT mehr erstellt.
+
+    Um echte Daten zu sammeln, verwenden Sie:
+    1. Google Places API (empfohlen)
+    2. CSV-Import von echten Quellen
+    3. Manual curation
+    """
 
     city = config["city"]
     category = config["category"]
 
-    # Beispieldaten je nach Kategorie
-    if "park" in category.lower():
-        sample_places = [
-            {
-                "name": f"Stadtpark {city}",
-                "address": f"Parkstraße 1, {city}",
-                "city": city,
-                "latitude": 52.5200,
-                "longitude": 13.4050,
-                "rating": 4.2,
-                "review_count": 156,
-                "feature_shade": True,
-                "feature_benches": True,
-                "feature_water": True,
-                "feature_parking": False,
-                "feature_toilets": True,
-                "feature_wheelchair": True,
-                "feature_kids": True,
-                "feature_dogs": True,
-                "feature_fee": False,
-            },
-            {
-                "name": f"Volkspark {city}",
-                "address": f"Volksstraße 15, {city}",
-                "city": city,
-                "latitude": 52.5300,
-                "longitude": 13.4150,
-                "rating": 4.0,
-                "review_count": 89,
-                "feature_shade": True,
-                "feature_benches": True,
-                "feature_water": False,
-                "feature_parking": True,
-                "feature_toilets": False,
-                "feature_wheelchair": False,
-                "feature_kids": True,
-                "feature_dogs": True,
-                "feature_fee": False,
-            },
-        ]
-    elif "café" in category.lower():
-        sample_places = [
-            {
-                "name": f"Café Central {city}",
-                "address": f"Hauptstraße 10, {city}",
-                "city": city,
-                "latitude": 52.5200,
-                "longitude": 13.4050,
-                "rating": 4.5,
-                "review_count": 234,
-                "feature_wifi": True,
-                "feature_power_outlets": True,
-                "feature_quiet": False,
-                "feature_workspace": True,
-                "feature_parking": True,
-                "feature_wheelchair": True,
-                "feature_fee": True,
-            }
-        ]
-    else:
-        # Generic sample
-        sample_places = [
-            {
-                "name": f"{category} Beispiel",
-                "address": f"Musterstraße 1, {city}",
-                "city": city,
-                "latitude": 52.5200,
-                "longitude": 13.4050,
-                "rating": 4.0,
-                "review_count": 100,
-            }
-        ]
+    print("\n" + "=" * 60)
+    print("⚠️  KEINE FAKE-DATEN: Echte Daten erforderlich!")
+    print("=" * 60)
+    print()
+    print("📋 Um echte Daten zu sammeln, haben Sie folgende Optionen:")
+    print()
+    print("1️⃣  Google Places API (Empfohlen):")
+    print("   python Files/enhanced_scrapers.py --query '{category}' --location '{city}'")
+    print("   Benötigt: GOOGLE_PLACES_API_KEY")
+    print()
+    print("2️⃣  CSV-Import:")
+    print("   Erstellen Sie eine CSV mit echten Daten:")
+    print("   - name, address, city, latitude, longitude, rating, review_count")
+    print("   - Speichern als: data/{city.lower()}_{category.lower()}.csv")
+    print()
+    print("3️⃣  GUI verwenden:")
+    print("   python Files/gui_app.py")
+    print("   → Tab 'Daten sammeln' → API Key eingeben → Scrapen")
+    print()
+    print("❌ Fake/Placeholder-Daten werden NICHT mehr generiert!")
+    print()
 
-    # Speichere als CSV
+    # Erstelle leere CSV mit korrekter Struktur als Template
     import pandas as pd
 
-    df = pd.DataFrame(sample_places)
+    template_data = {
+        'name': ['[BITTE ECHTE DATEN HINZUFÜGEN]'],
+        'address': ['[ERSETZEN SIE DIES]'],
+        'city': [city],
+        'latitude': [0.0],
+        'longitude': [0.0],
+        'rating': [0.0],
+        'review_count': [0],
+        'phone': [''],
+        'website': [''],
+        'opening_hours': [''],
+        'feature_shade': [False],
+        'feature_benches': [False],
+        'feature_water': [False],
+        'feature_parking': [False],
+        'feature_toilets': [False],
+        'feature_wheelchair_accessible': [False],
+        'feature_kids_friendly': [False],
+        'feature_dogs_allowed': [False],
+        'feature_fee': [False],
+    }
+
+    df = pd.DataFrame(template_data)
 
     os.makedirs("data", exist_ok=True)
-    filename = f"data/{city.lower()}_{category.lower()}_sample.csv"
+    filename = f"data/{city.lower()}_{category.lower()}_TEMPLATE.csv"
     df.to_csv(filename, index=False)
 
-    print(f"✅ Beispieldaten erstellt: {filename}")
-    return filename
+    print(f"✅ CSV-Template erstellt: {filename}")
+    print(f"   → Öffnen Sie diese Datei und fügen Sie ECHTE Daten hinzu!")
+    print()
+
+    return None  # Kein valider Dateiname, da nur Template
 
 
-def generate_quick_page(config, _unused_data_file=None):
-    """Generiere eine einfache Demo-Seite"""
+def generate_quick_page(config, data_file=None):
+    """
+    Generiere Seite mit echten Daten - KEINE Platzhalter mehr!
+
+    Diese Funktion verwendet jetzt die echte PillarPageGenerator Klasse.
+    """
 
     city = config["city"]
     category = config["category"]
     domain = config["domain"]
 
-    # Einfaches HTML Template
-    html_content = f"""<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{category} in {city} | Lokaler Guide</title>
-    <meta name="description" content="Finde die besten {category} in {city}. Kuratierte Auswahl mit Bewertungen und Details.">
-    <style>
-        body {{ font-family: system-ui, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }}
-        .container {{ max-width: 1000px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; }}
-        h1 {{ color: #333; margin-bottom: 10px; }}
-        .subtitle {{ color: #666; margin-bottom: 30px; }}
-        .place {{ border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-bottom: 20px; }}
-        .place h3 {{ margin-top: 0; color: #2c5aa0; }}
-        .rating {{ color: #f39c12; font-weight: bold; }}
-        .features {{ margin-top: 10px; }}
-        .feature {{ display: inline-block; background: #e8f4fd; color: #2c5aa0; padding: 4px 8px; border-radius: 4px; margin: 2px; font-size: 12px; }}
-        .header-stats {{ background: #f8f9fa; padding: 15px; border-radius: 6px; margin: 20px 0; }}
-        .cta {{ background: #2c5aa0; color: white; padding: 15px; text-align: center; border-radius: 6px; margin: 20px 0; }}
-        .footer {{ text-align: center; margin-top: 40px; color: #666; font-size: 14px; }}
-    </style>
-</head>
-<body>
-    <div class="container">
-        <header>
-            <h1>{category} in {city}</h1>
-            <p class="subtitle">Kuratierte Auswahl der besten {category} mit Bewertungen und Ausstattungsmerkmalen</p>
-            
-            <div class="header-stats">
-                <strong>📊 Aktuelle Statistiken:</strong><br>
-                📍 2 Orte gelistet | ⭐ Durchschnitt: 4.1/5 | 📝 245 Bewertungen
-            </div>
-            
-            <div class="cta">
-                🚀 <strong>Demo-Version</strong> - Zeigt Beispieldaten für "{category}" in {city}
-            </div>
-        </header>
-        
-        <main>
-            <div class="place">
-                <h3>🌳 Stadtpark {city}</h3>
-                <p><strong>📍 Adresse:</strong> Parkstraße 1, {city}</p>
-                <p><strong class="rating">⭐ 4.2/5</strong> (156 Bewertungen)</p>
-                <div class="features">
-                    <span class="feature">🌳 Schatten</span>
-                    <span class="feature">🪑 Sitzbänke</span>
-                    <span class="feature">💧 Wasser</span>
-                    <span class="feature">🚻 Toiletten</span>
-                    <span class="feature">♿ Barrierefrei</span>
-                    <span class="feature">👶 Kinderfreundlich</span>
-                    <span class="feature">🐕 Hunde erlaubt</span>
-                    <span class="feature">💰 Kostenfrei</span>
-                </div>
-            </div>
-            
-            <div class="place">
-                <h3>🌲 Volkspark {city}</h3>
-                <p><strong>📍 Adresse:</strong> Volksstraße 15, {city}</p>
-                <p><strong class="rating">⭐ 4.0/5</strong> (89 Bewertungen)</p>
-                <div class="features">
-                    <span class="feature">🌳 Schatten</span>
-                    <span class="feature">🪑 Sitzbänke</span>
-                    <span class="feature">🚗 Parkplatz</span>
-                    <span class="feature">👶 Kinderfreundlich</span>
-                    <span class="feature">🐕 Hunde erlaubt</span>
-                    <span class="feature">💰 Kostenfrei</span>
-                </div>
-            </div>
-        </main>
-        
-        <footer class="footer">
-            <p><strong>💡 Das ist eine Demo-Seite</strong></p>
-            <p>Echte Daten können über Google Places API oder CSV-Upload hinzugefügt werden.</p>
-            <p>Mit AdSense-Integration geschätzter Umsatz: <strong>€50-200/Monat</strong> bei 10-50K Pageviews</p>
-            <hr>
-            <p>Erstellt mit ADS Pillar System | Domain: {domain}</p>
-        </footer>
-    </div>
-</body>
-</html>"""
+    print("\n" + "=" * 60)
+    print("📄 Seiten-Generierung")
+    print("=" * 60)
+    print()
 
-    # Speichere HTML
-    os.makedirs("generated", exist_ok=True)
-    output_file = f"generated/{city.lower()}_{category.lower()}_demo.html"
+    # Prüfe ob Datendatei existiert
+    if not data_file or not os.path.exists(data_file):
+        print("❌ Keine gültige Datendatei vorhanden!")
+        print()
+        print("💡 Um eine Seite zu generieren, benötigen Sie ECHTE Daten:")
+        print("   1. Sammeln Sie Daten via Google Places API")
+        print("   2. Oder erstellen Sie eine CSV mit echten Orten")
+        print("   3. Dann rufen Sie erneut generate_quick_page(config, 'data.csv') auf")
+        print()
+        print("❌ KEINE Platzhalter-Seiten werden mehr erstellt!")
+        print()
+        return None
 
-    with open(output_file, "w", encoding="utf-8") as f:
-        f.write(html_content)
+    # Verwende echte PillarPageGenerator
+    try:
+        sys.path.insert(0, os.path.dirname(__file__))
+        from data_pipeline import PillarPageGenerator, LocationData
+        import pandas as pd
 
-    print(f"✅ Demo-Seite erstellt: {output_file}")
-    return output_file
+        # Lade echte Daten
+        df = pd.read_csv(data_file)
+
+        # Validiere dass es echte Daten sind
+        if len(df) == 0:
+            print("❌ CSV-Datei ist leer!")
+            return None
+
+        # Prüfe auf Platzhalter
+        if df['name'].str.contains('BITTE ECHTE DATEN|ERSETZEN SIE', case=False).any():
+            print("❌ CSV enthält noch Platzhalter!")
+            print("   Bitte ersetzen Sie die Template-Einträge mit echten Daten.")
+            return None
+
+        # Konvertiere zu LocationData
+        locations = []
+        for _, row in df.iterrows():
+            loc = LocationData(
+                id=row.get('id', str(row.name)),
+                name=row['name'],
+                street=row.get('address', row.get('street', '')),
+                city=row['city'],
+                region=row.get('region', ''),
+                country=row.get('country', 'Deutschland'),
+                postcode=row.get('postcode', ''),
+                latitude=float(row['latitude']),
+                longitude=float(row['longitude']),
+                url=row.get('website', row.get('url', '')),
+                phone=row.get('phone', ''),
+                email=row.get('email', ''),
+                opening_hours=row.get('opening_hours', ''),
+                rating=float(row.get('rating', 0.0)),
+                review_count=int(row.get('review_count', 0)),
+            )
+            locations.append(loc)
+
+        # Generiere mit echtem Generator
+        template_path = os.path.join(os.path.dirname(__file__), 'pillar_page_skeleton.html')
+        generator = PillarPageGenerator(template_path=template_path)
+
+        os.makedirs("generated", exist_ok=True)
+        output_file = f"generated/{city.lower()}_{category.lower()}.html"
+
+        generator.generate_page(
+            data=locations,
+            city=city,
+            category=category,
+            output_path=output_file,
+            canonical_url=f"https://{domain}/{city.lower()}-{category.lower()}",
+            config={
+                'site_name': f"{category} in {city}",
+                'adsense_id': config.get('adsense_id', ''),
+                'ga_id': config.get('ga_id', ''),
+            }
+        )
+
+        print(f"✅ Echte Seite generiert: {output_file}")
+        print(f"   → {len(locations)} echte Orte verarbeitet")
+        return output_file
+
+    except Exception as e:
+        print(f"❌ Fehler bei Seiten-Generierung: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return None
 
 
 def show_next_steps(config, html_file):
