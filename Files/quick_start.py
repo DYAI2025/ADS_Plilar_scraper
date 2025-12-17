@@ -252,7 +252,14 @@ def generate_quick_page(config, data_file=None):
 
         # Generiere mit echtem Generator
         template_path = os.path.join(os.path.dirname(__file__), 'pillar_page_skeleton.html')
-        generator = PillarPageGenerator(template_path=template_path)
+        generator = PillarPageGenerator(
+            template_path=template_path,
+            config={
+                'site_name': f"{category} in {city}",
+                'adsense_id': config.get('adsense_id', ''),
+                'ga_id': config.get('ga_id', ''),
+            }
+        )
 
         os.makedirs("generated", exist_ok=True)
         output_file = f"generated/{city.lower()}_{category.lower()}.html"
@@ -262,12 +269,7 @@ def generate_quick_page(config, data_file=None):
             city=city,
             category=category,
             output_path=output_file,
-            canonical_url=f"https://{domain}/{city.lower()}-{category.lower()}",
-            config={
-                'site_name': f"{category} in {city}",
-                'adsense_id': config.get('adsense_id', ''),
-                'ga_id': config.get('ga_id', ''),
-            }
+            canonical_url=f"https://{domain}/{city.lower()}-{category.lower()}"
         )
 
         print(f"✅ Echte Seite generiert: {output_file}")
