@@ -926,6 +926,18 @@ class ADSPillarGUI:
 
     def analyze_demand(self):
         """Run Review-Based Demand Analysis"""
+
+        # Check for API key BEFORE starting thread (GUI must run in main thread)
+        api_key = self.google_api_key.get() or os.getenv("GOOGLE_PLACES_API_KEY")
+        if not api_key:
+            # Prompt user for API key IN MAIN THREAD
+            api_key = self._prompt_api_key()
+            if not api_key:
+                messagebox.showinfo("Abgebrochen", "Keine API Key eingegeben.")
+                return
+            # Save API key for future use
+            self.google_api_key.set(api_key)
+
         def demand_thread():
             try:
                 # Clear details area
@@ -936,16 +948,6 @@ class ADSPillarGUI:
                 # Get configuration
                 city = self.project_config['city'].get()
                 category = self.project_config['category'].get()
-
-                # Check for API key
-                api_key = os.getenv("GOOGLE_PLACES_API_KEY")
-                if not api_key:
-                    # Prompt user for API key
-                    api_key = self._prompt_api_key()
-                    if not api_key:
-                        self.niche_details.insert(tk.END, "❌ Abgebrochen: Kein API Key angegeben\n")
-                        self.update_status("Bereit")
-                        return
 
                 self.niche_details.insert(tk.END, f"📍 Analysiere: {category} in {city}\n")
                 self.niche_details.insert(tk.END, "=" * 60 + "\n\n")
@@ -1043,12 +1045,16 @@ class ADSPillarGUI:
 
         result = {"key": None}
 
-        def on_ok():
+        def on_ok(event=None):
             result["key"] = api_key_var.get().strip()
             dialog.destroy()
 
-        def on_cancel():
+        def on_cancel(event=None):
             dialog.destroy()
+
+        # Bind Enter key to OK action
+        entry.bind('<Return>', on_ok)
+        dialog.bind('<Escape>', on_cancel)
 
         button_frame = ttk.Frame(dialog)
         button_frame.pack(pady=20)
