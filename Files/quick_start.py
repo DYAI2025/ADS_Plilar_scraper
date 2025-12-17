@@ -263,11 +263,6 @@ def generate_quick_page(config, data_file=None):
             category=category,
             output_path=output_file,
             canonical_url=f"https://{domain}/{city.lower()}-{category.lower()}",
-            config={
-                'site_name': f"{category} in {city}",
-                'adsense_id': config.get('adsense_id', ''),
-                'ga_id': config.get('ga_id', ''),
-            }
         )
 
         print(f"✅ Echte Seite generiert: {output_file}")
