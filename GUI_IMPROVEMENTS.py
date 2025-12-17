@@ -331,15 +331,15 @@ So integrieren Sie diese Verbesserungen:
 1. Öffnen Sie Files/gui_app.py
 
 2. ERSETZEN SIE die __init__ Methode (Zeile 52-100)
-   mit der verbesserten Version oben (Punkt 1)
+   mit der verbesserten Version aus Abschnitt 1
 
 3. ERSETZEN SIE die setup_gui() Methode
-   mit der vollständigen Version (Punkt 5) - diese enthält:
+   mit der vollständigen Version aus Abschnitt 5 - diese enthält:
    - Style-Konfiguration
    - Notebook-Erstellung
    - Tab-Change-Event-Binding für Auto-Save
 
-4. FÜGEN SIE DIE NEUEN METHODEN HINZU:
+4. FÜGEN SIE DIE NEUEN METHODEN HINZU (aus Abschnitt 2-3):
    - on_tab_changed()
    - track_config_change()
    - validate_google_api_key()
@@ -347,9 +347,9 @@ So integrieren Sie diese Verbesserungen:
    - toggle_api_visibility()
 
 5. ERSETZEN SIE create_data_tab() API-Sektion (Zeilen 248-250)
-   mit der verbesserten Version (Punkt 4)
+   mit der verbesserten Version aus Abschnitt 4
 
-6. AKTUALISIEREN SIE save_config() (Punkt 6)
+6. AKTUALISIEREN SIE save_config() (aus Abschnitt 6)
 
 7. FÜGEN SIE requests HINZU zu den Imports oben:
    import requests
