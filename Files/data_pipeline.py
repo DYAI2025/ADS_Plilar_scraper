@@ -4,7 +4,7 @@ import html
 import re
 import time
 from dataclasses import dataclass
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import requests
 
@@ -231,8 +231,11 @@ class DataScraper:
 class PillarPageGenerator:
     """Generate pillar pages from data"""
 
-    def __init__(self, template_path: str = "pillar_page_skeleton.html"):
+    def __init__(
+        self, template_path: str = "pillar_page_skeleton.html", config: Optional[Dict] = None
+    ):
         self.template_path = template_path
+        self.config = config or {}
 
     @staticmethod
     def _sanitize_text(value: str) -> str:
@@ -351,6 +354,29 @@ class PillarPageGenerator:
         schema_pattern = r'<script type="application/ld\+json">\s*\{[^<]*\}\s*</script>'
         schema_replacement = f'<script type="application/ld+json">\n  {schema_string}\n  </script>'
         page_content = re.sub(schema_pattern, schema_replacement, page_content, count=1, flags=re.DOTALL)
+
+        # Replace AdSense IDs if configured
+        adsense_id = self.config.get("adsense_id", "ca-pub-XXXXXXXXXXXXXXXX")
+        # Remove 'pub-' prefix if present in config (template expects it without prefix)
+        if adsense_id.startswith("pub-"):
+            adsense_id = adsense_id[4:]  # Remove 'pub-' prefix
+        page_content = page_content.replace("ca-pub-XXXXXXXXXXXXXXXX", f"ca-pub-{adsense_id}")
+
+        # Add Google Analytics if configured
+        ga_id = self.config.get("ga_id", "")
+        if ga_id:
+            ga_code = f"""
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id={ga_id}"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){{dataLayer.push(arguments);}}
+      gtag('js', new Date());
+      gtag('config', '{ga_id}');
+    </script>
+"""
+            # Insert GA code before </head>
+            page_content = page_content.replace("</head>", f"{ga_code}\n</head>")
 
         # Write output
         with open(output_path, "w", encoding="utf-8") as f:
