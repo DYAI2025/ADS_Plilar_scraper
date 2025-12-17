@@ -102,7 +102,34 @@ Beispiel-Implementierung: Park Babelsberg Guide mit 14 kuratierten Locations, 12
 
 ---
 
-### macOS
+### ⚡ Schnellinstallation (alle Plattformen)
+
+**3 Schritte zum Start:**
+
+```bash
+# 1. Repository klonen
+git clone https://github.com/DYAI2025/ADS_Plilar_scraper.git
+cd ADS_Plilar_scraper
+
+# 2. Dependencies installieren
+pip install -r requirements.txt
+
+# 3. Verifizierung
+python3 verify_imports.py
+python3 -m pytest -v
+```
+
+**Fertig!** 🎉 Du kannst jetzt die Tools nutzen:
+- `python Files/quick_start.py` - Interaktiver Setup Wizard
+- `python Files/gui_app.py` - GUI starten (benötigt Tkinter)
+- `python Files/analyze_demand.py --help` - Review Demand Analyzer
+
+---
+
+### 📋 Detaillierte Installation nach Plattform
+
+<details>
+<summary><b>macOS</b> (klicken zum Ausklappen)</summary>
 
 #### 1. Python installieren
 
@@ -124,27 +151,17 @@ git clone https://github.com/DYAI2025/ADS_Plilar_scraper.git
 cd ADS_Plilar_scraper
 ```
 
-#### 3. Virtual Environment erstellen
-
-```bash
-# Virtual Environment erstellen
-python3 -m venv venv
-
-# Aktivieren
-source venv/bin/activate
-```
-
-#### 4. Dependencies installieren
+#### 3. Dependencies installieren
 
 ```bash
 # Alle Dependencies installieren
 pip install -r requirements.txt
 
-# Package installieren (für entry points)
+# Optional: Package installieren (für entry points wie ads-pillar-gui)
 pip install -e .
 ```
 
-#### 5. Tkinter installieren (für GUI)
+#### 4. Tkinter installieren (für GUI)
 
 ```bash
 # Tkinter ist normalerweise vorinstalliert auf macOS
@@ -152,24 +169,22 @@ pip install -e .
 brew install python-tk@3.11
 ```
 
-#### 6. Verifizierung
+#### 5. Verifizierung
 
 ```bash
-# Tests ausführen
-pytest
-
 # Module testen
 python3 verify_imports.py
 
-# System-Health-Check
-cd Files && python3 test_system.py
+# Tests ausführen
+python3 -m pytest -v
 ```
 
----
+✅ **Installation erfolgreich!** Starte die GUI mit `python Files/gui_app.py`
 
-### Linux
+</details>
 
-#### Ubuntu / Debian
+<details>
+<summary><b>Linux (Ubuntu / Debian)</b> (klicken zum Ausklappen)</summary>
 
 ```bash
 # 1. System aktualisieren
@@ -185,19 +200,23 @@ sudo apt install python3.11-tk -y
 git clone https://github.com/DYAI2025/ADS_Plilar_scraper.git
 cd ADS_Plilar_scraper
 
-# 5. Virtual Environment erstellen
-python3.11 -m venv venv
-source venv/bin/activate
-
-# 6. Dependencies installieren
+# 5. Dependencies installieren
 pip install -r requirements.txt
+
+# Optional: Package installieren (für entry points)
 pip install -e .
 
-# 7. Tests ausführen
-pytest
+# 6. Verifizierung
+python3 verify_imports.py
+python3 -m pytest -v
 ```
 
-#### Fedora / RHEL / CentOS
+✅ **Installation erfolgreich!**
+
+</details>
+
+<details>
+<summary><b>Linux (Fedora / RHEL / CentOS)</b> (klicken zum Ausklappen)</summary>
 
 ```bash
 # 1. Python 3.11 installieren
@@ -206,36 +225,36 @@ sudo dnf install python3.11 python3.11-devel -y
 # 2. Tkinter installieren
 sudo dnf install python3-tkinter -y
 
-# 3-7. Gleiche Schritte wie Ubuntu (ab Repository klonen)
+# 3-6. Gleiche Schritte wie Ubuntu (ab Repository klonen)
 ```
 
-#### Arch Linux
+</details>
+
+<details>
+<summary><b>Linux (Arch Linux)</b> (klicken zum Ausklappen)</summary>
 
 ```bash
 # 1. Python installieren
 sudo pacman -S python python-pip tk -y
 
-# 2-7. Gleiche Schritte wie Ubuntu (ab Repository klonen)
+# 2-6. Gleiche Schritte wie Ubuntu (ab Repository klonen)
 ```
 
----
+</details>
 
-### Windows
+<details>
+<summary><b>Windows</b> (klicken zum Ausklappen)</summary>
 
 #### 1. Python installieren
 
 1. Download Python von [python.org/downloads](https://www.python.org/downloads/)
-2. Installiere Python 3.11 mit **"Add Python to PATH"** aktiviert
+2. Installiere Python 3.11 mit **"Add Python to PATH"** aktiviert ✅
 3. Bestätige Installation:
    ```cmd
    python --version
    ```
 
-#### 2. Git installieren (optional)
-
-Download von [git-scm.com](https://git-scm.com/download/win)
-
-#### 3. Repository klonen oder Download
+#### 2. Repository herunterladen
 
 **Option A - mit Git:**
 ```cmd
@@ -244,43 +263,71 @@ cd ADS_Plilar_scraper
 ```
 
 **Option B - ZIP Download:**
-1. Download ZIP von GitHub
+1. Download ZIP von [GitHub](https://github.com/DYAI2025/ADS_Plilar_scraper/archive/refs/heads/main.zip)
 2. Entpacke nach `C:\ADS_Plilar_scraper`
 3. ```cmd
    cd C:\ADS_Plilar_scraper
    ```
 
-#### 4. Virtual Environment erstellen
+#### 3. Dependencies installieren
 
+```cmd
+REM Alle Dependencies installieren
+pip install -r requirements.txt
+
+REM Optional: Package installieren
+pip install -e .
+```
+
+#### 4. Verifizierung
+
+```cmd
+REM Module testen
+python verify_imports.py
+
+REM Tests ausführen
+python -m pytest -v
+```
+
+✅ **Installation erfolgreich!** Tkinter ist auf Windows normalerweise vorinstalliert.
+
+</details>
+
+---
+
+### 🔧 Installation mit Virtual Environment (empfohlen für Entwickler)
+
+Virtual Environments isolieren Python-Dependencies pro Projekt:
+
+**macOS / Linux:**
+```bash
+# Virtual Environment erstellen
+python3 -m venv venv
+
+# Aktivieren
+source venv/bin/activate
+
+# Dependencies installieren
+pip install -r requirements.txt
+
+# Deaktivieren (später)
+deactivate
+```
+
+**Windows:**
 ```cmd
 REM Virtual Environment erstellen
 python -m venv venv
 
 REM Aktivieren
 venv\Scripts\activate
-```
 
-#### 5. Dependencies installieren
-
-```cmd
-REM Alle Dependencies installieren
+REM Dependencies installieren
 pip install -r requirements.txt
 
-REM Package installieren
-pip install -e .
+REM Deaktivieren (später)
+deactivate
 ```
-
-#### 6. Verifizierung
-
-```cmd
-REM Tests ausführen
-pytest
-
-REM Module testen
-python verify_imports.py
-```
-
-**Hinweis:** Tkinter ist auf Windows normalerweise vorinstalliert.
 
 ---
 
