@@ -339,12 +339,12 @@ So integrieren Sie diese Verbesserungen:
    - Notebook-Erstellung
    - Tab-Change-Event-Binding für Auto-Save
 
-4. FÜGEN SIE DIE NEUEN METHODEN HINZU (aus Abschnitt 2-3):
-   - on_tab_changed()
-   - track_config_change()
-   - validate_google_api_key()
-   - validate_api_key_button()
-   - toggle_api_visibility()
+4. FÜGEN SIE DIE NEUEN METHODEN HINZU:
+   - on_tab_changed() (aus Abschnitt 2)
+   - track_config_change() (aus Abschnitt 2)
+   - validate_google_api_key() (aus Abschnitt 3)
+   - validate_api_key_button() (aus Abschnitt 3)
+   - toggle_api_visibility() (aus Abschnitt 4)
 
 5. ERSETZEN SIE create_data_tab() API-Sektion (Zeilen 248-250)
    mit der verbesserten Version aus Abschnitt 4
