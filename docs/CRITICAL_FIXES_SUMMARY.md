@@ -1,7 +1,7 @@
 # Kritische Fixes: Dashboard & Fake-Daten
 
 **Datum:** 2025-12-10
-**Branch:** `claude/improve-page-generation-01SiT1Z3nn1FWr2E21rFDZdi`
+**Branch:** `claude/improve-page-generation`
 **Priorität:** KRITISCH
 
 ## ✅ Behobene Probleme

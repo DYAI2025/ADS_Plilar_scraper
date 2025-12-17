@@ -12,11 +12,76 @@ import os
 import sys
 import json
 from pathlib import Path
+from typing import Dict, List, Any
 
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(__file__))
 
 from niche_research import ReviewDemandAnalyzer
+
+
+def _print_detailed_report(analysis: Dict[str, Any], ideas: List[Dict[str, Any]], category: str, city: str):
+    """
+    Print a detailed analysis report using pre-computed analysis and ideas.
+    This avoids redundant API calls when results are already available.
+    """
+    print(f"\n{'='*70}")
+    print(f"📊 REVIEW DEMAND ANALYSIS REPORT")
+    print(f"{'='*70}")
+    print(f"Category: {category.title()}")
+    print(f"Location: {city}")
+    print(f"{'='*70}\n")
+
+    if analysis["total_reviews_analyzed"] == 0:
+        print("❌ No data available for analysis\n")
+        return
+
+    # Summary stats
+    print(f"📈 SUMMARY STATISTICS")
+    print(f"{'-'*70}")
+    print(f"Total Reviews Analyzed: {analysis['total_reviews_analyzed']}")
+    print(f"Average Rating: {analysis['avg_rating']:.2f} / 5.0")
+    print(f"Sentiment Score: {analysis['sentiment_score']:.2f} (0.0 = very negative, 1.0 = very positive)")
+    print()
+
+    # Top complaints
+    print(f"🔴 TOP COMPLAINTS (What Users Are Missing)")
+    print(f"{'-'*70}")
+    for i, (phrase, count) in enumerate(analysis["top_complaints"][:10], 1):
+        print(f"  {i:2d}. '{phrase}' ({count} mentions)")
+    print()
+
+    # Top praise
+    print(f"🟢 TOP PRAISE (What Users Love)")
+    print(f"{'-'*70}")
+    for i, (phrase, count) in enumerate(analysis["top_praise"][:10], 1):
+        print(f"  {i:2d}. '{phrase}' ({count} mentions)")
+    print()
+
+    # Unmet needs
+    print(f"💡 UNMET NEEDS (Opportunity Features!)")
+    print(f"{'-'*70}")
+    if analysis["unmet_needs"]:
+        for i, (feature, count) in enumerate(analysis["unmet_needs"], 1):
+            print(f"  {i:2d}. {feature.upper()} - {count} complaint mentions ⭐⭐⭐")
+    else:
+        print("  None detected - all needs seem to be met")
+    print()
+
+    # Content ideas
+    print(f"🎯 ACTIONABLE CONTENT IDEAS")
+    print(f"{'-'*70}")
+    for i, idea in enumerate(ideas, 1):
+        print(f"\n{i}. [{idea['priority'].upper()}] {idea['type']}: {idea['title']}")
+        print(f"   Description: {idea['description']}")
+        print(f"   Impact: {idea['estimated_impact']}")
+        print(f"   Implementation:")
+        for line in idea['implementation'].split('\n'):
+            print(f"     • {line.strip()}")
+
+    print(f"\n{'='*70}")
+    print(f"✨ Analysis complete! Use these insights to create high-performing pillar pages.")
+    print(f"{'='*70}\n")
 
 
 def main():
@@ -125,23 +190,28 @@ Examples:
 
     # Run analysis
     try:
-        # Store analysis results to avoid redundant API calls
-        analysis = None
-        ideas = None
-
-        if args.quiet:
-            # Quick analysis without detailed report
+        # Always run analysis once and cache results to avoid redundant API calls
+        try:
             analysis = analyzer.analyze_review_sentiment(
                 category=args.category,
                 city=args.city,
                 min_reviews=args.min_reviews,
                 max_places=args.max_places,
             )
+        except Exception as e:
+            print(f"\n❌ Error during sentiment analysis: {e}")
+            raise
 
+        try:
             ideas = analyzer.generate_content_ideas(
                 category=args.category, city=args.city, max_places=args.max_places
             )
-
+        except Exception as e:
+            print(f"\n❌ Error generating content ideas: {e}")
+            raise
+        
+        # Display results based on quiet mode
+        if args.quiet:
             # Print summary only
             print(f"\n📊 ANALYSIS SUMMARY")
             print(f"   Reviews Analyzed: {analysis['total_reviews_analyzed']}")
@@ -155,26 +225,11 @@ Examples:
             print(f"   Content Ideas Generated: {len(ideas)}\n")
 
         else:
-            # Full detailed report
-            analyzer.print_analysis_report(
-                category=args.category, city=args.city, max_places=args.max_places
-            )
+            # Print full detailed report using cached data
+            _print_detailed_report(analysis, ideas, args.category, args.city)
 
-        # Save to JSON if requested
+        # Save to JSON if requested (reusing cached results)
         if args.output:
-            # Reuse analysis results if already computed, otherwise compute them
-            if analysis is None:
-                analysis = analyzer.analyze_review_sentiment(
-                    category=args.category,
-                    city=args.city,
-                    min_reviews=args.min_reviews,
-                    max_places=args.max_places,
-                )
-
-            if ideas is None:
-                ideas = analyzer.generate_content_ideas(
-                    category=args.category, city=args.city, max_places=args.max_places
-                )
 
             output_data = {
                 "category": args.category,
