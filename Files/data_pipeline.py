@@ -356,11 +356,15 @@ class PillarPageGenerator:
         page_content = re.sub(schema_pattern, schema_replacement, page_content, count=1, flags=re.DOTALL)
 
         # Replace AdSense IDs if configured
-        adsense_id = self.config.get("adsense_id", "ca-pub-XXXXXXXXXXXXXXXX")
-        # Remove 'pub-' prefix if present in config (template expects it without prefix)
-        if adsense_id.startswith("pub-"):
-            adsense_id = adsense_id[4:]  # Remove 'pub-' prefix
-        page_content = page_content.replace("ca-pub-XXXXXXXXXXXXXXXX", f"ca-pub-{adsense_id}")
+        adsense_id = self.config.get("adsense_id", "")
+        if adsense_id:
+            # Normalize AdSense ID format - extract just the numeric part
+            if adsense_id.startswith("ca-pub-"):
+                adsense_id = adsense_id[7:]  # Remove 'ca-pub-' prefix
+            elif adsense_id.startswith("pub-"):
+                adsense_id = adsense_id[4:]  # Remove 'pub-' prefix
+            # Replace placeholder with actual AdSense ID
+            page_content = page_content.replace("ca-pub-XXXXXXXXXXXXXXXX", f"ca-pub-{adsense_id}")
 
         # Add Google Analytics if configured
         ga_id = self.config.get("ga_id", "")
