@@ -49,18 +49,8 @@ def __init__(self, root):
 # ===========================================
 
 # FÜGEN SIE NACH Zeile 106 (nach notebook.pack()) HINZU:
-def setup_gui(self):
-    """Setup the main GUI"""
-
-    # Create notebook for tabs
-    self.notebook = ttk.Notebook(self.root)
-    self.notebook.pack(fill="both", expand=True, padx=10, pady=10)
-
-    # NEU: Bind tab change event
-    self.notebook.bind("<<NotebookTabChanged>>", self.on_tab_changed)
-
-    # ... rest of setup_gui ...
-
+# NEU: Bind tab change event in setup_gui()
+# self.notebook.bind("<<NotebookTabChanged>>", self.on_tab_changed)
 
 # NEU: Tab Change Handler
 def on_tab_changed(self, event):
