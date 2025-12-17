@@ -51,13 +51,18 @@ except Exception as e:
 class ADSPillarGUI:
     def __init__(self, root):
         self.root = root
-        self.root.title("ADS Pillar - GUI Dashboard")
-        self.root.geometry("1200x800")
+        self.root.title("🚀 ADS Pillar Scraper - Professional Dashboard")
+
+        # Größere GUI: 1400x900 (verbessert für bessere Übersicht)
+        width = 1400
+        height = 900
+        self.root.geometry(f"{width}x{height}")
+
+        # Minimum size
+        self.root.minsize(1200, 750)
 
         # Center window on screen (FIX for macOS where window can be off-screen)
         self.root.update_idletasks()
-        width = 1200
-        height = 800
         x = (self.root.winfo_screenwidth() // 2) - (width // 2)
         y = (self.root.winfo_screenheight() // 2) - (height // 2)
         self.root.geometry(f'{width}x{height}+{x}+{y}')
@@ -76,6 +81,16 @@ class ADSPillarGUI:
             'adsense_id': tk.StringVar(value="ca-pub-XXXXXXXXXXXXXXXX"),
             'ga_id': tk.StringVar(value="GA_MEASUREMENT_ID")
         }
+
+        # NEW: Track configuration changes
+        self.config_saved = False
+        self.config_modified = False
+        self._last_tab = 0
+
+        # Track changes on all config variables
+        for key, var in self.project_config.items():
+            var.trace_add('write', self._track_config_change)
+
         self.current_df = None
         self._user_csv_path = ""
         
@@ -104,6 +119,9 @@ class ADSPillarGUI:
         # Create notebook for tabs
         self.notebook = ttk.Notebook(self.root)
         self.notebook.pack(fill="both", expand=True, padx=10, pady=10)
+
+        # NEW: Bind tab change event for auto-save dialog
+        self.notebook.bind("<<NotebookTabChanged>>", self._on_tab_changed)
         
         # Tab 1: Project Setup
         self.setup_tab = ttk.Frame(self.notebook)
@@ -241,17 +259,48 @@ class ADSPillarGUI:
         ttk.Checkbutton(source_frame, text="Foursquare API (Coming Soon)", 
                        variable=self.data_sources['foursquare'], state="disabled").pack(anchor="w", padx=5, pady=2)
         
-        # API Configuration
-        api_frame = ttk.LabelFrame(main_frame, text="API Konfiguration")
+        # API Configuration (IMPROVED: Explicit Google Places API naming)
+        api_frame = ttk.LabelFrame(main_frame, text="🔑 Google Places API Konfiguration")
         api_frame.pack(fill="x", pady=(0, 20))
-        
-        ttk.Label(api_frame, text="Google Places API Key:").grid(row=0, column=0, sticky="w", padx=5, pady=5)
+
+        # Header
+        header_label = ttk.Label(
+            api_frame,
+            text="Google Places API Key (erforderlich für Live-Scraping)",
+            font=('TkDefaultFont', 10, 'bold')
+        )
+        header_label.grid(row=0, column=0, columnspan=4, sticky="w", padx=5, pady=(5, 2))
+
+        # Info text with clickable link
+        info_label = ttk.Label(
+            api_frame,
+            text="➜ API Key erstellen: https://console.cloud.google.com/apis/credentials",
+            foreground="blue",
+            cursor="hand2"
+        )
+        info_label.grid(row=1, column=0, columnspan=4, sticky="w", padx=5, pady=(0, 10))
+        info_label.bind("<Button-1>", lambda e: webbrowser.open("https://console.cloud.google.com/apis/credentials"))
+
+        # API Key Entry
+        ttk.Label(api_frame, text="API Key:").grid(row=2, column=0, sticky="w", padx=5, pady=5)
         self.google_api_key = tk.StringVar()
-        ttk.Entry(api_frame, textvariable=self.google_api_key, width=50, show="*").grid(row=0, column=1, padx=5, pady=5)
-        
-        ttk.Label(api_frame, text="Search Query:").grid(row=1, column=0, sticky="w", padx=5, pady=5)
+
+        self.api_entry = ttk.Entry(api_frame, textvariable=self.google_api_key, width=50, show="*")
+        self.api_entry.grid(row=2, column=1, padx=5, pady=5)
+
+        # Show/Hide Button
+        show_button = ttk.Button(
+            api_frame,
+            text="👁️",
+            width=3,
+            command=self._toggle_api_visibility
+        )
+        show_button.grid(row=2, column=2, padx=5, pady=5)
+
+        # Search Query
+        ttk.Label(api_frame, text="Search Query:").grid(row=3, column=0, sticky="w", padx=5, pady=5)
         self.search_query = tk.StringVar(value="parks")
-        ttk.Entry(api_frame, textvariable=self.search_query, width=50).grid(row=1, column=1, padx=5, pady=5)
+        ttk.Entry(api_frame, textvariable=self.search_query, width=50).grid(row=3, column=1, padx=5, pady=5)
         
         # Controls
         control_frame = ttk.Frame(main_frame)
@@ -453,48 +502,72 @@ class ADSPillarGUI:
         threading.Thread(target=setup_thread, daemon=True).start()
         
     def create_sample_data(self):
-        """Create DEMO sample data file - WARNING: NOT REAL DATA!
-
-        ⚠️ CRITICAL: This data is for DEMO/TESTING purposes only.
-        DO NOT use in production - it contains fake ratings and review counts!
         """
-        print("⚠️ WARNING: Creating DEMO data with fake values!")
-        print("   This data is for testing only - DO NOT use in production!")
+        ⚠️ KEINE FAKE-DATEN MEHR!
 
-        sample_data = [
-            {
-                'id': 'DEMO_001',  # Marked as DEMO
-                'name': '[DEMO] Beispiel-Park',  # Clear prefix
-                'street': 'Beispielstraße 1',
-                'city': self.project_config['city'].get(),
-                'region': 'Berlin',
-                'country': 'Deutschland',
-                'postcode': '10117',
-                'latitude': 52.5144,
-                'longitude': 13.3501,
-                'url': '',  # Empty - no fake URL
-                'phone': '',  # Empty - no fake phone number
-                'email': '',
-                'opening_hours': '',  # Empty - no fake hours
-                'rating': 0.0,  # NO FAKE RATINGS!
-                'review_count': 0,  # NO FAKE REVIEW COUNTS!
-                'feature_shade': True,
-                'feature_benches': True,
-                'feature_water': True,
-                'feature_parking': False,
-                'feature_toilets': True,
-                'feature_wheelchair_accessible': True,
-                'feature_kids_friendly': True,
-                'feature_dogs_allowed': True,
-                'feature_fee': False,
-                'feature_seasonal': False,
-                'tags': 'demo,test,beispiel'
-            }
-        ]
+        Diese Funktion erstellt KEINE Fake-Daten mehr.
+        Stattdessen wird ein CSV-Template mit Anleitung erstellt.
+        """
+        result = messagebox.askyesno(
+            "Keine Fake-Daten",
+            "❌ Diese Funktion erstellt KEINE Fake/Placeholder-Daten mehr!\n\n"
+            "Um echte Daten zu sammeln:\n"
+            "1. Verwenden Sie 'Daten sammeln' mit Google Places API\n"
+            "2. Oder importieren Sie eine CSV mit echten Daten\n\n"
+            "Möchten Sie ein CSV-Template erstellen?"
+        )
 
-        df = pd.DataFrame(sample_data)
-        df.to_csv("data/sample_data.csv", index=False)
-        print("✅ DEMO data saved to data/sample_data.csv")
+        if not result:
+            self.log_message("Abgebrochen - Keine Daten erstellt")
+            return
+
+        # Erstelle CSV-Template
+        city = self.project_config['city'].get() or 'Ihre Stadt'
+
+        template_data = [{
+            'id': '',
+            'name': '[BITTE ECHTEN NAMEN EINTRAGEN]',
+            'street': '[Adresse hier]',
+            'city': city,
+            'region': '',
+            'country': 'Deutschland',
+            'postcode': '',
+            'latitude': 0.0,
+            'longitude': 0.0,
+            'url': '',
+            'phone': '',
+            'email': '',
+            'opening_hours': '',
+            'rating': 0.0,
+            'review_count': 0,
+            'feature_shade': False,
+            'feature_benches': False,
+            'feature_water': False,
+            'feature_parking': False,
+            'feature_toilets': False,
+            'feature_wheelchair_accessible': False,
+            'feature_kids_friendly': False,
+            'feature_dogs_allowed': False,
+            'feature_fee': False,
+            'feature_seasonal': False,
+            'tags': ''
+        }]
+
+        df = pd.DataFrame(template_data)
+        os.makedirs("data", exist_ok=True)
+        df.to_csv("data/TEMPLATE_bitte_ausfuellen.csv", index=False)
+
+        messagebox.showinfo(
+            "CSV-Template erstellt",
+            "✅ Template erstellt: data/TEMPLATE_bitte_ausfuellen.csv\n\n"
+            "→ Öffnen Sie diese Datei\n"
+            "→ Fügen Sie ECHTE Daten hinzu\n"
+            "→ Speichern Sie als neue CSV\n"
+            "→ Importieren Sie die CSV in der GUI\n\n"
+            "❌ KEINE Fake-Daten werden mehr generiert!"
+        )
+
+        self.log_message("✅ CSV-Template erstellt (KEINE Fake-Daten)")
         
     def analyze_niches(self):
         """Analyze available niches"""
@@ -711,14 +784,23 @@ class ADSPillarGUI:
         """Save current configuration"""
         try:
             config_data = {key: var.get() for key, var in self.project_config.items()}
-            filename = filedialog.asksaveasfilename(
-                defaultextension=".json",
-                filetypes=[("JSON files", "*.json"), ("All files", "*.*")]
+
+            # Auto-save to project_config.json (kein Dialog)
+            default_file = "project_config.json"
+
+            with open(default_file, "w", encoding='utf-8') as f:
+                json.dump(config_data, f, indent=2, ensure_ascii=False)
+
+            # Mark as saved
+            self.config_saved = True
+            self.config_modified = False
+
+            messagebox.showinfo(
+                "✅ Gespeichert",
+                f"Projekt-Konfiguration wurde gespeichert!\n\nDatei: {default_file}"
             )
-            if filename:
-                with open(filename, "w") as f:
-                    json.dump(config_data, f, indent=2)
-                messagebox.showinfo("Erfolg", "Konfiguration gespeichert!")
+            self.status_bar.config(text="✅ Konfiguration gespeichert")
+
         except Exception as e:
             messagebox.showerror("Fehler", f"Fehler beim Speichern: {str(e)}")
             
@@ -1177,7 +1259,53 @@ footer {{ text-align:center; padding:40px 20px; color:#95a5a6; }}
 </body>
 </html>
 """
-        
+
+
+    # ==========================================
+    # NEW METHODS: Auto-Save & API Validation
+    # ==========================================
+
+    def _toggle_api_visibility(self):
+        """Toggle API key visibility"""
+        if self.api_entry.cget('show') == '*':
+            self.api_entry.config(show='')
+        else:
+            self.api_entry.config(show='*')
+
+    def _track_config_change(self, *args):
+        """Track when configuration is modified"""
+        self.config_modified = True
+        self.config_saved = False
+        self.status_bar.config(text="⚠️ Konfiguration geändert - Bitte speichern!")
+
+    def _on_tab_changed(self, event):
+        """Handle tab change - Auto-save config if modified"""
+        current_tab = self.notebook.index(self.notebook.select())
+
+        # Wenn wir vom Setup-Tab (Tab 0) weggehen und Config geändert wurde
+        if hasattr(self, '_last_tab') and self._last_tab == 0 and current_tab != 0:
+            if self.config_modified and not self.config_saved:
+                result = messagebox.askyesnocancel(
+                    "Konfiguration speichern?",
+                    "Sie haben die Projekt-Konfiguration geändert.\n\n"
+                    "Möchten Sie die Änderungen speichern, bevor Sie fortfahren?\n\n"
+                    "• JA = Speichern und fortfahren\n"
+                    "• NEIN = Änderungen verwerfen\n"
+                    "• ABBRECHEN = Zurück zum Setup-Tab"
+                )
+
+                if result is True:  # Ja - Speichern
+                    self.save_config()
+                elif result is False:  # Nein - Verwerfen
+                    self.config_modified = False
+                    self.config_saved = True
+                else:  # Abbrechen - Zurück
+                    self.notebook.select(0)  # Zurück zum Setup-Tab
+                    return "break"  # Verhindere Tab-Wechsel
+
+        self._last_tab = current_tab
+
+
 def main():
     """Run the GUI application"""
     root = tk.Tk()
