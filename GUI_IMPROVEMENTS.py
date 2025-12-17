@@ -48,18 +48,8 @@ def __init__(self, root):
 # 2. VERBESSERUNG: Auto-Save beim Tab-Wechsel
 # ===========================================
 
-# FÜGEN SIE NACH Zeile 106 (nach notebook.pack()) HINZU:
-def setup_gui(self):
-    """Setup the main GUI"""
-
-    # Create notebook for tabs
-    self.notebook = ttk.Notebook(self.root)
-    self.notebook.pack(fill="both", expand=True, padx=10, pady=10)
-
-    # NEU: Bind tab change event
-    self.notebook.bind("<<NotebookTabChanged>>", self.on_tab_changed)
-
-    # ... rest of setup_gui ...
+# FÜGEN SIE IN setup_gui() NACH notebook.pack() HINZU:
+# self.notebook.bind("<<NotebookTabChanged>>", self.on_tab_changed)
 
 
 # NEU: Tab Change Handler
@@ -264,9 +254,10 @@ def toggle_api_visibility(self, entry_widget):
 
 
 # ===========================================
-# 5. VERBESSERUNG: Bessere Styles
+# 5. VERBESSERUNG: Bessere Styles + Tab Binding
 # ===========================================
 
+# ERWEITERN SIE setup_gui() mit:
 def setup_gui(self):
     """Setup the main GUI"""
 
@@ -286,6 +277,13 @@ def setup_gui(self):
         padding=[20, 10],
         font=('TkDefaultFont', 10)
     )
+
+    # Create notebook for tabs
+    self.notebook = ttk.Notebook(self.root)
+    self.notebook.pack(fill="both", expand=True, padx=10, pady=10)
+
+    # NEU: Bind tab change event (für Auto-Save)
+    self.notebook.bind("<<NotebookTabChanged>>", self.on_tab_changed)
 
     # ... rest of setup_gui ...
 
@@ -336,26 +334,25 @@ So integrieren Sie diese Verbesserungen:
 2. ERSETZEN SIE die __init__ Methode (Zeile 52-100)
    mit der verbesserten Version oben (Punkt 1)
 
-3. FÜGEN SIE HINZU nach Zeile 106:
-   - self.notebook.bind("<<NotebookTabChanged>>", self.on_tab_changed)
-
-4. FÜGEN SIE DIE NEUEN METHODEN HINZU:
+3. FÜGEN SIE DIE NEUEN METHODEN HINZU:
    - on_tab_changed()
    - track_config_change()
    - validate_google_api_key()
    - validate_api_key_button()
    - toggle_api_visibility()
 
-5. ERSETZEN SIE create_data_tab() API-Sektion (Zeilen 248-250)
+4. ERSETZEN SIE create_data_tab() API-Sektion (Zeilen 248-250)
    mit der verbesserten Version (Punkt 4)
 
-6. AKTUALISIEREN SIE setup_gui() mit Styles (Punkt 5)
+5. ERWEITERN SIE setup_gui() mit Styles und Tab Binding (Punkt 5):
+   - Style-Konfiguration hinzufügen
+   - Tab change event binding hinzufügen
 
-7. AKTUALISIEREN SIE save_config() (Punkt 6)
+6. AKTUALISIEREN SIE save_config() (Punkt 6)
 
-8. FÜGEN SIE requests HINZU zu den Imports oben:
+7. FÜGEN SIE requests HINZU zu den Imports oben:
    import requests
 
-9. TESTEN SIE die GUI:
+8. TESTEN SIE die GUI:
    python Files/gui_app.py
 """
