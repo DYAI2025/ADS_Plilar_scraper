@@ -1,0 +1,10 @@
+README.md
+setup.py
+ads_pillar_scraper.egg-info/PKG-INFO
+ads_pillar_scraper.egg-info/SOURCES.txt
+ads_pillar_scraper.egg-info/dependency_links.txt
+ads_pillar_scraper.egg-info/entry_points.txt
+ads_pillar_scraper.egg-info/requires.txt
+ads_pillar_scraper.egg-info/top_level.txt
+tests/test_pipeline_end_to_end.py
+tests/test_sanitization.py

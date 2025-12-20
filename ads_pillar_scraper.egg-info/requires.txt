@@ -1,0 +1,8 @@
+Pillow
+beautifulsoup4
+jinja2
+lxml
+pandas
+pytest
+pyyaml
+requests
