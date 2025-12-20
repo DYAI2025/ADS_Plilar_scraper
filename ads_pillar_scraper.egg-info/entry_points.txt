@@ -1,4 +1,0 @@
-[console_scripts]
-ads-pillar-gui = Files.gui_app:main
-ads-pillar-niche = Files.niche_research:main
-ads-pillar-quick = Files.quick_start:main
