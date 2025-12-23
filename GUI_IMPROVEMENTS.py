@@ -6,7 +6,6 @@ Fügen Sie diese Verbesserungen in die bestehende GUI ein.
 
 import tkinter as tk
 from tkinter import ttk, messagebox
-import re
 import requests
 
 
