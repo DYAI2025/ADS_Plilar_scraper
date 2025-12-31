@@ -86,7 +86,7 @@ def check_tkinter():
     except ImportError:
         print_colored("❌ Tkinter ist nicht installiert!", 'red')
         print()
-        print_colored("Installation-Anleitung:", 'yellow')
+        print_colored("Installations-Anleitung:", 'yellow')
         if sys.platform == 'darwin':
             print_colored("  macOS:   brew install python-tk@3.11", 'yellow')
         elif sys.platform.startswith('linux'):
