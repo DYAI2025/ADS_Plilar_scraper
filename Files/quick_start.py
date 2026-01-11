@@ -126,13 +126,13 @@ def create_sample_data(config):
     print("📋 Um echte Daten zu sammeln, haben Sie folgende Optionen:")
     print()
     print("1️⃣  Google Places API (Empfohlen):")
-    print("   python Files/enhanced_scrapers.py --query '{category}' --location '{city}'")
+    print(f"   python Files/enhanced_scrapers.py --query '{category}' --location '{city}'")
     print("   Benötigt: GOOGLE_PLACES_API_KEY")
     print()
     print("2️⃣  CSV-Import:")
     print("   Erstellen Sie eine CSV mit echten Daten:")
     print("   - name, address, city, latitude, longitude, rating, review_count")
-    print("   - Speichern als: data/{city.lower()}_{category.lower()}.csv")
+    print(f"   - Speichern als: data/{city.lower()}_{category.lower()}.csv")
     print()
     print("3️⃣  GUI verwenden:")
     print("   python Files/gui_app.py")
@@ -252,7 +252,12 @@ def generate_quick_page(config, data_file=None):
 
         # Generiere mit echtem Generator
         template_path = os.path.join(os.path.dirname(__file__), 'pillar_page_skeleton.html')
-        generator = PillarPageGenerator(template_path=template_path)
+        page_config = {
+            'site_name': f"{category} in {city}",
+            'adsense_id': config.get('adsense_id', ''),
+            'ga_id': config.get('ga_id', ''),
+        }
+        generator = PillarPageGenerator(template_path=template_path, config=page_config)
 
         os.makedirs("generated", exist_ok=True)
         output_file = f"generated/{city.lower()}_{category.lower()}.html"
@@ -262,12 +267,7 @@ def generate_quick_page(config, data_file=None):
             city=city,
             category=category,
             output_path=output_file,
-            canonical_url=f"https://{domain}/{city.lower()}-{category.lower()}",
-            config={
-                'site_name': f"{category} in {city}",
-                'adsense_id': config.get('adsense_id', ''),
-                'ga_id': config.get('ga_id', ''),
-            }
+            canonical_url=f"https://{domain}/{city.lower()}-{category.lower()}"
         )
 
         print(f"✅ Echte Seite generiert: {output_file}")

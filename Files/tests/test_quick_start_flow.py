@@ -44,6 +44,12 @@ def test_quick_start_end_to_end(tmp_path, monkeypatch, capsys):
     captured = capsys.readouterr()
     assert "KEINE FAKE-DATEN" in captured.out, "Should warn about no fake data"
     assert "Google Places API" in captured.out, "Should suggest using API"
+    
+    # Verify output contains actual city and category values (not literal {city}/{category})
+    assert "Parks" in captured.out, "Should show actual category value"
+    assert "Berlin" in captured.out, "Should show actual city value"
+    assert "{category}" not in captured.out, "Should not contain literal {category}"
+    assert "{city}" not in captured.out, "Should not contain literal {city}"
 
     # Verify generate_quick_page returns None without valid data
     html_path = generate_quick_page(config, None)
