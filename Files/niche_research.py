@@ -682,6 +682,10 @@ class ReviewDemandAnalyzer:
                 "praise_keywords": [],
             }
 
+        if len(all_reviews) < min_reviews:
+            print(f"⚠️  Warning: Only {len(all_reviews)} reviews found (min: {min_reviews})")
+            print(f"   Analysis may be less accurate with limited data")
+
         # Categorize reviews by rating
         complaints = [r for r in all_reviews if r["rating"] <= 2]
         praise = [r for r in all_reviews if r["rating"] >= 4]
@@ -845,6 +849,16 @@ class ReviewDemandAnalyzer:
                         # Filter out phrases that are too generic
                         if len(phrase) >= 8 and not self._is_too_generic(phrase):
                             phrases.append(phrase)
+                            
+                            # Early termination within inner loop
+                            if len(phrases) >= max_total_phrases:
+                                break
+                    
+                    if len(phrases) >= max_total_phrases:
+                        break
+                
+                if len(phrases) >= max_total_phrases:
+                    break
 
                         # Early termination within phrase extraction
                         if len(phrases) >= max_phrases_to_collect:
