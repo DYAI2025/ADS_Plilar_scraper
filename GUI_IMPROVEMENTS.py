@@ -6,7 +6,6 @@ Fügen Sie diese Verbesserungen in die bestehende GUI ein.
 
 import tkinter as tk
 from tkinter import ttk, messagebox
-import re
 import requests
 
 
@@ -48,18 +47,8 @@ def __init__(self, root):
 # 2. VERBESSERUNG: Auto-Save beim Tab-Wechsel
 # ===========================================
 
-# FÜGEN SIE NACH Zeile 106 (nach notebook.pack()) HINZU:
-def setup_gui(self):
-    """Setup the main GUI"""
-
-    # Create notebook for tabs
-    self.notebook = ttk.Notebook(self.root)
-    self.notebook.pack(fill="both", expand=True, padx=10, pady=10)
-
-    # NEU: Bind tab change event
-    self.notebook.bind("<<NotebookTabChanged>>", self.on_tab_changed)
-
-    # ... rest of setup_gui ...
+# FÜGEN SIE IN setup_gui() NACH notebook.pack() HINZU:
+# self.notebook.bind("<<NotebookTabChanged>>", self.on_tab_changed)
 
 
 # NEU: Tab Change Handler
@@ -264,11 +253,12 @@ def toggle_api_visibility(self, entry_widget):
 
 
 # ===========================================
-# 5. VERBESSERUNG: Bessere Styles
+# 5. VERBESSERUNG: Bessere Styles & Vollständige setup_gui()
 # ===========================================
 
+# ERWEITERN SIE setup_gui() mit:
 def setup_gui(self):
-    """Setup the main GUI"""
+    """Setup the main GUI with all improvements"""
 
     # Configure styles
     style = ttk.Style()
@@ -287,7 +277,14 @@ def setup_gui(self):
         font=('TkDefaultFont', 10)
     )
 
-    # ... rest of setup_gui ...
+    # Create notebook for tabs
+    self.notebook = ttk.Notebook(self.root)
+    self.notebook.pack(fill="both", expand=True, padx=10, pady=10)
+
+    # Bind tab change event for auto-save
+    self.notebook.bind("<<NotebookTabChanged>>", self.on_tab_changed)
+
+    # ... rest of setup_gui (create tabs, etc.) ...
 
 
 # ===========================================
@@ -334,28 +331,29 @@ So integrieren Sie diese Verbesserungen:
 1. Öffnen Sie Files/gui_app.py
 
 2. ERSETZEN SIE die __init__ Methode (Zeile 52-100)
-   mit der verbesserten Version oben (Punkt 1)
+   mit der verbesserten Version aus Abschnitt 1
 
-3. FÜGEN SIE HINZU nach Zeile 106:
-   - self.notebook.bind("<<NotebookTabChanged>>", self.on_tab_changed)
+3. ERSETZEN SIE die setup_gui() Methode
+   mit der vollständigen Version aus Abschnitt 5 - diese enthält:
+   - Style-Konfiguration
+   - Notebook-Erstellung
+   - Tab-Change-Event-Binding für Auto-Save
 
 4. FÜGEN SIE DIE NEUEN METHODEN HINZU:
-   - on_tab_changed()
-   - track_config_change()
-   - validate_google_api_key()
-   - validate_api_key_button()
-   - toggle_api_visibility()
+   - on_tab_changed() (aus Abschnitt 2)
+   - track_config_change() (aus Abschnitt 2)
+   - validate_google_api_key() (aus Abschnitt 3)
+   - validate_api_key_button() (aus Abschnitt 3)
+   - toggle_api_visibility() (aus Abschnitt 4)
 
 5. ERSETZEN SIE create_data_tab() API-Sektion (Zeilen 248-250)
-   mit der verbesserten Version (Punkt 4)
+   mit der verbesserten Version aus Abschnitt 4
 
-6. AKTUALISIEREN SIE setup_gui() mit Styles (Punkt 5)
+6. AKTUALISIEREN SIE save_config() (aus Abschnitt 6)
 
-7. AKTUALISIEREN SIE save_config() (Punkt 6)
-
-8. FÜGEN SIE requests HINZU zu den Imports oben:
+7. FÜGEN SIE requests HINZU zu den Imports oben:
    import requests
 
-9. TESTEN SIE die GUI:
+8. TESTEN SIE die GUI:
    python Files/gui_app.py
 """
