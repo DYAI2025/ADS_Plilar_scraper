@@ -26,7 +26,7 @@ Am Ende dieses Tutorials haben Sie:
 
 Bevor Sie starten, stellen Sie sicher dass:
 - ✅ Python 3.8+ installiert ist
-- ✅ Repository geklont: `git clone https://github.com/DYAI2025/ADS_Plilar_scraper.git`
+- ✅ Repository geklont: `git clone https://github.com/DYAI2025/ADS_Pillar_scraper.git`
 - ✅ Dependencies installiert: `pip install -r requirements.txt`
 - ✅ *(Optional)* Google Places API Key (für Live-Scraping)
 - ✅ *(Optional)* Google AdSense Publisher ID
