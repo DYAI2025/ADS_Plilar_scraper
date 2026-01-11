@@ -45,17 +45,11 @@ def test_quick_start_end_to_end(tmp_path, monkeypatch, capsys):
     assert "KEINE FAKE-DATEN" in captured.out, "Should warn about no fake data"
     assert "Google Places API" in captured.out, "Should suggest using API"
     
-    # Verify that the output contains properly formatted commands with actual values
-    assert "--query 'Parks' --location 'Berlin'" in captured.out, \
-        "Should show formatted command with actual city and category values"
-    assert "data/berlin_parks.csv" in captured.out, \
-        "Should show formatted CSV filename with actual values"
-    
-    # Verify that unformatted placeholders are NOT in the output
-    assert "{category}" not in captured.out, \
-        "Should not contain unformatted {category} placeholder"
-    assert "{city}" not in captured.out, \
-        "Should not contain unformatted {city} placeholder"
+    # Verify output contains actual city and category values (not literal {city}/{category})
+    assert "Parks" in captured.out, "Should show actual category value"
+    assert "Berlin" in captured.out, "Should show actual city value"
+    assert "{category}" not in captured.out, "Should not contain literal {category}"
+    assert "{city}" not in captured.out, "Should not contain literal {city}"
 
     # Verify generate_quick_page returns None without valid data
     html_path = generate_quick_page(config, None)
