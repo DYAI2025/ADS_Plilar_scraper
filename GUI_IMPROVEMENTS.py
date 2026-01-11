@@ -256,6 +256,7 @@ def toggle_api_visibility(self, entry_widget):
 # 5. VERBESSERUNG: Bessere Styles & Vollständige setup_gui()
 # ===========================================
 
+# ERWEITERN SIE setup_gui() mit:
 def setup_gui(self):
     """Setup the main GUI with all improvements"""
 
