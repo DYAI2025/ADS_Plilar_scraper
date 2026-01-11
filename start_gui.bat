@@ -9,7 +9,7 @@ echo ========================================
 echo.
 
 REM Prüfe Python Installation
-echo [1/4] Pruefe Python-Installation...
+echo [1/4] Prüfe Python-Installation...
 python --version >nul 2>&1
 if %errorlevel% neq 0 (
     echo [FEHLER] Python ist nicht installiert!
@@ -24,7 +24,7 @@ echo [OK] Python %PYTHON_VERSION% gefunden
 echo.
 
 REM Prüfe Dependencies
-echo [2/4] Pruefe Dependencies...
+echo [2/4] Prüfe Dependencies...
 python -c "import pandas" >nul 2>&1
 if %errorlevel% neq 0 (
     echo [WARNUNG] Dependencies nicht installiert - Installation wird gestartet...
@@ -44,7 +44,7 @@ if %errorlevel% neq 0 (
 echo.
 
 REM Prüfe Tkinter (normalerweise vorinstalliert auf Windows)
-echo [3/4] Pruefe GUI-Unterstuetzung...
+echo [3/4] Prüfe GUI-Unterstuetzung...
 python -c "import tkinter" >nul 2>&1
 if %errorlevel% neq 0 (
     echo [FEHLER] Tkinter ist nicht verfügbar!
