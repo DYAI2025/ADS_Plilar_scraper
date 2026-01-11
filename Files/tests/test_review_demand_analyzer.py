@@ -141,6 +141,11 @@ class TestReviewDemandAnalyzer:
         assert analyzer._is_too_generic("das ist toll") == True
         assert analyzer._is_too_generic("keine parkplätze") == False
         assert analyzer._is_too_generic("toller spielplatz") == False
+        
+        # Test None and empty string handling
+        assert analyzer._is_too_generic(None) == True
+        assert analyzer._is_too_generic("") == True
+        assert analyzer._is_too_generic("   ") == True
 
     def test_find_unmet_needs(self, analyzer):
         """Test unmet needs detection from complaints"""
