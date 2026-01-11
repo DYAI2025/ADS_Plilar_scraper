@@ -234,8 +234,8 @@ Examples:
             output_data = {
                 "category": args.category,
                 "city": args.city,
-                "analysis": analysis,
-                "content_ideas": ideas,
+                "analysis": cached_analysis,
+                "content_ideas": cached_ideas,
                 "parameters": {
                     "max_places": args.max_places,
                     "min_reviews": args.min_reviews,

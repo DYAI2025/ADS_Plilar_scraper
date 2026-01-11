@@ -1140,6 +1140,9 @@ class ReviewDemandAnalyzer:
             category: Category to analyze
             city: City name
             max_places: Maximum places to analyze
+            
+        Returns:
+            Tuple of (analysis_dict, ideas_list) or (None, None) if no data available
         """
         print(f"\n{'='*70}")
         print(f"📊 REVIEW DEMAND ANALYSIS REPORT")
@@ -1153,7 +1156,7 @@ class ReviewDemandAnalyzer:
 
         if analysis["total_reviews_analyzed"] == 0:
             print("❌ No data available for analysis\n")
-            return
+            return None, None
 
         # Summary stats
         print(f"📈 SUMMARY STATISTICS")
@@ -1211,6 +1214,9 @@ class ReviewDemandAnalyzer:
             f"✨ Analysis complete! Use these insights to create high-performing pillar pages."
         )
         print(f"{'='*70}\n")
+        
+        # Return the computed results so callers can reuse them
+        return analysis, ideas
 
 
 if __name__ == "__main__":
