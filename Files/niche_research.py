@@ -486,7 +486,7 @@ class ReviewDemandAnalyzer:
 
         # Feature keywords for unmet needs detection (German + English)
         self.feature_keywords = {
-            "parking": ["parkplatz", "parken", "parking", "stellplatz"],
+            "parking": ["parkplatz", "parkplätze", "parken", "parking", "stellplatz"],
             "shade": ["schatten", "schattig", "shade", "shaded", "shady"],
             "toilets": [
                 "toilette",
