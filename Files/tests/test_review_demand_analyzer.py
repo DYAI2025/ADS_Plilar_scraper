@@ -11,7 +11,7 @@ import sys
 from unittest.mock import Mock, patch
 
 # Add parent directory to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from niche_research import ReviewDemandAnalyzer
 
@@ -39,7 +39,7 @@ class TestReviewDemandAnalyzer:
                 "rating": 5,
                 "text": "Toller Park mit viel Schatten und schönen Bänken. Sehr gut gepflegt.",
                 "author": "User1",
-                "time": 1234567890
+                "time": 1234567890,
             },
             {
                 "place_name": "Test Park",
@@ -47,7 +47,7 @@ class TestReviewDemandAnalyzer:
                 "rating": 1,
                 "text": "Keine Parkplätze! Es fehlen Toiletten und zu wenig Schatten.",
                 "author": "User2",
-                "time": 1234567891
+                "time": 1234567891,
             },
             {
                 "place_name": "Test Park",
@@ -55,7 +55,7 @@ class TestReviewDemandAnalyzer:
                 "rating": 2,
                 "text": "Leider keine Toiletten und schlechte Erreichbarkeit. Vermisse Spielplatz.",
                 "author": "User3",
-                "time": 1234567892
+                "time": 1234567892,
             },
             {
                 "place_name": "Test Park 2",
@@ -63,7 +63,7 @@ class TestReviewDemandAnalyzer:
                 "rating": 4,
                 "text": "Schöner Spielplatz und genug Parkplätze. Empfehlenswert!",
                 "author": "User4",
-                "time": 1234567893
+                "time": 1234567893,
             },
             {
                 "place_name": "Test Park 2",
@@ -71,8 +71,8 @@ class TestReviewDemandAnalyzer:
                 "rating": 1,
                 "text": "Kaputte Bänke, keine Toiletten, schlecht",
                 "author": "User5",
-                "time": 1234567894
-            }
+                "time": 1234567894,
+            },
         ]
 
     def test_initialization(self, mock_api_key):
@@ -90,7 +90,7 @@ class TestReviewDemandAnalyzer:
         complaint_texts = [
             "Keine Parkplätze verfügbar und keine Toiletten",
             "Es fehlen Toiletten und zu wenig Schatten",
-            "Leider keine Toiletten vorhanden"
+            "Leider keine Toiletten vorhanden",
         ]
 
         phrases = analyzer._extract_top_phrases(complaint_texts, negative=True)
@@ -107,7 +107,7 @@ class TestReviewDemandAnalyzer:
         praise_texts = [
             "Toller Park mit viel Schatten",
             "Schöner Spielplatz und gut gepflegt",
-            "Super Park, sehr empfehlenswert"
+            "Super Park, sehr empfehlenswert",
         ]
 
         phrases = analyzer._extract_top_phrases(praise_texts, negative=False)
@@ -123,7 +123,7 @@ class TestReviewDemandAnalyzer:
         """Test keyword extraction from reviews"""
         texts = [
             "Die Parkplätze sind immer voll und die Toiletten schmutzig",
-            "Parkplatz ist zu klein, mehr Parkplätze nötig"
+            "Parkplatz ist zu klein, mehr Parkplätze nötig",
         ]
 
         keywords = analyzer._extract_keywords(texts, negative=True)
@@ -153,7 +153,7 @@ class TestReviewDemandAnalyzer:
             ("keine parkplätze", 10),
             ("fehlen toiletten", 8),
             ("zu wenig schatten", 5),
-            ("keine spielplatz", 3)
+            ("keine spielplatz", 3),
         ]
 
         unmet_needs = analyzer._find_unmet_needs(complaints)
@@ -170,12 +170,14 @@ class TestReviewDemandAnalyzer:
         """Test sentiment analysis with mocked review data"""
 
         # Mock the get_reviews_for_category method
-        with patch.object(analyzer, 'get_reviews_for_category', return_value=sample_reviews):
+        with patch.object(
+            analyzer, "get_reviews_for_category", return_value=sample_reviews
+        ):
             analysis = analyzer.analyze_review_sentiment(
                 category="parks",
                 city="Berlin",
                 min_reviews=1,  # Low threshold for testing
-                max_places=2
+                max_places=2,
             )
 
             assert analysis is not None
@@ -197,11 +199,11 @@ class TestReviewDemandAnalyzer:
     def test_generate_content_ideas_with_mock_data(self, analyzer, sample_reviews):
         """Test content idea generation"""
 
-        with patch.object(analyzer, 'get_reviews_for_category', return_value=sample_reviews):
+        with patch.object(
+            analyzer, "get_reviews_for_category", return_value=sample_reviews
+        ):
             ideas = analyzer.generate_content_ideas(
-                category="parks",
-                city="Berlin",
-                max_places=2
+                category="parks", city="Berlin", max_places=2
             )
 
             assert isinstance(ideas, list)
@@ -228,7 +230,7 @@ class TestReviewDemandAnalyzer:
         mock_response.json.return_value = {"status": "ZERO_RESULTS"}
         mock_response.raise_for_status = Mock()
 
-        with patch.object(analyzer.scraper.session, 'get', return_value=mock_response):
+        with patch.object(analyzer.scraper.session, "get", return_value=mock_response):
             reviews = analyzer._get_place_reviews("invalid_place_id")
 
             assert reviews == []
@@ -236,12 +238,9 @@ class TestReviewDemandAnalyzer:
     def test_empty_reviews_handling(self, analyzer):
         """Test analyzer handles empty review lists gracefully"""
 
-        with patch.object(analyzer, 'get_reviews_for_category', return_value=[]):
+        with patch.object(analyzer, "get_reviews_for_category", return_value=[]):
             analysis = analyzer.analyze_review_sentiment(
-                category="parks",
-                city="Berlin",
-                min_reviews=1,
-                max_places=5
+                category="parks", city="Berlin", min_reviews=1, max_places=5
             )
 
             assert analysis["total_reviews_analyzed"] == 0
@@ -268,9 +267,16 @@ class TestReviewDemandAnalyzer:
     def test_feature_keywords_completeness(self, analyzer):
         """Test that all important features are in keyword dictionary"""
         required_features = [
-            "parking", "shade", "toilets", "playground",
-            "benches", "wheelchair_accessible", "water_fountain",
-            "dog_friendly", "wifi", "outlets"
+            "parking",
+            "shade",
+            "toilets",
+            "playground",
+            "benches",
+            "wheelchair_accessible",
+            "water_fountain",
+            "dog_friendly",
+            "wifi",
+            "outlets",
         ]
 
         for feature in required_features:
@@ -304,7 +310,7 @@ class TestReviewDemandAnalyzerIntegration:
             category="parks",
             city="Potsdam",  # Smaller city = fewer results
             min_reviews=10,  # Low threshold
-            max_places=5     # Only analyze 5 places
+            max_places=5,  # Only analyze 5 places
         )
 
         assert analysis is not None
@@ -325,9 +331,10 @@ class TestReviewDemandAnalyzerIntegration:
 def test_cli_import():
     """Test that CLI script can be imported without errors"""
     try:
-        sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
         import analyze_demand
-        assert hasattr(analyze_demand, 'main')
+
+        assert hasattr(analyze_demand, "main")
     except ImportError as e:
         pytest.fail(f"Failed to import CLI script: {e}")
 
