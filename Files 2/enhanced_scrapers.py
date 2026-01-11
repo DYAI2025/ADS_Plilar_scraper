@@ -37,6 +37,10 @@ class ScrapedLocation:
     reviews_text: str = ""
     photos: List[str] = None
     place_id: str = ""  # Google Places ID for enrichment
+    # Competitor analysis fields
+    estimated_monthly_visitors: int = 0
+    visibility_score: float = 0.0
+    competitive_strength: str = ""
 
     def __post_init__(self):
         if self.categories is None:
@@ -586,6 +590,9 @@ class UniversalScraper:
                 'website': place.website,
                 'opening_hours': place.opening_hours,
                 'price_level': place.price_level,
+                'estimated_monthly_visitors': place.estimated_monthly_visitors,
+                'visibility_score': place.visibility_score,
+                'competitive_strength': place.competitive_strength,
                 **features
             }
 
