@@ -13,6 +13,8 @@ import threading
 from pathlib import Path
 import webbrowser
 import shutil
+import requests
+import re
 
 try:
     from data_pipeline import DataScraper, PillarPageGenerator, LocationData
@@ -1117,11 +1119,52 @@ class ADSPillarGUI:
                         )
                         self.update_status("Bereit")
                         return
+                elif not self._validate_api_key_format(api_key):
+                    self.niche_details.insert(tk.END, "⚠️  Warnung: API Key Format erscheint ungültig\n")
+                    self.niche_details.insert(tk.END, "   Google API Keys beginnen normalerweise mit 'AIza'\n")
+                    self.niche_details.insert(tk.END, "   Versuche trotzdem...\n\n")
 
                 self.niche_details.insert(
                     tk.END, f"📍 Analysiere: {category} in {city}\n"
                 )
                 self.niche_details.insert(tk.END, "=" * 60 + "\n\n")
+
+                # Validate API key with a test request
+                self.niche_details.insert(tk.END, "🔑 Validiere API Key...\n")
+                api_status = self._test_api_key(api_key)
+                
+                if api_status != "OK":
+                    self.niche_details.insert(tk.END, f"\n❌ API KEY FEHLER: {api_status}\n")
+                    self.niche_details.insert(tk.END, "=" * 60 + "\n\n")
+                    
+                    if api_status == "REQUEST_DENIED":
+                        self.niche_details.insert(tk.END, "Der API Key wurde abgelehnt.\n\n")
+                        self.niche_details.insert(tk.END, "Mögliche Gründe:\n")
+                        self.niche_details.insert(tk.END, "  • API Key ist ungültig oder abgelaufen\n")
+                        self.niche_details.insert(tk.END, "  • Places API ist nicht aktiviert in Google Cloud Console\n")
+                        self.niche_details.insert(tk.END, "  • Billing ist nicht aktiviert im Google Cloud Projekt\n")
+                        self.niche_details.insert(tk.END, "  • API Key hat keine Berechtigung für Places API\n")
+                    elif api_status == "INVALID_REQUEST":
+                        self.niche_details.insert(tk.END, "Ungültiger API Request.\n\n")
+                        self.niche_details.insert(tk.END, "Mögliche Gründe:\n")
+                        self.niche_details.insert(tk.END, "  • API Key Format ist falsch\n")
+                        self.niche_details.insert(tk.END, "  • API Key enthält ungültige Zeichen\n")
+                    elif api_status == "OVER_QUERY_LIMIT":
+                        self.niche_details.insert(tk.END, "API Limit überschritten.\n\n")
+                        self.niche_details.insert(tk.END, "  • Tägliches/Monatliches Limit erreicht\n")
+                        self.niche_details.insert(tk.END, "  • Warte oder erhöhe dein Google Cloud Quota\n")
+                    else:
+                        self.niche_details.insert(tk.END, f"Unerwarteter Fehler: {api_status}\n")
+                    
+                    self.niche_details.insert(tk.END, "\n💡 So behebst du das Problem:\n")
+                    self.niche_details.insert(tk.END, "  1. Gehe zu https://console.cloud.google.com/apis/\n")
+                    self.niche_details.insert(tk.END, "  2. Aktiviere 'Places API (New)'\n")
+                    self.niche_details.insert(tk.END, "  3. Stelle sicher, dass Billing aktiviert ist\n")
+                    self.niche_details.insert(tk.END, "  4. Erstelle einen neuen API Key unter 'Credentials'\n")
+                    self.update_status("API Authentifizierung fehlgeschlagen")
+                    return
+                
+                self.niche_details.insert(tk.END, "✅ API Key gültig\n\n")
 
                 # Initialize analyzer
                 analyzer = ReviewDemandAnalyzer(api_key=api_key, delay=1.0)
@@ -1239,18 +1282,23 @@ class ADSPillarGUI:
         """Prompt user for Google Places API key"""
         dialog = tk.Toplevel(self.root)
         dialog.title("Google Places API Key")
-        dialog.geometry("500x200")
+        dialog.geometry("500x250")
 
         ttk.Label(
             dialog, text="Google Places API Key benötigt:", font=("Arial", 12, "bold")
         ).pack(pady=(20, 10))
 
         ttk.Label(dialog, text="Bitte gib deinen Google Places API Key ein:").pack()
+        ttk.Label(dialog, text="Format: AIza...", 
+                 font=("Arial", 9), foreground="gray").pack()
 
         api_key_var = tk.StringVar()
         entry = ttk.Entry(dialog, textvariable=api_key_var, width=50)
         entry.pack(pady=10)
         entry.focus()
+
+        error_label = ttk.Label(dialog, text="", foreground="red")
+        error_label.pack()
 
         result = {"key": None}
 
@@ -1279,6 +1327,71 @@ class ADSPillarGUI:
         self.root.wait_window(dialog)
 
         return result["key"]
+
+    def _validate_api_key_format(self, api_key: str) -> bool:
+        """
+        Validate Google Places API key format.
+        
+        Google API keys typically:
+        - Start with 'AIza'
+        - Are typically 39 characters long, but can vary (30-50 chars accepted)
+        - Contain only alphanumeric characters and hyphens/underscores
+        
+        Note: The flexible length range accounts for potential variations in Google's
+        key generation across different services and API versions.
+        
+        Returns:
+            True if format appears valid, False otherwise
+        """
+        if not api_key:
+            return False
+        
+        # Basic format check: starts with AIza and reasonable length
+        if not api_key.startswith('AIza'):
+            return False
+        
+        # Check length (typical Google API keys are 39 chars, but allow flexibility for variations)
+        if len(api_key) < 30 or len(api_key) > 50:
+            return False
+        
+        # Check for valid characters (alphanumeric, hyphens, underscores)
+        if not re.match(r'^[A-Za-z0-9_-]+$', api_key):
+            return False
+        
+        return True
+
+    def _test_api_key(self, api_key: str) -> str:
+        """
+        Test the API key with a minimal Places API request.
+        
+        Args:
+            api_key: Google Places API key to test
+            
+        Returns:
+            Status string: "OK" if valid, or error status like "REQUEST_DENIED", "INVALID_REQUEST", etc.
+        """
+        # Use a minimal textsearch request to test the API key
+        url = "https://maps.googleapis.com/maps/api/place/textsearch/json"
+        params = {
+            "query": "restaurant",
+            "key": api_key,
+        }
+        
+        try:
+            response = requests.get(url, params=params, timeout=10)
+            data = response.json()
+            
+            # Google Places API returns a status field
+            status = data.get("status", "UNKNOWN_ERROR")
+            
+            return status
+            
+        except requests.exceptions.Timeout:
+            return "TIMEOUT: Network request to Google Places API timed out after 10 seconds"
+        except requests.exceptions.RequestException:
+            return "NETWORK_ERROR: Unable to connect to Google Places API"
+        except Exception:
+            return "ERROR: Unexpected error while validating API key"
 
     def upload_page(self):
         """Upload page to server"""
