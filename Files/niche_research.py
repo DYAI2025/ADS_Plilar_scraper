@@ -1,7 +1,7 @@
 import json
 import time
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 from urllib.parse import quote
 import re
 from collections import Counter
@@ -150,7 +150,9 @@ class NicheValidator:
 
         df = pd.concat(frames, ignore_index=True, sort=False)
         if "review_count" in df.columns:
-            df["review_count"] = pd.to_numeric(df["review_count"], errors="coerce").fillna(0)
+            df["review_count"] = pd.to_numeric(
+                df["review_count"], errors="coerce"
+            ).fillna(0)
         if "rating" in df.columns:
             df["rating"] = pd.to_numeric(df["rating"], errors="coerce").fillna(0)
         return df
@@ -167,7 +169,9 @@ class NicheValidator:
             "feature_wheelchair_accessible": "Barrierefreie Orte",
             "feature_restaurant": "Gastro & Snacks",
         }
-        return mapping.get(feature_name, feature_name.replace("feature_", "").replace("_", " ").title())
+        return mapping.get(
+            feature_name, feature_name.replace("feature_", "").replace("_", " ").title()
+        )
 
     @staticmethod
     def _monetization_bucket(total_reviews: float) -> str:
@@ -190,13 +194,18 @@ class NicheValidator:
                     continue
                 tag_scores[tag_clean] = tag_scores.get(tag_clean, 0.0) + weight
 
-        return [tag for tag, _ in sorted(tag_scores.items(), key=lambda x: x[1], reverse=True)]
+        return [
+            tag
+            for tag, _ in sorted(tag_scores.items(), key=lambda x: x[1], reverse=True)
+        ]
 
     def _build_dynamic_niches(self) -> List[Dict]:
         if self.analytics_df.empty:
             return []
 
-        feature_columns = [col for col in self.analytics_df.columns if col.startswith("feature_")]
+        feature_columns = [
+            col for col in self.analytics_df.columns if col.startswith("feature_")
+        ]
         niches: List[Dict] = []
 
         for feature in feature_columns:
@@ -222,7 +231,9 @@ class NicheValidator:
                     "analytics": {
                         "locations": len(feature_df),
                         "total_reviews": int(total_reviews),
-                        "avg_rating": round(feature_df.get("rating", pd.Series([])).mean(), 2),
+                        "avg_rating": round(
+                            feature_df.get("rating", pd.Series([])).mean(), 2
+                        ),
                     },
                 }
             )
@@ -475,20 +486,39 @@ class ReviewDemandAnalyzer:
 
         # Feature keywords for unmet needs detection (German + English)
         self.feature_keywords = {
-            "parking": ["parkplatz", "parken", "parking", "stellplatz"],
+            "parking": ["parkplatz", "parkplätze", "parken", "parking", "stellplatz"],
             "shade": ["schatten", "schattig", "shade", "shaded", "shady"],
-            "toilets": ["toilette", "toiletten", "wc", "toilet", "restroom", "bathroom"],
+            "toilets": [
+                "toilette",
+                "toiletten",
+                "wc",
+                "toilet",
+                "restroom",
+                "bathroom",
+            ],
             "playground": ["spielplatz", "playground", "kinder"],
             "benches": ["bank", "bänke", "bench", "benches", "sitzgelegenheit"],
-            "wheelchair_accessible": ["rollstuhl", "barrierefrei", "wheelchair", "accessible", "handicap"],
-            "water_fountain": ["wasserbrunnen", "trinkbrunnen", "water fountain", "drinking fountain"],
+            "wheelchair_accessible": [
+                "rollstuhl",
+                "barrierefrei",
+                "wheelchair",
+                "accessible",
+                "handicap",
+            ],
+            "water_fountain": [
+                "wasserbrunnen",
+                "trinkbrunnen",
+                "water fountain",
+                "drinking fountain",
+            ],
             "dog_friendly": ["hund", "hunde", "dog", "dogs", "haustier", "pet"],
             "wifi": ["wifi", "wlan", "internet"],
             "outlets": ["steckdose", "steckdosen", "outlet", "outlets", "power"],
         }
 
-    def get_reviews_for_category(self, category: str, city: str,
-                                 max_places: int = 30) -> List[Dict]:
+    def get_reviews_for_category(
+        self, category: str, city: str, max_places: int = 30
+    ) -> List[Dict]:
         """
         Fetch all reviews for a specific category and city.
 
@@ -539,7 +569,9 @@ class ReviewDemandAnalyzer:
 
             time.sleep(self.scraper.delay)
 
-        print(f"✅ Collected {len(all_reviews)} reviews from {len(places_to_analyze)} places")
+        print(
+            f"✅ Collected {len(all_reviews)} reviews from {len(places_to_analyze)} places"
+        )
         return all_reviews
 
     def _get_place_reviews(self, place_id: str) -> List[Dict]:
@@ -566,6 +598,11 @@ class ReviewDemandAnalyzer:
             data = response.json()
 
             if data.get("status") != "OK":
+                status = data.get("status", "UNKNOWN")
+                error_msg = data.get("error_message", "No error message provided")
+                print(
+                    f"⚠️  API returned status '{status}' for place {place_id}: {error_msg}"
+                )
                 return []
 
             result = data.get("result", {})
@@ -574,22 +611,34 @@ class ReviewDemandAnalyzer:
             # Extract relevant fields
             processed_reviews = []
             for review in reviews:
-                processed_reviews.append({
-                    "rating": review.get("rating", 3),
-                    "text": review.get("text", ""),
-                    "author": review.get("author_name", "Anonymous"),
-                    "time": review.get("time", 0),
-                })
+                processed_reviews.append(
+                    {
+                        "rating": review.get("rating", 3),
+                        "text": review.get("text", ""),
+                        "author": review.get("author_name", "Anonymous"),
+                        "time": review.get("time", 0),
+                    }
+                )
 
             return processed_reviews
 
+        except requests.exceptions.HTTPError as e:
+            print(
+                f"⚠️  HTTP error fetching reviews for place {place_id}: {e.response.status_code} - {e}"
+            )
+            return []
+        except requests.exceptions.RequestException as e:
+            print(f"⚠️  Network error fetching reviews for place {place_id}: {e}")
+            return []
         except Exception as e:
-            print(f"⚠️  Error fetching reviews for place {place_id}: {e}")
+            print(
+                f"⚠️  Unexpected error fetching reviews for place {place_id}: {type(e).__name__} - {e}"
+            )
             return []
 
-    def analyze_review_sentiment(self, category: str, city: str,
-                                 min_reviews: int = 100,
-                                 max_places: int = 30) -> Dict:
+    def analyze_review_sentiment(
+        self, category: str, city: str, min_reviews: int = 100, max_places: int = 30
+    ) -> Dict:
         """
         Analyze reviews to identify complaints, praise, and unmet needs.
 
@@ -616,7 +665,9 @@ class ReviewDemandAnalyzer:
         all_reviews = self.get_reviews_for_category(category, city, max_places)
 
         if len(all_reviews) < min_reviews:
-            print(f"⚠️  Warning: Only {len(all_reviews)} reviews found (min: {min_reviews})")
+            print(
+                f"⚠️  Warning: Only {len(all_reviews)} reviews found (min: {min_reviews})"
+            )
             print(f"   Analysis may be less accurate with limited data")
 
         if not all_reviews:
@@ -628,7 +679,7 @@ class ReviewDemandAnalyzer:
                 "top_praise": [],
                 "unmet_needs": [],
                 "complaint_keywords": [],
-                "praise_keywords": []
+                "praise_keywords": [],
             }
 
         # Categorize reviews by rating
@@ -637,18 +688,32 @@ class ReviewDemandAnalyzer:
         neutral = [r for r in all_reviews if 2 < r["rating"] < 4]
 
         print(f"\n📊 Review Distribution:")
-        print(f"   ⭐⭐⭐⭐⭐ / ⭐⭐⭐⭐ (Praise): {len(praise)} ({len(praise)*100//len(all_reviews)}%)")
-        print(f"   ⭐⭐⭐ (Neutral): {len(neutral)} ({len(neutral)*100//len(all_reviews)}%)")
-        print(f"   ⭐⭐ / ⭐ (Complaints): {len(complaints)} ({len(complaints)*100//len(all_reviews)}%)")
+        total_reviews = len(all_reviews)
+        praise_pct = (len(praise) * 100 // total_reviews) if total_reviews > 0 else 0
+        neutral_pct = (len(neutral) * 100 // total_reviews) if total_reviews > 0 else 0
+        complaints_pct = (
+            (len(complaints) * 100 // total_reviews) if total_reviews > 0 else 0
+        )
+        print(f"   ⭐⭐⭐⭐⭐ / ⭐⭐⭐⭐ (Praise): {len(praise)} ({praise_pct}%)")
+        print(f"   ⭐⭐⭐ (Neutral): {len(neutral)} ({neutral_pct}%)")
+        print(f"   ⭐⭐ / ⭐ (Complaints): {len(complaints)} ({complaints_pct}%)")
 
         # Extract phrases from complaints and praise
         print(f"\n🔍 Extracting patterns from reviews...")
-        top_complaints = self._extract_top_phrases([r["text"] for r in complaints], negative=True)
-        top_praise = self._extract_top_phrases([r["text"] for r in praise], negative=False)
+        top_complaints = self._extract_top_phrases(
+            [r["text"] for r in complaints], negative=True
+        )
+        top_praise = self._extract_top_phrases(
+            [r["text"] for r in praise], negative=False
+        )
 
         # Extract keywords
-        complaint_keywords = self._extract_keywords([r["text"] for r in complaints], negative=True)
-        praise_keywords = self._extract_keywords([r["text"] for r in praise], negative=False)
+        complaint_keywords = self._extract_keywords(
+            [r["text"] for r in complaints], negative=True
+        )
+        praise_keywords = self._extract_keywords(
+            [r["text"] for r in praise], negative=False
+        )
 
         # Find unmet needs
         unmet_needs = self._find_unmet_needs(top_complaints)
@@ -665,11 +730,12 @@ class ReviewDemandAnalyzer:
             "top_praise": top_praise[:15],
             "unmet_needs": unmet_needs[:10],
             "complaint_keywords": complaint_keywords[:20],
-            "praise_keywords": praise_keywords[:20]
+            "praise_keywords": praise_keywords[:20],
         }
 
-    def _extract_top_phrases(self, texts: List[str], negative: bool = False,
-                            max_phrases: int = 50) -> List[Tuple[str, int]]:
+    def _extract_top_phrases(
+        self, texts: List[str], negative: bool = False, max_phrases: int = 50
+    ) -> List[Tuple[str, int]]:
         """
         Extract most common 2-4 word phrases from texts.
 
@@ -687,31 +753,80 @@ class ReviewDemandAnalyzer:
         # Sentiment indicator keywords
         if negative:
             indicators = [
-                "kein", "keine", "fehlt", "fehlen", "vermisse", "vermissen",
-                "schlecht", "schade", "leider", "nicht", "wenig", "zu wenig",
-                "dreckig", "schmutzig", "kaputt", "defekt",
-                "no", "missing", "lack", "poor", "bad", "dirty", "broken"
+                "kein",
+                "keine",
+                "fehlt",
+                "fehlen",
+                "vermisse",
+                "vermissen",
+                "schlecht",
+                "schade",
+                "leider",
+                "nicht",
+                "wenig",
+                "zu wenig",
+                "dreckig",
+                "schmutzig",
+                "kaputt",
+                "defekt",
+                "no",
+                "missing",
+                "lack",
+                "poor",
+                "bad",
+                "dirty",
+                "broken",
             ]
         else:
             indicators = [
-                "toll", "super", "schön", "gut", "perfekt", "empfehlen",
-                "liebe", "beste", "viel", "genug", "sauber", "gepflegt",
-                "great", "good", "nice", "perfect", "clean", "well-maintained",
-                "excellent", "beautiful", "love", "best"
+                "toll",
+                "super",
+                "schön",
+                "gut",
+                "perfekt",
+                "empfehlen",
+                "liebe",
+                "beste",
+                "viel",
+                "genug",
+                "sauber",
+                "gepflegt",
+                "great",
+                "good",
+                "nice",
+                "perfect",
+                "clean",
+                "well-maintained",
+                "excellent",
+                "beautiful",
+                "love",
+                "best",
             ]
 
         phrases = []
+        # Add limit to prevent excessive phrase collection
+        max_phrases_to_collect = (
+            max_phrases * 100
+        )  # Collect up to 100x the final result size
 
         for text in texts:
             if not text:
                 continue
 
+            # Early termination if we've collected enough phrases
+            if len(phrases) >= max_phrases_to_collect:
+                break
+
             text_lower = text.lower()
 
             # Split into sentences
-            sentences = re.split(r'[.!?]+', text_lower)
+            sentences = re.split(r"[.!?]+", text_lower)
 
             for sentence in sentences:
+                # Early termination check
+                if len(phrases) >= max_phrases_to_collect:
+                    break
+
                 # Check if sentence contains indicator words
                 has_indicator = any(ind in sentence for ind in indicators)
 
@@ -719,24 +834,32 @@ class ReviewDemandAnalyzer:
                     continue
 
                 # Clean and tokenize
-                sentence = re.sub(r'[^\w\s]', ' ', sentence)
+                sentence = re.sub(r"[^\w\s]", " ", sentence)
                 words = sentence.split()
 
                 # Extract 2-4 word phrases
                 for n in [2, 3, 4]:
                     for i in range(len(words) - n + 1):
-                        phrase = " ".join(words[i:i+n])
+                        phrase = " ".join(words[i : i + n])
 
                         # Filter out phrases that are too generic
                         if len(phrase) >= 8 and not self._is_too_generic(phrase):
                             phrases.append(phrase)
 
+                        # Early termination within phrase extraction
+                        if len(phrases) >= max_phrases_to_collect:
+                            break
+
+                    if len(phrases) >= max_phrases_to_collect:
+                        break
+
         # Count and sort
         phrase_counts = Counter(phrases)
         return phrase_counts.most_common(max_phrases)
 
-    def _extract_keywords(self, texts: List[str], negative: bool = False,
-                         max_keywords: int = 30) -> List[Tuple[str, int]]:
+    def _extract_keywords(
+        self, texts: List[str], negative: bool = False, max_keywords: int = 30
+    ) -> List[Tuple[str, int]]:
         """
         Extract most common single keywords from texts.
 
@@ -753,12 +876,65 @@ class ReviewDemandAnalyzer:
 
         # Stop words to ignore (German + English)
         stop_words = {
-            "der", "die", "das", "und", "oder", "aber", "ist", "sind", "war", "waren",
-            "ein", "eine", "einen", "einem", "eines", "mit", "zu", "auf", "für", "von",
-            "in", "im", "am", "an", "bei", "nach", "vor", "über", "unter", "auch",
-            "the", "a", "an", "and", "or", "but", "is", "are", "was", "were",
-            "in", "on", "at", "to", "for", "of", "with", "from", "by", "about",
-            "sehr", "viel", "mehr", "wenig", "gut", "schlecht", "nice", "good", "bad"
+            "der",
+            "die",
+            "das",
+            "und",
+            "oder",
+            "aber",
+            "ist",
+            "sind",
+            "war",
+            "waren",
+            "ein",
+            "eine",
+            "einen",
+            "einem",
+            "eines",
+            "mit",
+            "zu",
+            "auf",
+            "für",
+            "von",
+            "in",
+            "im",
+            "am",
+            "an",
+            "bei",
+            "nach",
+            "vor",
+            "über",
+            "unter",
+            "auch",
+            "the",
+            "a",
+            "an",
+            "and",
+            "or",
+            "but",
+            "is",
+            "are",
+            "was",
+            "were",
+            "in",
+            "on",
+            "at",
+            "to",
+            "for",
+            "of",
+            "with",
+            "from",
+            "by",
+            "about",
+            "sehr",
+            "viel",
+            "mehr",
+            "wenig",
+            "gut",
+            "schlecht",
+            "nice",
+            "good",
+            "bad",
         }
 
         all_words = []
@@ -768,14 +944,16 @@ class ReviewDemandAnalyzer:
                 continue
 
             # Clean and tokenize
-            text_clean = re.sub(r'[^\w\s]', ' ', text.lower())
+            text_clean = re.sub(r"[^\w\s]", " ", text.lower())
             words = text_clean.split()
 
             # Filter meaningful words
             for word in words:
-                if (len(word) >= 4 and  # At least 4 characters
-                    word not in stop_words and
-                    not word.isdigit()):  # Not a number
+                if (
+                    len(word) >= 4  # At least 4 characters
+                    and word not in stop_words
+                    and not word.isdigit()
+                ):  # Not a number
                     all_words.append(word)
 
         # Count and return
@@ -784,10 +962,21 @@ class ReviewDemandAnalyzer:
 
     def _is_too_generic(self, phrase: str) -> bool:
         """Check if a phrase is too generic to be useful."""
+        # Handle None or empty input
+        if not phrase:
+            return True
+
         generic_patterns = [
-            r"^sehr\s+", r"^gut\s+", r"^schlecht\s+",
-            r"^very\s+", r"^good\s+", r"^bad\s+",
-            r"^das\s+ist", r"^die\s+sind", r"^this\s+is", r"^it\s+is"
+            r"^sehr\s+",
+            r"^gut\s+",
+            r"^schlecht\s+",
+            r"^very\s+",
+            r"^good\s+",
+            r"^bad\s+",
+            r"^das\s+ist",
+            r"^die\s+sind",
+            r"^this\s+is",
+            r"^it\s+is",
         ]
 
         for pattern in generic_patterns:
@@ -796,7 +985,9 @@ class ReviewDemandAnalyzer:
 
         return False
 
-    def _find_unmet_needs(self, complaints: List[Tuple[str, int]]) -> List[Tuple[str, int]]:
+    def _find_unmet_needs(
+        self, complaints: List[Tuple[str, int]]
+    ) -> List[Tuple[str, int]]:
         """
         Identify features mentioned in complaints (unmet needs).
 
@@ -815,18 +1006,21 @@ class ReviewDemandAnalyzer:
         for feature, keywords in self.feature_keywords.items():
             for keyword in keywords:
                 # Count occurrences in complaints
-                pattern = r'\b' + re.escape(keyword) + r'\w*'
+                pattern = r"\b" + re.escape(keyword) + r"\w*"
                 matches = re.findall(pattern, all_complaint_text, re.IGNORECASE)
                 feature_mentions[feature] += len(matches)
 
         # Filter out features with no mentions and sort by count
-        unmet_needs = [(feature, count) for feature, count in feature_mentions.items() if count > 0]
+        unmet_needs = [
+            (feature, count) for feature, count in feature_mentions.items() if count > 0
+        ]
         unmet_needs.sort(key=lambda x: x[1], reverse=True)
 
         return unmet_needs
 
-    def generate_content_ideas(self, category: str, city: str,
-                              max_places: int = 30) -> List[Dict]:
+    def generate_content_ideas(
+        self, category: str, city: str, max_places: int = 30
+    ) -> List[Dict]:
         """
         Generate actionable content ideas based on review analysis.
 
@@ -860,71 +1054,81 @@ class ReviewDemandAnalyzer:
         # Idea 1: FAQ based on top complaints
         if analysis["top_complaints"]:
             top_complaint_phrase, complaint_count = analysis["top_complaints"][0]
-            ideas.append({
-                "type": "FAQ Section",
-                "title": f"FAQ addressing: '{top_complaint_phrase}'",
-                "description": f"Create FAQ section answering common concern mentioned in {complaint_count} reviews",
-                "priority": "High",
-                "estimated_impact": "CTR +15%, Time on Page +25%",
-                "implementation": f"Add FAQ Schema.org markup with answers about '{top_complaint_phrase}'. "
-                                 f"Place FAQ section prominently on pillar page."
-            })
+            ideas.append(
+                {
+                    "type": "FAQ Section",
+                    "title": f"FAQ addressing: '{top_complaint_phrase}'",
+                    "description": f"Create FAQ section answering common concern mentioned in {complaint_count} reviews",
+                    "priority": "High",
+                    "estimated_impact": "CTR +15%, Time on Page +25%",
+                    "implementation": f"Add FAQ Schema.org markup with answers about '{top_complaint_phrase}'. "
+                    f"Place FAQ section prominently on pillar page.",
+                }
+            )
 
         # Idea 2: Filter feature based on unmet needs
         if analysis["unmet_needs"]:
             unmet_feature, mention_count = analysis["unmet_needs"][0]
-            ideas.append({
-                "type": "Filter Feature",
-                "title": f"Add filter for: '{unmet_feature}'",
-                "description": f"{mention_count} users mentioned missing '{unmet_feature}' - add it as a filterable feature",
-                "priority": "High",
-                "estimated_impact": "Engagement +30%, RPM +1.5x",
-                "implementation": f"1. Scrape '{unmet_feature}' data for all locations\n"
-                                 f"2. Add '{unmet_feature}' checkbox to pillar_page_skeleton.html\n"
-                                 f"3. Update JavaScript filter logic"
-            })
+            ideas.append(
+                {
+                    "type": "Filter Feature",
+                    "title": f"Add filter for: '{unmet_feature}'",
+                    "description": f"{mention_count} users mentioned missing '{unmet_feature}' - add it as a filterable feature",
+                    "priority": "High",
+                    "estimated_impact": "Engagement +30%, RPM +1.5x",
+                    "implementation": f"1. Scrape '{unmet_feature}' data for all locations\n"
+                    f"2. Add '{unmet_feature}' checkbox to pillar_page_skeleton.html\n"
+                    f"3. Update JavaScript filter logic",
+                }
+            )
 
         # Idea 3: "Best of" list based on praise
         if analysis["top_praise"]:
             praise_feature, praise_count = analysis["top_praise"][0]
-            ideas.append({
-                "type": "Curated Content",
-                "title": f"Create 'Best {category.title()} with {praise_feature}' list",
-                "description": f"{praise_count} users praised '{praise_feature}' - create curated top-10 list",
-                "priority": "Medium",
-                "estimated_impact": "Social Shares +40%, Backlinks +20%",
-                "implementation": f"1. Sort locations by '{praise_feature}' relevance\n"
-                                 f"2. Create dedicated section with top 10\n"
-                                 f"3. Add rich snippet markup for List schema"
-            })
+            ideas.append(
+                {
+                    "type": "Curated Content",
+                    "title": f"Create 'Best {category.title()} with {praise_feature}' list",
+                    "description": f"{praise_count} users praised '{praise_feature}' - create curated top-10 list",
+                    "priority": "Medium",
+                    "estimated_impact": "Social Shares +40%, Backlinks +20%",
+                    "implementation": f"1. Sort locations by '{praise_feature}' relevance\n"
+                    f"2. Create dedicated section with top 10\n"
+                    f"3. Add rich snippet markup for List schema",
+                }
+            )
 
         # Idea 4: Comparison feature for top complaint
         if len(analysis["unmet_needs"]) >= 2:
             feature1, count1 = analysis["unmet_needs"][0]
             feature2, count2 = analysis["unmet_needs"][1]
-            ideas.append({
-                "type": "Comparison Tool",
-                "title": f"Compare {category} by '{feature1}' and '{feature2}'",
-                "description": f"Users care about both features - add comparison matrix",
-                "priority": "Medium",
-                "estimated_impact": "Session Duration +45%, RPM +1.3x",
-                "implementation": f"Create interactive table comparing all locations across these features. "
-                                 f"Add sortable columns and visual indicators."
-            })
+            ideas.append(
+                {
+                    "type": "Comparison Tool",
+                    "title": f"Compare {category} by '{feature1}' and '{feature2}'",
+                    "description": f"Users care about both features - add comparison matrix",
+                    "priority": "Medium",
+                    "estimated_impact": "Session Duration +45%, RPM +1.3x",
+                    "implementation": f"Create interactive table comparing all locations across these features. "
+                    f"Add sortable columns and visual indicators.",
+                }
+            )
 
         # Idea 5: Address top complaint keyword in meta description
         if analysis["complaint_keywords"]:
             complaint_kw, kw_count = analysis["complaint_keywords"][0]
-            ideas.append({
-                "type": "SEO Optimization",
-                "title": f"Target keyword: '{complaint_kw}' in content",
-                "description": f"Mentioned {kw_count} times in complaints - address it for SEO",
-                "priority": "Medium",
-                "estimated_impact": "Organic CTR +10%, Rankings +5%",
-                "implementation": f"1. Add '{complaint_kw}' to title tag and H2 headings\n"
-                                 f"2. Create content section addressing '{complaint_kw}' concerns\n"
-                                 f"3. Include in meta description"
-            })
+            ideas.append(
+                {
+                    "type": "SEO Optimization",
+                    "title": f"Target keyword: '{complaint_kw}' in content",
+                    "description": f"Mentioned {kw_count} times in complaints - address it for SEO",
+                    "priority": "Medium",
+                    "estimated_impact": "Organic CTR +10%, Rankings +5%",
+                    "implementation": f"1. Add '{complaint_kw}' to title tag and H2 headings\n"
+                    f"2. Create content section addressing '{complaint_kw}' concerns\n"
+                    f"3. Include in meta description",
+                }
+            )
 
         return ideas
 
@@ -956,7 +1160,9 @@ class ReviewDemandAnalyzer:
         print(f"{'-'*70}")
         print(f"Total Reviews Analyzed: {analysis['total_reviews_analyzed']}")
         print(f"Average Rating: {analysis['avg_rating']:.2f} / 5.0")
-        print(f"Sentiment Score: {analysis['sentiment_score']:.2f} (0.0 = very negative, 1.0 = very positive)")
+        print(
+            f"Sentiment Score: {analysis['sentiment_score']:.2f} (0.0 = very negative, 1.0 = very positive)"
+        )
         print()
 
         # Top complaints
@@ -978,7 +1184,9 @@ class ReviewDemandAnalyzer:
         print(f"{'-'*70}")
         if analysis["unmet_needs"]:
             for i, (feature, count) in enumerate(analysis["unmet_needs"], 1):
-                print(f"  {i:2d}. {feature.upper()} - {count} complaint mentions ⭐⭐⭐")
+                print(
+                    f"  {i:2d}. {feature.upper()} - {count} complaint mentions ⭐⭐⭐"
+                )
         else:
             print("  None detected - all needs seem to be met")
         print()
@@ -989,15 +1197,19 @@ class ReviewDemandAnalyzer:
         print(f"🎯 ACTIONABLE CONTENT IDEAS")
         print(f"{'-'*70}")
         for i, idea in enumerate(ideas, 1):
-            print(f"\n{i}. [{idea['priority'].upper()}] {idea['type']}: {idea['title']}")
+            print(
+                f"\n{i}. [{idea['priority'].upper()}] {idea['type']}: {idea['title']}"
+            )
             print(f"   Description: {idea['description']}")
             print(f"   Impact: {idea['estimated_impact']}")
             print(f"   Implementation:")
-            for line in idea['implementation'].split('\n'):
+            for line in idea["implementation"].split("\n"):
                 print(f"     • {line.strip()}")
 
         print(f"\n{'='*70}")
-        print(f"✨ Analysis complete! Use these insights to create high-performing pillar pages.")
+        print(
+            f"✨ Analysis complete! Use these insights to create high-performing pillar pages."
+        )
         print(f"{'='*70}\n")
 
 
