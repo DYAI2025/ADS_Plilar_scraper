@@ -6,7 +6,6 @@ Fügen Sie diese Verbesserungen in die bestehende GUI ein.
 
 import tkinter as tk
 from tkinter import ttk, messagebox
-import re
 import requests
 
 
@@ -254,12 +253,12 @@ def toggle_api_visibility(self, entry_widget):
 
 
 # ===========================================
-# 5. VERBESSERUNG: Bessere Styles + Tab Binding
+# 5. VERBESSERUNG: Bessere Styles & Vollständige setup_gui()
 # ===========================================
 
 # ERWEITERN SIE setup_gui() mit:
 def setup_gui(self):
-    """Setup the main GUI"""
+    """Setup the main GUI with all improvements"""
 
     # Configure styles
     style = ttk.Style()
@@ -282,10 +281,10 @@ def setup_gui(self):
     self.notebook = ttk.Notebook(self.root)
     self.notebook.pack(fill="both", expand=True, padx=10, pady=10)
 
-    # NEU: Bind tab change event (für Auto-Save)
+    # Bind tab change event for auto-save
     self.notebook.bind("<<NotebookTabChanged>>", self.on_tab_changed)
 
-    # ... rest of setup_gui ...
+    # ... rest of setup_gui (create tabs, etc.) ...
 
 
 # ===========================================
@@ -332,23 +331,25 @@ So integrieren Sie diese Verbesserungen:
 1. Öffnen Sie Files/gui_app.py
 
 2. ERSETZEN SIE die __init__ Methode (Zeile 52-100)
-   mit der verbesserten Version oben (Punkt 1)
+   mit der verbesserten Version aus Abschnitt 1
 
-3. FÜGEN SIE DIE NEUEN METHODEN HINZU:
-   - on_tab_changed()
-   - track_config_change()
-   - validate_google_api_key()
-   - validate_api_key_button()
-   - toggle_api_visibility()
+3. ERSETZEN SIE die setup_gui() Methode
+   mit der vollständigen Version aus Abschnitt 5 - diese enthält:
+   - Style-Konfiguration
+   - Notebook-Erstellung
+   - Tab-Change-Event-Binding für Auto-Save
 
-4. ERSETZEN SIE create_data_tab() API-Sektion (Zeilen 248-250)
-   mit der verbesserten Version (Punkt 4)
+4. FÜGEN SIE DIE NEUEN METHODEN HINZU:
+   - on_tab_changed() (aus Abschnitt 2)
+   - track_config_change() (aus Abschnitt 2)
+   - validate_google_api_key() (aus Abschnitt 3)
+   - validate_api_key_button() (aus Abschnitt 3)
+   - toggle_api_visibility() (aus Abschnitt 4)
 
-5. ERWEITERN SIE setup_gui() mit Styles und Tab Binding (Punkt 5):
-   - Style-Konfiguration hinzufügen
-   - Tab change event binding hinzufügen
+5. ERSETZEN SIE create_data_tab() API-Sektion (Zeilen 248-250)
+   mit der verbesserten Version aus Abschnitt 4
 
-6. AKTUALISIEREN SIE save_config() (Punkt 6)
+6. AKTUALISIEREN SIE save_config() (aus Abschnitt 6)
 
 7. FÜGEN SIE requests HINZU zu den Imports oben:
    import requests
