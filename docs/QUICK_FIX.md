@@ -25,6 +25,10 @@ Wähle eine Option:
 ☑ **Only select repositories** auswählen  
 ➕ Weitere Repositories zur Liste hinzufügen
 
+#### Option C: Dieses Repo lösen (Unassign)
+☑ **Only select repositories**  
+➖ Dieses Repository aus der Liste entfernen
+
 ### Schritt 4: Speichern
 - Klick auf **"Save"**
 - ✅ Fertig! Claude funktioniert jetzt in allen gewählten Repos
@@ -55,6 +59,10 @@ Choose an option:
 #### Option B: Specific Repositories
 ☑ Select **Only select repositories**  
 ➕ Add more repositories to the list
+
+#### Option C: Detach this repo (Unassign)
+☑ **Only select repositories**  
+➖ Remove this repository from the list
 
 ### Step 4: Save
 - Click **"Save"**

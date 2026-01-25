@@ -23,7 +23,7 @@ Das Problem liegt an der **OAuth Token Berechtigung** für die Claude Code GitHu
    - Unter "Repository access" sehen Sie die aktuelle Konfiguration
    - Wählen Sie eine der Optionen:
      - **"All repositories"** - Claude hat Zugriff auf alle Ihre Repos (jetzt und in Zukunft)
-     - **"Only select repositories"** - Fügen Sie weitere Repos zur Liste hinzu
+     - **"Only select repositories"** - Weitere Repos hinzufügen oder dieses Repo entfernen, um es zu lösen
 
 4. **Speichern:**
    - Klicken Sie auf "Save"
@@ -86,7 +86,7 @@ The issue is related to the **OAuth token permissions** for the Claude Code GitH
    - Under "Repository access" you'll see the current configuration
    - Choose one of the options:
      - **"All repositories"** - Claude has access to all your repos (now and future)
-     - **"Only select repositories"** - Add more repos to the list
+     - **"Only select repositories"** - Add more repos or remove this repo to detach it
 
 4. **Save:**
    - Click "Save"
